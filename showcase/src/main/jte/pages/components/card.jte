@@ -51,14 +51,40 @@ content = @`
                     </div>
                 </div>
 
-                <%-- DEFERRED: the "Composing existing components inside a Card"
-                     section is omitted here, not deleted. It demonstrates Card
-                     staying neutral around a Badge, a Divider and a Text Input,
-                     and Divider and Text Input have not migrated yet. Batch 1
-                     is not expanded to satisfy a showcase page; this section is
-                     restored verbatim from the reference implementation in the
-                     batch that brings those two components across. The Card
-                     component itself is fully migrated and unchanged. --%>
+                <%-- Restored in Batch 2, which brought Divider and Text Input
+                     across. Verbatim from the reference implementation. --%>
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Composing existing components inside a Card</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Card stays a neutral container - Badge, Divider, and a Text Input all render normally inside it, unaware they're inside a Card.</p>
+                    <div class="mt-3 grid gap-4 sm:grid-cols-2">
+                        @template.ashlar.components.card(
+                        title = "Kestrel Aerospace",
+                        body = @`
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500 dark:text-slate-400">Status:</span>
+                                @template.ashlar.components.badge(text = "Active", variant = "Success")
+                            </div>
+                            <div class="my-4">
+                                @template.ashlar.components.divider()
+                            </div>
+                            <p class="text-slate-500 dark:text-slate-400">Government - onboarded 2023-07-14</p>
+                        `
+                        )
+                        @template.ashlar.components.card(
+                        title = "Invite a teammate",
+                        body = @`
+                            @template.ashlar.components.text-input(
+                            name = "cardContactEmail",
+                            label = "Email address",
+                            placeholder = "name@company.com"
+                            )
+                        `,
+                        footer = @`
+                            @template.ashlar.components.button(text = "Send Invite", type = "Primary", size = "Small")
+                        `
+                        )
+                    </div>
+                </div>
             </div>
         </section>
 `
