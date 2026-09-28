@@ -24,8 +24,15 @@ public final class ComponentCatalog {
     }
 
     public static final List<ComponentPage> PAGES = List.of(
+        // Batch 3
+        new ComponentPage("checkbox", "Checkbox", "Forms"),
+        new ComponentPage("toggle", "Toggle / Switch", "Forms"),
+        new ComponentPage("number-input", "Number Input", "Forms"),
+        new ComponentPage("radio-group", "Radio Group", "Forms"),
         // Batch 2
         new ComponentPage("text-input", "Text Input", "Forms"),
+        // Batch 3
+        new ComponentPage("form-field", "Form Field", "Forms"),
         // Batch 1
         new ComponentPage("alert", "Alert", "Feedback"),
         // Batch 2
@@ -35,10 +42,15 @@ public final class ComponentCatalog {
         // Batch 1
         new ComponentPage("badge", "Badge", "Content"),
         new ComponentPage("card", "Card", "Content"),
+        // Batch 3
+        new ComponentPage("list", "List", "Content"),
         // Batch 2
         new ComponentPage("divider", "Divider", "Content"),
         // Batch 1
         new ComponentPage("breadcrumbs", "Breadcrumbs", "Navigation / Overlay"),
+        // Batch 3
+        new ComponentPage("pagination", "Pagination", "Navigation / Overlay"),
+        // Batch 1
         new ComponentPage("modal", "Modal", "Navigation / Overlay"),
         new ComponentPage("tooltip", "Tooltip", "Navigation / Overlay"),
         // Batch 2
