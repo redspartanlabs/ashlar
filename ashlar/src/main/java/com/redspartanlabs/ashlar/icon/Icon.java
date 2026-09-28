@@ -1,4 +1,4 @@
-package com.redspartan.ashlar.icon;
+package com.redspartanlabs.ashlar.icon;
 
 /**
  * Identifies a supported icon. This is purely an identity - it carries no

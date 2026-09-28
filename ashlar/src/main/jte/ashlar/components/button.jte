@@ -1,8 +1,8 @@
-@import com.redspartan.ashlar.button.ButtonVariant
-@import com.redspartan.ashlar.button.ButtonSize
-@import com.redspartan.ashlar.button.ButtonStyles
-@import com.redspartan.ashlar.icon.Icon
-@import com.redspartan.ashlar.AshlarAssets
+@import com.redspartanlabs.ashlar.button.ButtonVariant
+@import com.redspartanlabs.ashlar.button.ButtonSize
+@import com.redspartanlabs.ashlar.button.ButtonStyles
+@import com.redspartanlabs.ashlar.icon.Icon
+@import com.redspartanlabs.ashlar.AshlarAssets
 
 @param String text = ""
 @param String type = "Primary"

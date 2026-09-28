@@ -1,6 +1,6 @@
-package com.redspartan.ashlar.showcase;
+package com.redspartanlabs.ashlar.showcase;
 
-import com.redspartan.ashlar.AshlarAssets;
+import com.redspartanlabs.ashlar.AshlarAssets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 

@@ -14,7 +14,7 @@ A RedSpartan Labs project. Licensed under the [Apache License 2.0](LICENSE).
 
 | Module | Published | Purpose |
 | --- | --- | --- |
-| `ashlar` | `com.redspartan:ashlar` | The library: Java support classes, JTE templates, CSS and JS assets. |
+| `ashlar` | `com.redspartanlabs:ashlar` | The library: Java support classes, JTE templates, CSS and JS assets. |
 | `showcase` | no | A Spring Boot application that consumes Ashlar exactly as an external consumer would. |
 
 ## Consuming Ashlar
@@ -28,7 +28,7 @@ Three additions to a consumer's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.redspartan:ashlar:<version>")
+    implementation("com.redspartanlabs:ashlar:<version>")
 }
 
 // 1. A resolvable view of the artifact, to read templates out of the jar.
@@ -36,7 +36,7 @@ val ashlarArtifact = configurations.create("ashlarArtifact") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
-dependencies { ashlarArtifact("com.redspartan:ashlar:<version>") }
+dependencies { ashlarArtifact("com.redspartanlabs:ashlar:<version>") }
 
 // 2. Stage one JTE source root: your templates plus Ashlar's.
 val jteSourceRoot = layout.buildDirectory.dir("jte-sources")
@@ -59,7 +59,7 @@ tasks.named("generateJte") { dependsOn(assembleJteSources) }
 Then call components under the `ashlar` namespace:
 
 ```jte
-@import com.redspartan.ashlar.icon.Icon
+@import com.redspartanlabs.ashlar.icon.Icon
 
 @template.ashlar.components.button(text = "Save", type = "Primary", icon = Icon.CHECK)
 ```

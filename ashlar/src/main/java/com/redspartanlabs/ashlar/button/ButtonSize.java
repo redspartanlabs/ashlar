@@ -1,4 +1,4 @@
-package com.redspartan.ashlar.button;
+package com.redspartanlabs.ashlar.button;
 
 /**
  * The physical size of a button. Unknown or missing values fall back to

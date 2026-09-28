@@ -1,4 +1,4 @@
-package com.redspartan.ashlar.icon;
+package com.redspartanlabs.ashlar.icon;
 
 /**
  * The only place that knows what an {@link Icon} looks like. All icons share

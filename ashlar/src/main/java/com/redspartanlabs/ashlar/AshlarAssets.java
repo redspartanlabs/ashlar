@@ -1,4 +1,4 @@
-package com.redspartan.ashlar;
+package com.redspartanlabs.ashlar;
 
 /**
  * Builds the URLs for Ashlar's own static assets - the per-component scripts

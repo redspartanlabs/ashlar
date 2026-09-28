@@ -1,5 +1,5 @@
-@import com.redspartan.ashlar.icon.Icon
-@import com.redspartan.ashlar.AshlarAssets
+@import com.redspartanlabs.ashlar.icon.Icon
+@import com.redspartanlabs.ashlar.AshlarAssets
 
 @param String contextPath
 
@@ -22,7 +22,7 @@
     <div>
         <h1 class="text-xl font-semibold text-slate-900">Ashlar vertical slice</h1>
         <p class="mt-1 text-sm text-slate-500">
-            Button and Icon, consumed from the <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">com.redspartan:ashlar</code> artifact.
+            Button and Icon, consumed from the <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">com.redspartanlabs:ashlar</code> artifact.
         </p>
     </div>
 

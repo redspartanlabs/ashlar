@@ -1,4 +1,4 @@
-package com.redspartan.ashlar.button;
+package com.redspartanlabs.ashlar.button;
 
 /**
  * The single place that maps a button's variant/size/state to Tailwind

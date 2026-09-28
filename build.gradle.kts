@@ -8,7 +8,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.redspartan"
+    group = "com.redspartanlabs"
     version = "0.1.0-SNAPSHOT"
 
     repositories {
