@@ -1,5 +1,7 @@
 @import com.redspartanlabs.ashlar.icon.Icon
 @import com.redspartanlabs.ashlar.AshlarAssets
+@import com.redspartanlabs.ashlar.showcase.catalog.ComponentCatalog
+@import com.redspartanlabs.ashlar.showcase.catalog.ComponentPage
 
 @param String contextPath
 
@@ -25,6 +27,27 @@
             Button and Icon, consumed from the <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">com.redspartanlabs:ashlar</code> artifact.
         </p>
     </div>
+
+    <%-- The component index. Built from ComponentCatalog rather than a
+         hand-written list, so it lists exactly the components that have
+         migrated and grows with each batch. --%>
+    <section class="rounded-xl border border-slate-200 bg-white p-6">
+        <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Migrated components</h2>
+        <div class="mt-3 grid gap-6 sm:grid-cols-2">
+            @for (var entry : ComponentCatalog.byCategory().entrySet())
+                <div>
+                    <h3 class="text-xs font-medium text-slate-400">${entry.getKey()}</h3>
+                    <ul class="mt-2 flex flex-col gap-1">
+                        @for (ComponentPage page : entry.getValue())
+                            <li>
+                                <a href="${contextPath}/components/${page.slug()}" class="text-sm font-medium text-slate-700 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">${page.name()}</a>
+                            </li>
+                        @endfor
+                    </ul>
+                </div>
+            @endfor
+        </div>
+    </section>
 
     <section class="rounded-xl border border-slate-200 bg-white p-6">
         <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Variants</h2>
