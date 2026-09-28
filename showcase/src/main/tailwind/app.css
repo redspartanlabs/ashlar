@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* The only Tailwind line specific to consuming Ashlar.
+
+   `build/jte-sources` is the staged JTE root assembled by the
+   `assembleJteSources` Gradle task: this application's own templates plus
+   Ashlar's, unpacked from the artifact. Pointing Tailwind here rather than at
+   `src/main/jte` is what lets it see the class names inside Ashlar's
+   components, so they survive content scanning instead of being purged. */
+@source "../../../build/jte-sources";
+
+/* Ashlar's components use `dark:` variants driven by an explicit
+   `data-theme` attribute rather than the OS media query, so an application's
+   own theme toggle can win over the system setting. A consumer that wants
+   Ashlar's dark styling needs this variant defined. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+}

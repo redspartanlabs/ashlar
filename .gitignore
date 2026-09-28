@@ -1,0 +1,23 @@
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+### jte ###
+jte-classes/
+
+### Node / Tailwind ###
+node_modules/
+# Generated stylesheet - build output, not source.
+showcase/src/main/resources/static/css/app.css
+
+### IDE ###
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+out/
