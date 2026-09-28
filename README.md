@@ -96,6 +96,26 @@ the staged template root so those classes survive content scanning:
 The showcase runs under a context path (`/myapp`) on purpose, so that asset-URL
 handling is exercised rather than assumed.
 
+## Developing with live template reload
+
+Because Ashlar's templates are staged into `build/jte-sources`, JTE's
+development mode watches that staged root rather than `src/main/jte`. Re-run
+the staging task on change and edits appear live, with no restart. Two
+terminals:
+
+```
+./gradlew :showcase:assembleJteSources -t                        # re-stages on every edit
+./gradlew :showcase:bootRun --args=--spring.profiles.active=dev  # JTE dev mode
+```
+
+Verified: editing a template in `showcase/src/main/jte` **or** in
+`ashlar/src/main/jte` is re-staged automatically and served on the next
+request, without restarting the application.
+
+Note that the packaged boot jar cannot run in development mode at all — JTE
+requires precompiled templates inside a self-contained jar. Development mode
+is a `bootRun` workflow; `application-dev.properties` carries the settings.
+
 ## Third-party material
 
 Icon artwork provenance and licensing is recorded in
