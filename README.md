@@ -93,7 +93,7 @@ the staged template root so those classes survive content scanning:
 ./gradlew :showcase:bootRun
 ```
 
-The showcase runs under a context path (`/myapp`) on purpose, so that asset-URL
+The showcase runs under a context path (`/ashlar`) on purpose, so that asset-URL
 handling is exercised rather than assumed.
 
 ## Developing with live template reload
