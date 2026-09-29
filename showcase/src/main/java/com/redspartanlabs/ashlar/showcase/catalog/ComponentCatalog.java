@@ -33,6 +33,10 @@ public final class ComponentCatalog {
         new ComponentPage("text-input", "Text Input", "Forms"),
         // Batch 7
         new ComponentPage("textarea", "Textarea", "Forms"),
+        // Batch 9
+        new ComponentPage("select", "Select List", "Forms"),
+        new ComponentPage("combobox", "Combobox", "Forms"),
+        // Batch 7
         new ComponentPage("file-upload", "File Upload", "Forms"),
         new ComponentPage("search-input", "Search Input", "Forms"),
         // Batch 3

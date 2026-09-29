@@ -4,7 +4,7 @@ package com.redspartanlabs.ashlar.radio;
  * One choice in a Radio Group's option list: its submitted value, its
  * visible label, an optional supporting description, and whether it can
  * currently be chosen. Mirrors
- * {@code SelectOption}'s builder shape,
+ * {@link com.redspartanlabs.ashlar.select.SelectOption}'s builder shape,
  * with the addition of {@code description} since a radio option's
  * supporting text is part of the option itself rather than the group.
  */
