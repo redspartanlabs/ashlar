@@ -60,6 +60,10 @@ public final class ComponentCatalog {
         new ComponentPage("accordion", "Accordion", "Navigation / Overlay"),
         // Batch 4
         new ComponentPage("stepper", "Stepper", "Navigation / Overlay"),
+        // Batch 5
+        new ComponentPage("dropdown-menu", "Dropdown Menu", "Navigation / Overlay"),
+        new ComponentPage("popover", "Popover", "Navigation / Overlay"),
+        new ComponentPage("drawer", "Drawer", "Navigation / Overlay"),
         // Batch 1
         new ComponentPage("page-section", "Page Section", "Utilities")
     );
