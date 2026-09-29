@@ -46,6 +46,9 @@ public final class ComponentCatalog {
         new ComponentPage("list", "List", "Content"),
         // Batch 2
         new ComponentPage("divider", "Divider", "Content"),
+        // Batch 4
+        new ComponentPage("tree", "Tree View", "Content"),
+        new ComponentPage("timeline", "Timeline", "Content"),
         // Batch 1
         new ComponentPage("breadcrumbs", "Breadcrumbs", "Navigation / Overlay"),
         // Batch 3
@@ -55,6 +58,8 @@ public final class ComponentCatalog {
         new ComponentPage("tooltip", "Tooltip", "Navigation / Overlay"),
         // Batch 2
         new ComponentPage("accordion", "Accordion", "Navigation / Overlay"),
+        // Batch 4
+        new ComponentPage("stepper", "Stepper", "Navigation / Overlay"),
         // Batch 1
         new ComponentPage("page-section", "Page Section", "Utilities")
     );
