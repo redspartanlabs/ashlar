@@ -7,10 +7,8 @@ import com.redspartanlabs.ashlar.icon.Icon;
  * INFO so a typo in a template never renders an unstyled alert.
  *
  * <p>Named ERROR rather than DANGER - the spelling {@link com.redspartanlabs.ashlar.button.ButtonVariant},
- * {@code ToastVariant} and {@link com.redspartanlabs.ashlar.badge.BadgeVariant}
- * all use for this same red state. ({@code ToastVariant} is {@code @code}
- * rather than {@code @link} only because Toast has not migrated yet; restore
- * the link when it does.) DANGER reads naturally on a button
+ * {@link com.redspartanlabs.ashlar.toast.ToastVariant} and {@link com.redspartanlabs.ashlar.badge.BadgeVariant}
+ * all use for this same red state. DANGER reads naturally on a button
  * ("this action is dangerous"); an alert is reporting that something already
  * went wrong, which ERROR names more directly. NEUTRAL is also deliberately
  * not carried over from Toast/Badge: an alert with no semantic color would

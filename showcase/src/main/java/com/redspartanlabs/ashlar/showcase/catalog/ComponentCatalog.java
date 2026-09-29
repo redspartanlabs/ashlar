@@ -39,6 +39,8 @@ public final class ComponentCatalog {
         new ComponentPage("form-field", "Form Field", "Forms"),
         // Batch 1
         new ComponentPage("alert", "Alert", "Feedback"),
+        // Batch 8
+        new ComponentPage("toast", "Toast", "Feedback"),
         // Batch 2
         new ComponentPage("spinner", "Spinner", "Feedback"),
         new ComponentPage("progress", "Progress", "Feedback"),
@@ -64,6 +66,8 @@ public final class ComponentCatalog {
         // Batch 1
         new ComponentPage("modal", "Modal", "Navigation / Overlay"),
         new ComponentPage("tooltip", "Tooltip", "Navigation / Overlay"),
+        // Batch 8
+        new ComponentPage("tabs", "Tabs", "Navigation / Overlay"),
         // Batch 2
         new ComponentPage("accordion", "Accordion", "Navigation / Overlay"),
         // Batch 4

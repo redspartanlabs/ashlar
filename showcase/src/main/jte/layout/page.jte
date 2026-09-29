@@ -1,6 +1,7 @@
 @param String title
 @param String contextPath
 @param gg.jte.Content content
+@param gg.jte.Content afterMain = null
 
 <%-- The one HTML shell every showcase page renders through.
 
@@ -16,6 +17,10 @@
      stylesheet this way, while Ashlar's component assets resolve themselves
      through AshlarAssets inside the component templates. Neither knows about
      the other.
+
+     `afterMain` exists only for content that must sit outside <main> in the
+     DOM (toast-region's own fixed-position stack, on the Toast showcase
+     page) - everything else belongs in `content`.
 
      THEME PRE-PAINT BOOTSTRAP. Sets `data-theme` on <html> before the
      stylesheet can paint anything, so the page never flashes the wrong
@@ -59,5 +64,8 @@
     ${content}
 </main>
 
+@if (afterMain != null)
+    ${afterMain}
+@endif
 </body>
 </html>
