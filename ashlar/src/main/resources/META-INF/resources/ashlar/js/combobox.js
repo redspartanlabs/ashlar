@@ -54,6 +54,17 @@ function initCombobox(root) {
     const normalInputClasses = input.className.split(/\s+/).filter(Boolean);
     const errorInputClasses = (input.dataset.comboboxErrorClasses || "").split(/\s+/).filter(Boolean);
 
+    // combobox.jte already computed the correct initial aria-describedby
+    // (help id, error id, both, or neither) server-side - captured once here
+    // rather than re-derived, so JS never needs its own copy of "does this
+    // instance have help text" logic. Stripping the error id (if any) out of
+    // that leaves exactly the non-error ids - currently just the help text's,
+    // when present - that must survive every later error show/clear.
+    const persistentDescribedBy = (input.getAttribute("aria-describedby") || "")
+        .split(/\s+/)
+        .filter(Boolean)
+        .filter((id) => !errorMessage || id !== errorMessage.id);
+
     // All state below is private to this instance.
     let activeOption = null; // the currently highlighted option, independent of commitment
     let committedOption = options.find((option) => option.getAttribute("aria-selected") === "true") || null;
@@ -77,12 +88,24 @@ function initCombobox(root) {
         }
     }
 
+    // Applies whichever describedby ids apply right now - the persistent
+    // ones (help text) plus the error id only when `includeError` is true -
+    // or removes the attribute entirely if that leaves nothing to reference.
+    function applyDescribedBy(includeError) {
+        const ids = includeError && errorMessage ? [...persistentDescribedBy, errorMessage.id] : persistentDescribedBy;
+        if (ids.length > 0) {
+            input.setAttribute("aria-describedby", ids.join(" "));
+        } else {
+            input.removeAttribute("aria-describedby");
+        }
+    }
+
     function showError() {
         input.classList.remove(...normalInputClasses);
         input.classList.add(...errorInputClasses);
         input.setAttribute("aria-invalid", "true");
         if (errorMessage) {
-            input.setAttribute("aria-describedby", errorMessage.id);
+            applyDescribedBy(true);
             errorMessage.classList.remove("hidden");
         }
     }
@@ -92,7 +115,7 @@ function initCombobox(root) {
         input.classList.add(...normalInputClasses);
         input.removeAttribute("aria-invalid");
         if (errorMessage) {
-            input.removeAttribute("aria-describedby");
+            applyDescribedBy(false);
             errorMessage.classList.add("hidden");
         }
     }
