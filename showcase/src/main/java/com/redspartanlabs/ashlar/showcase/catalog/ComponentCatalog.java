@@ -31,6 +31,10 @@ public final class ComponentCatalog {
         new ComponentPage("radio-group", "Radio Group", "Forms"),
         // Batch 2
         new ComponentPage("text-input", "Text Input", "Forms"),
+        // Batch 7
+        new ComponentPage("textarea", "Textarea", "Forms"),
+        new ComponentPage("file-upload", "File Upload", "Forms"),
+        new ComponentPage("search-input", "Search Input", "Forms"),
         // Batch 3
         new ComponentPage("form-field", "Form Field", "Forms"),
         // Batch 1
@@ -42,10 +46,14 @@ public final class ComponentCatalog {
         // Batch 1
         new ComponentPage("badge", "Badge", "Content"),
         new ComponentPage("card", "Card", "Content"),
+        // Batch 7
+        new ComponentPage("stat-card", "Stat / Metric Card", "Content"),
         // Batch 3
         new ComponentPage("list", "List", "Content"),
         // Batch 2
         new ComponentPage("divider", "Divider", "Content"),
+        // Batch 7
+        new ComponentPage("empty-state", "Empty State", "Content"),
         // Batch 4
         new ComponentPage("tree", "Tree View", "Content"),
         new ComponentPage("timeline", "Timeline", "Content"),
