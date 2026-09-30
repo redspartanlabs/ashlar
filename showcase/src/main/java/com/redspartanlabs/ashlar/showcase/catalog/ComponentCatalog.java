@@ -36,6 +36,9 @@ public final class ComponentCatalog {
         // Batch 9
         new ComponentPage("select", "Select List", "Forms"),
         new ComponentPage("combobox", "Combobox", "Forms"),
+        // Batch 10
+        new ComponentPage("date-picker", "Date Picker", "Forms"),
+        new ComponentPage("date-range-picker", "Date Range Picker", "Forms"),
         // Batch 7
         new ComponentPage("file-upload", "File Upload", "Forms"),
         new ComponentPage("search-input", "Search Input", "Forms"),
