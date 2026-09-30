@@ -69,6 +69,7 @@ function initCombobox(root) {
     let activeOption = null; // the currently highlighted option, independent of commitment
     let committedOption = options.find((option) => option.getAttribute("aria-selected") === "true") || null;
     let isClosing = false;
+    let suppressFocusOpen = false; // true only during commit()'s own synchronous refocus below
 
     function enabledOptions() {
         return options.filter((option) => option.getAttribute("aria-disabled") !== "true");
@@ -223,7 +224,19 @@ function initCombobox(root) {
         clearError();
         announce(`${optionLabel(option)} selected`);
         closeMenu();
+        // A mouse commit blurs the input first - the option itself isn't
+        // focusable, so per spec clicking it unfocuses whatever was
+        // focused - before this refocuses it. Under reduced motion,
+        // closeMenu()'s afterTransition callback has already run
+        // synchronously by the time that refocus fires the listener below,
+        // so isOpen() no longer blocks it from reopening the very menu this
+        // just closed. Suppressing exactly that one synchronous reopen -
+        // cleared immediately after, whether or not a focus event actually
+        // consumed it - leaves a later, unrelated focus (tabbing back in)
+        // opening the menu as normal.
+        suppressFocusOpen = true;
         input.focus();
+        suppressFocusOpen = false;
     }
 
     // Discards whatever is currently typed and snaps the input (and the
@@ -264,7 +277,11 @@ function initCombobox(root) {
     });
 
     input.addEventListener("focus", () => {
-        openMenu();
+        if (suppressFocusOpen) {
+            suppressFocusOpen = false;
+        } else {
+            openMenu();
+        }
         input.select();
     });
 
