@@ -29,6 +29,8 @@ public final class ComponentCatalog {
         new ComponentPage("toggle", "Toggle / Switch", "Forms"),
         new ComponentPage("number-input", "Number Input", "Forms"),
         new ComponentPage("radio-group", "Radio Group", "Forms"),
+        // Batch 12
+        new ComponentPage("faceted-search", "Faceted Search", "Forms"),
         // Batch 2
         new ComponentPage("text-input", "Text Input", "Forms"),
         // Batch 7
@@ -91,7 +93,10 @@ public final class ComponentCatalog {
         new ComponentPage("sidebar", "Sidebar", "Navigation / Overlay"),
         new ComponentPage("theme-toggle", "Theme Toggle", "Navigation / Overlay"),
         // Batch 1
-        new ComponentPage("page-section", "Page Section", "Utilities")
+        new ComponentPage("page-section", "Page Section", "Utilities"),
+        // Batch 12
+        new ComponentPage("form-actions", "Form Actions", "Utilities"),
+        new ComponentPage("status-line", "Status Line", "Utilities")
     );
 
     public static ComponentPage bySlug(String slug) {
