@@ -11,6 +11,13 @@ dependencies {
     // `api` so the requirement travels with the dependency and so Gradle
     // resolves it against whatever newer version the consumer already has.
     api("gg.jte:jte:3.2.4")
+
+    // Unit tests for the module's pure-Java support classes only - no JTE
+    // template rendering, no Spring context. The root build already turns on
+    // useJUnitPlatform() for every subproject; this is the one dependency
+    // that was missing to actually run a JUnit 5 test here.
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 /**
