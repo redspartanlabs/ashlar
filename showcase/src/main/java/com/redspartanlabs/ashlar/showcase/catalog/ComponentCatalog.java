@@ -66,6 +66,9 @@ public final class ComponentCatalog {
         // Batch 4
         new ComponentPage("tree", "Tree View", "Content"),
         new ComponentPage("timeline", "Timeline", "Content"),
+        // Batch 11
+        new ComponentPage("table", "Table", "Content"),
+        new ComponentPage("data-table", "Data Table", "Content"),
         // Batch 1
         new ComponentPage("breadcrumbs", "Breadcrumbs", "Navigation / Overlay"),
         // Batch 3
