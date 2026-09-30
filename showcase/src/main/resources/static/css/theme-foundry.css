@@ -1,0 +1,488 @@
+/* =========================================================================
+   FOUNDRY - a precision-engineered visual theme for the JTE + Tailwind
+   UI library.
+   =========================================================================
+
+   Enabled by `data-skin="foundry"` on <html>. Every rule is scoped under
+   that attribute, so the default library and the Ledger theme are untouched
+   whether Foundry is on, off, or deleted.
+
+   THE IDEA
+   --------
+   Foundry treats the interface as an instrument that was machined rather
+   than printed. Where the Ledger theme is paper - flat, square, ruled -
+   Foundry is fabricated: panels sit in shallow layers above a mineral
+   ground, edges are defined, corners are cut small rather than square,
+   and depth is used to say "this sits on top of that" and nothing else.
+
+   Four decisions carry the identity:
+
+     1. LAYERED SURFACES. The page is a cool mineral grey and panels are
+        lighter than it. Stock Tailwind's page is nearly white already, so
+        dropping the ground and lifting the panels is what makes the
+        construction legible: you can see the parts.
+     2. THE MACHINED EDGE. A raised surface gets a 1px hairline border, a
+        hairline of light along its top inside edge, and a single-pixel
+        shadow beneath. That edge is Foundry's signature - it is what a
+        milled panel does under a light, and it replaces both the stock
+        theme's soft drop shadow and Ledger's heavy top rule.
+     3. CUT CORNERS, NOT ROUND ONES. 2-6px radii throughout. Small enough
+        to read as a chamfer on a machined part; nowhere near the pill and
+        large-radius geometry of the stock theme.
+     4. INSTRUMENT TYPOGRAPHY. A gothic display face for headings, and
+        monospace reserved for the legends and figures of an instrument -
+        micro-labels, table headings, counters, metric values. The reading
+        text stays in the system UI face, because the interface still has
+        to be read.
+
+   Color is a restrained technical set: graphite and mineral neutrals, one
+   azure for interaction and focus, teal for information, signal green for
+   success, copper-amber for attention, and a clean red for error. Nothing
+   is saturated across a whole surface; color appears at edges, marks and
+   small fills where it means something.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles its utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 39 components and 6 utilities at once
+   without touching a template. What a palette cannot express - a machined
+   edge, a recessed field, a panel header band - is a short list of rules
+   targeted at the `data-*` hooks the components already publish.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   That is deliberate, and it is why every rule below is scoped and
+   specific rather than a broad element selector that would quietly
+   overrule a class a caller wrote on purpose.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT ("mineral")
+   Cool neutrals around hue 235-245: steel and mineral grey rather than the
+   violet-leaning slate of stock Tailwind. Lightness ordering matches stock
+   exactly, so any utility used without a dark: counterpart still behaves.
+   ------------------------------------------------------------------------- */
+:root[data-skin="foundry"] {
+    /* Neutrals: panel -> ground -> graphite */
+    --color-white:      oklch(99.0% 0.002 235);   /* panel: the lifted surface */
+    --color-slate-50:   oklch(94.3% 0.006 235);   /* page ground, recessed fills */
+    --color-slate-100:  oklch(91.2% 0.008 235);   /* secondary fills, bands */
+    --color-slate-200:  oklch(84.5% 0.011 235);   /* hairline */
+    --color-slate-300:  oklch(76.0% 0.014 235);   /* defined edge, field border */
+    --color-slate-400:  oklch(63.0% 0.015 235);   /* placeholder, decorative marks */
+    --color-slate-500:  oklch(50.5% 0.016 235);   /* muted text */
+    --color-slate-600:  oklch(42.5% 0.017 240);
+    --color-slate-700:  oklch(34.5% 0.016 240);   /* body text */
+    --color-slate-800:  oklch(27.0% 0.014 240);
+    --color-slate-900:  oklch(21.5% 0.013 245);   /* graphite: primary text */
+    --color-slate-950:  oklch(15.0% 0.011 245);
+
+    /* Azure: interaction, selection, focus. The one colour a user is meant
+       to chase. */
+    --color-blue-50:    oklch(96.5% 0.018 242);
+    --color-blue-100:   oklch(92.5% 0.035 242);
+    --color-blue-200:   oklch(86.0% 0.060 242);
+    --color-blue-300:   oklch(76.5% 0.095 242);
+    --color-blue-400:   oklch(65.0% 0.135 242);
+    --color-blue-500:   oklch(56.0% 0.165 242);   /* focus */
+    --color-blue-600:   oklch(49.0% 0.170 242);   /* primary fill, links */
+    --color-blue-700:   oklch(42.5% 0.155 242);
+    --color-blue-800:   oklch(36.0% 0.130 242);
+    --color-blue-900:   oklch(30.0% 0.105 242);
+    --color-blue-950:   oklch(21.0% 0.070 242);
+
+    /* Teal: information. Held well away from the azure so "for your
+       information" never reads as "press this". */
+    --color-sky-50:     oklch(96.5% 0.020 197);
+    --color-sky-100:    oklch(92.5% 0.038 197);
+    --color-sky-200:    oklch(86.0% 0.055 197);
+    --color-sky-300:    oklch(77.0% 0.075 197);
+    --color-sky-400:    oklch(67.0% 0.090 197);
+    --color-sky-500:    oklch(58.0% 0.095 197);
+    --color-sky-600:    oklch(49.5% 0.090 197);
+    --color-sky-700:    oklch(42.0% 0.078 197);
+    --color-sky-800:    oklch(35.0% 0.065 197);
+    --color-sky-900:    oklch(29.0% 0.052 197);
+    --color-sky-950:    oklch(20.0% 0.038 197);
+
+    /* Signal green: nominal / succeeded. */
+    --color-green-50:   oklch(96.5% 0.022 158);
+    --color-green-100:  oklch(92.5% 0.042 158);
+    --color-green-200:  oklch(86.0% 0.060 158);
+    --color-green-300:  oklch(77.0% 0.085 158);
+    --color-green-400:  oklch(67.0% 0.105 158);
+    --color-green-500:  oklch(57.0% 0.110 158);
+    --color-green-600:  oklch(48.0% 0.100 158);
+    --color-green-700:  oklch(40.5% 0.086 158);
+    --color-green-800:  oklch(33.5% 0.072 158);
+    --color-green-900:  oklch(28.0% 0.058 158);
+    --color-green-950:  oklch(19.5% 0.042 158);
+
+    /* Copper-amber: attention. Warmer and more orange than a yellow
+       warning, and darker at 500 than stock amber, because the library's
+       Warning button prints white text on exactly that step. */
+    --color-amber-50:   oklch(96.5% 0.028 52);
+    --color-amber-100:  oklch(93.0% 0.050 52);
+    --color-amber-200:  oklch(87.0% 0.080 52);
+    --color-amber-300:  oklch(79.0% 0.105 52);
+    --color-amber-400:  oklch(70.0% 0.125 52);
+    --color-amber-500:  oklch(56.0% 0.135 52);
+    --color-amber-600:  oklch(49.5% 0.120 52);
+    --color-amber-700:  oklch(42.0% 0.100 52);
+    --color-amber-800:  oklch(35.0% 0.082 52);
+    --color-amber-900:  oklch(29.0% 0.066 52);
+    --color-amber-950:  oklch(20.0% 0.048 52);
+
+    /* Red: fault. */
+    --color-red-50:     oklch(96.5% 0.022 25);
+    --color-red-100:    oklch(93.0% 0.042 25);
+    --color-red-200:    oklch(86.5% 0.070 25);
+    --color-red-300:    oklch(77.5% 0.110 25);
+    --color-red-400:    oklch(66.0% 0.165 25);
+    --color-red-500:    oklch(57.0% 0.195 25);
+    --color-red-600:    oklch(50.0% 0.195 25);
+    --color-red-700:    oklch(43.0% 0.175 25);
+    --color-red-800:    oklch(36.0% 0.145 25);
+    --color-red-900:    oklch(30.0% 0.115 25);
+    --color-red-950:    oklch(21.0% 0.080 25);
+
+    /* 2. GEOMETRY. A cut corner, not a round one. `rounded-full` is not a
+       variable, so things that are round because they are physically round
+       (spinner, switch knob, step markers) stay round; badges are brought
+       back in by a rule further down. */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 5px;
+    --radius-xl: 6px;
+
+    /* 3. TYPE. No webfonts - an instrument should not need the network to
+       draw its own panel. */
+    --font-display: "Franklin Gothic Medium", "Bahnschrift", "Roboto Condensed", "Segoe UI Variable Display", system-ui, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, Inter, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens for the structural rules below. */
+    --foundry-edge-light: oklch(100% 0 0 / 0.8);    /* the machined highlight */
+    --foundry-drop: 0 1px 1.5px oklch(25% 0.02 245 / 0.09);
+    --foundry-field: var(--color-slate-50);         /* recessed field fill */
+    --foundry-field-disabled: var(--color-slate-100); /* filled in, not open */
+    --foundry-field-inset: inset 0 1px 1.5px oklch(25% 0.02 245 / 0.09);
+    --foundry-band: oklch(95.6% 0.006 235);         /* panel header / table head */
+    --foundry-overlay-shadow:
+        0 0 0 1px oklch(25% 0.02 245 / 0.06),
+        0 2px 4px oklch(25% 0.02 245 / 0.08),
+        0 16px 32px -12px oklch(25% 0.02 245 / 0.28);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK ("graphite")
+   The same instrument in a darkened room: a deep graphite ground, panels
+   lifted one step above it, off-white text, and the machined highlight
+   reduced to the faint line a real edge catches in low light.
+   ------------------------------------------------------------------------- */
+:root[data-skin="foundry"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.002 240);
+    --color-slate-50:   oklch(97.5% 0.004 240);
+    --color-slate-100:  oklch(95.0% 0.005 240);   /* primary text */
+    --color-slate-200:  oklch(89.0% 0.007 240);
+    --color-slate-300:  oklch(83.0% 0.010 240);
+    --color-slate-400:  oklch(73.0% 0.013 240);   /* muted text */
+    --color-slate-500:  oklch(64.0% 0.014 240);
+    --color-slate-600:  oklch(40.5% 0.011 240);   /* defined edge */
+    --color-slate-700:  oklch(33.0% 0.010 240);   /* hairline */
+    --color-slate-800:  oklch(26.5% 0.008 240);   /* raised fill, bands */
+    --color-slate-900:  oklch(22.0% 0.007 240);   /* panel */
+    --color-slate-950:  oklch(17.5% 0.006 240);   /* page ground */
+
+    --color-blue-300:   oklch(82.0% 0.095 242);
+    --color-blue-400:   oklch(74.0% 0.135 242);
+    --color-blue-500:   oklch(66.0% 0.160 242);
+    --color-blue-950:   oklch(24.0% 0.060 242);
+
+    --color-sky-300:    oklch(84.0% 0.070 197);
+    --color-sky-400:    oklch(76.0% 0.090 197);
+    --color-sky-500:    oklch(68.0% 0.095 197);
+
+    --color-green-300:  oklch(84.0% 0.080 158);
+    --color-green-400:  oklch(76.0% 0.105 158);
+    --color-green-500:  oklch(68.0% 0.110 158);
+
+    --color-amber-300:  oklch(84.0% 0.090 52);
+    --color-amber-400:  oklch(77.0% 0.115 52);
+    --color-amber-500:  oklch(69.0% 0.130 52);
+
+    --color-red-300:    oklch(82.0% 0.105 25);
+    --color-red-400:    oklch(74.0% 0.150 25);
+    --color-red-500:    oklch(66.0% 0.185 25);
+
+    --foundry-edge-light: oklch(100% 0 0 / 0.07);
+    --foundry-drop: 0 1px 2px oklch(0% 0 0 / 0.35);
+    --foundry-field: oklch(15.0% 0.006 240);        /* fields sink below the panel */
+    --foundry-field-disabled: var(--color-slate-800);
+    --foundry-field-inset: inset 0 1px 2px oklch(0% 0 0 / 0.35);
+    --foundry-band: oklch(25.0% 0.008 240);
+    --foundry-overlay-shadow:
+        0 0 0 1px oklch(0% 0 0 / 0.5),
+        0 2px 6px oklch(0% 0 0 / 0.45),
+        0 20px 44px -12px oklch(0% 0 0 / 0.65);
+}
+
+/* -------------------------------------------------------------------------
+   4. THE MACHINED EDGE
+   Tailwind's shadow utilities are neutralised, then depth is handed back
+   deliberately: one pixel of light along the top inside edge and one pixel
+   of shadow beneath for anything that is a raised surface, and a real
+   stacked shadow for the components that genuinely float.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="foundry"] :is([data-card], [data-stat-card], section.border, [data-empty-state]) {
+    box-shadow: inset 0 1px 0 var(--foundry-edge-light), var(--foundry-drop);
+}
+
+[data-skin="foundry"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--foundry-overlay-shadow);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY
+   Headings in the gothic display face; monospace reserved for the legends
+   and figures of an instrument. Everything that is read at length stays in
+   the UI face.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="foundry"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    letter-spacing: -0.006em;
+}
+
+/* Section micro-labels. The library writes these as
+   `text-xs uppercase tracking-wide`; Foundry sets them as panel legends -
+   monospace, tightly tracked, and carrying no rule of their own, because in
+   this system the panel edge already does the dividing. No component uses
+   `uppercase` internally, so this only ever reaches page furniture. */
+[data-skin="foundry"] .uppercase {
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    font-size: 0.6875rem;
+}
+
+/* Figures, identifiers and counters: the readout of the instrument. */
+[data-skin="foundry"] :is(
+    code,
+    [data-badge],
+    [data-stat-card] dd > span:first-child,
+    [data-date-picker-days] button,
+    [data-textarea-count],
+    [data-table-page-indicator],
+    [data-table-status],
+    [data-table-selection-count]
+) {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Page and panel titles. Scoped to the page's own <h1> and to the title of
+   a declared surface, so component-internal headings (Card, Modal and Alert
+   titles are <h3>) keep the sizes their components chose. */
+[data-skin="foundry"] :is(h1, section.border > h2) {
+    font-size: 1.3125rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+}
+
+/* The masthead is a nameplate. */
+[data-skin="foundry"] body > header > div > a:first-child {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+}
+
+[data-skin="foundry"] body > header {
+    box-shadow: var(--foundry-drop);
+}
+
+/* -------------------------------------------------------------------------
+   6. PANELS
+   A Card's own title bar becomes the panel's header band: a recessed fill
+   separated by the hairline the component already draws. `.border-b` is the
+   Card's own marker for that bar (its footer uses `.border-t`), so this
+   reaches the header and nothing else.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] [data-card] > .border-b:first-child {
+    background-color: var(--foundry-band);
+}
+
+[data-skin="foundry"] [data-card] > .border-b:first-child > h3 {
+    letter-spacing: 0.005em;
+}
+
+/* -------------------------------------------------------------------------
+   7. CONTROLS
+   Buttons are machined parts: a defined edge, a highlight along the top,
+   and a press that actually moves. Ghost and Link variants declare
+   themselves with `bg-transparent` and are left flat, because they are not
+   surfaces.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] [data-btn]:not(.bg-transparent) {
+    box-shadow: inset 0 1px 0 var(--foundry-edge-light), var(--foundry-drop);
+}
+
+[data-skin="foundry"] [data-btn]:not(.bg-transparent):not(:disabled):active {
+    box-shadow: inset 0 1px 2px oklch(20% 0.02 245 / 0.25);
+}
+
+/* Fields are recessed into the panel rather than sitting on it - lit from
+   above in light mode, sunk below the surface in dark. Disabled fields lose
+   the recess and go flat, so "you cannot type here" is a change in
+   construction and not only a change in colour. */
+[data-skin="foundry"] :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+    textarea,
+    select,
+    [data-select-trigger],
+    [data-combobox-input],
+    [data-date-picker-input]
+):not(:disabled) {
+    background-color: var(--foundry-field);
+    box-shadow: var(--foundry-field-inset);
+}
+
+/* A disabled field is not an open well with grey text in it - it is filled
+   in and closed. It loses the recess and takes a flat fill one step away
+   from the editable one, so the difference survives even if a user cannot
+   tell the two text colours apart. (Measured: before this rule a disabled
+   field in light mode had exactly the same fill as an editable one.) */
+[data-skin="foundry"] :is(input, textarea, select, [data-select-trigger]):disabled {
+    box-shadow: none;
+    background-color: var(--foundry-field-disabled);
+}
+
+/* Entered values are the data. They take the strongest ink available in
+   either mode, whatever the field is sitting on. */
+[data-skin="foundry"] :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):not(:disabled) {
+    color: var(--color-slate-900);
+}
+
+:root[data-skin="foundry"][data-theme="dark"] :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):not(:disabled) {
+    color: var(--color-slate-100);
+}
+
+/* Placeholders stay muted but are still held to text contrast. */
+[data-skin="foundry"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark their "nothing chosen yet" state by adding
+   `text-slate-400` to their own value slot; the same contrast floor
+   applies there. */
+[data-skin="foundry"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   8. STATE
+   Alerts stay quiet surfaces with a defined semantic edge rather than a
+   saturated block; the severity icon each variant already renders is given
+   a small tinted plate so it reads as a status lamp on a panel. Colour is
+   never the only carrier - the components' own icon and sr-only variant
+   label are untouched.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] :is([data-alert], [data-toast]) > svg:first-of-type {
+    box-sizing: content-box;
+    padding: 3px;
+    border-radius: 3px;
+    background-color: color-mix(in oklch, currentColor 14%, transparent);
+}
+
+/* Badges are compact plates, not pills. */
+[data-skin="foundry"] [data-badge] {
+    border-radius: 3px;
+    padding-inline: 0.375rem;
+}
+
+/* A progress bar is a gauge reading against a machined slot, not a lozenge.
+   Both the track and its fill are `rounded-full` in the component, which is
+   not a theme variable, so squaring them needs these two rules. The knob of
+   a Toggle and the Spinner stay round: those are round because the thing
+   they represent is round. */
+[data-skin="foundry"] :is([role="progressbar"], [role="progressbar"] > div) {
+    border-radius: 2px;
+}
+
+/* -------------------------------------------------------------------------
+   9. DATA
+   The table head is a legend band: monospace, hairline-separated columns,
+   and a defined edge beneath. The body stays plain so the figures carry the
+   weight, with slightly tighter rows than the stock spacing.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] :is(table thead, [data-table] thead) {
+    background-color: var(--foundry-band);
+}
+
+[data-skin="foundry"] :is(table thead th, [data-table] thead th) {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-left: 1px solid var(--color-slate-200);
+}
+
+[data-skin="foundry"] :is(table thead th:first-child, [data-table] thead th:first-child) {
+    border-left: 0;
+}
+
+[data-skin="foundry"] :is(table thead, [data-table] thead) {
+    border-bottom: 1px solid var(--color-slate-300);
+}
+
+[data-skin="foundry"] [data-table] :is(th, td) {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* -------------------------------------------------------------------------
+   10. FOCUS AND SELECTION
+   Focus is azure, tight to the control, and always drawn. Components that
+   already draw a ring keep it - re-coloured by the palette above - and this
+   is the floor for everything that does not.
+   ------------------------------------------------------------------------- */
+[data-skin="foundry"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 1px;
+}
+
+[data-skin="foundry"] ::selection {
+    background-color: var(--color-blue-200);
+    color: var(--color-slate-900);
+}
+
+/* A thin graphite scrollbar, so the chrome around dense content matches the
+   instrument rather than the operating system's default. */
+[data-skin="foundry"] * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-slate-400) transparent;
+}

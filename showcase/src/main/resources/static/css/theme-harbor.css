@@ -1,0 +1,529 @@
+/* =========================================================================
+   HARBOR - a calm, open, blue-water theme for the JTE + Tailwind UI library.
+   =========================================================================
+
+   Enabled by `data-skin="harbor"` on <html>. Every rule is scoped under that
+   attribute, so the default appearance and Ledger, Foundry, Veridian, Civic,
+   Sterling and Summit are all untouched whether Harbor is on, off, or
+   deleted.
+
+   THE IDEA
+   --------
+   Standing on a quiet deck looking across a very large, very calm body of
+   water. Open, spacious, dependable, unhurried. Nothing in here is nautical
+   - there are no anchors, ropes, waves or portholes, and there is no
+   illustration of anything. The metaphor lives entirely in the palette and
+   the surface relationships.
+
+   WHAT THIS REVISION CHANGED, AND WHY
+   -----------------------------------
+   The first version of Harbor put a warm greige ground under a teal accent.
+   The reasoning was that every other theme used cool neutrals, so warm
+   ground was the one unoccupied relationship in the system. That reasoning
+   optimised for the wrong thing: it chose the gap in the token space rather
+   than the meaning of the theme. What it produced read as paper stock with a
+   teal accent - which is to say, it read as Veridian with a beige tint,
+   because Veridian already owns the restrained teal-on-quiet-neutral
+   register. Coherent, and wrong.
+
+   The fix is not a colour swap. It is a change in where the colour lives.
+
+   THE STRUCTURAL MOVE: THE ENVIRONMENT CARRIES THE COLOUR
+   -------------------------------------------------------
+   Measured across the whole library, every existing theme's page ground sits
+   between 0.004 and 0.008 chroma:
+
+     Sterling 0.004 · Veridian 0.005 · Summit 0.005 · Foundry 0.006
+     Civic 0.006 · Ledger 0.008
+
+   Seven themes, one construction: a near-neutral grey page with a chromatic
+   accent placed on top of it. Harbor does the opposite. Its ground carries
+   roughly three times that chroma, so the page is not a grey surface that
+   happens to contain blue controls - the page IS the blue, and the controls
+   are drawn from the same water a few fathoms down. That is the whole
+   identity, and it is why this cannot be achieved by repointing the accent
+   alone.
+
+   Four decisions follow from it:
+
+     1. ONE BODY OF WATER. Ground, panels, borders and the primary accent all
+        sit on hue 232-238. The accent is not a contrasting colour applied to
+        a neutral page; it is the same hue taken deeper and given saturation.
+        Open water at the surface, the horizon line darker.
+     2. LIGHT IS COOL DAYLIGHT. The panel is a cool white with a breath of
+        blue in it and the ground beneath is unmistakably blue-grey. No warm
+        step appears anywhere in the ramp.
+     3. DARK IS WATER AFTER SUNSET. The dark ground is a deep blue at 0.020
+        chroma rather than the near-neutral graphite every other dark theme
+        uses. Quiet and stable, not cinematic.
+     4. SEPARATION, NOT ELEVATION. Panels are distinguished by surface step
+        and a quiet hairline first, lifted only by a wide, weak shadow - a
+        settling rather than a lift. Flat, softly separated, gently elevated.
+        This survived from the first version because it was right.
+
+   WHERE THE SEA-GLASS WENT
+   ------------------------
+   A coastal green still exists here, but it is a supporting note rather than
+   the identity: it is the Success colour, moved off a grass green onto a
+   sea-glass at hue 165. That keeps a trace of coast in the system while
+   leaving no doubt that Harbor is blue - the thing the first version got
+   wrong. Information moves the other way, to a periwinkle at 285, because a
+   blue primary needs its informational sibling to be clearly a different
+   colour and not merely a different blue.
+
+   TYPOGRAPHY NOTE
+   ---------------
+   Unchanged from the first version and still right: Harbor takes no display
+   face. Every distinctive face on this machine is claimed - Bahnschrift by
+   Ledger, Franklin Gothic by Foundry, Corbel by Veridian, the Segoe Display
+   optical cut by Civic, Sitka by Sterling - and forcing one here purely to
+   be different would be exactly the decorative move this theme avoids. The
+   typographic budget goes to comfort instead: a moderate scale, a narrow
+   weight range, and generous leading on prose.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 48 catalog entries at once without
+   touching a template.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   Two consequences are load-bearing:
+     * every rule is scoped and targeted, never a broad element selector
+       that would overrule a class a caller wrote on purpose; and
+     * any rule keyed off a colour utility class (`.bg-white` and friends)
+       must also be scoped to one mode, because that class sits in the
+       markup in BOTH modes - the mistake that once made Ledger's dark
+       fields near-white under near-white text. Harbor avoids the trap
+       entirely by driving every mode-dependent value through theme-local
+       variables that are redefined in the dark block.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT ("open water")
+   Hue 232-238 throughout, at a chroma no other theme's neutrals approach.
+   The ground is frankly blue-grey rather than a grey that leans blue, and
+   the panel above it is a cool white with a breath of the same hue. The
+   chroma tapers as the ramp darkens: atmosphere wants colour, ink does not.
+   ------------------------------------------------------------------------- */
+:root[data-skin="harbor"] {
+    /* Neutral: surface -> ground -> ink */
+    --color-white:      oklch(99.1% 0.004 232);   /* panel surface: cool white */
+    --color-slate-50:   oklch(95.5% 0.016 235);   /* page ground: open water */
+    --color-slate-100:  oklch(92.2% 0.020 235);   /* secondary fills */
+    --color-slate-200:  oklch(87.0% 0.022 235);   /* container hairline */
+
+    /* The field edge. A form control's boundary is what identifies it as a
+       control, so it has to clear 3:1 against the surface behind it
+       (WCAG 1.4.11), measured against the page ground rather than a panel
+       because that is the worse of the two cases - a Card's fields sit on
+       the panel, a Filter Bar's sit straight on the ground. That puts this
+       step darker than slate-400, inverting the usual ramp order; it is safe
+       because 300 is only ever used for borders here and 400 only for
+       decorative marks, and Civic, Sterling and Summit all already do it. */
+    --color-slate-300:  oklch(61.0% 0.032 234);   /* field edge - 3.0:1 on the ground */
+
+    --color-slate-400:  oklch(64.5% 0.030 234);   /* decorative marks */
+    --color-slate-500:  oklch(49.0% 0.028 233);   /* muted text - 4.6:1 on the ground */
+    --color-slate-600:  oklch(41.5% 0.026 233);
+    --color-slate-700:  oklch(34.0% 0.024 232);   /* body text */
+    --color-slate-800:  oklch(26.5% 0.021 232);
+    --color-slate-900:  oklch(20.0% 0.018 232);   /* primary text */
+    --color-slate-950:  oklch(13.5% 0.015 232);
+
+    /* Identity: the same water, deeper. This is not a contrasting accent
+       dropped onto a neutral page - it is the ground's own hue taken down in
+       lightness and up in saturation, which is what makes a Harbor screen
+       read as one environment rather than as a grey page wearing a blue
+       button. It is also what separates Harbor from Civic, Sterling and
+       Summit, all of which contrast a chromatic accent against a
+       deliberately neutral field. */
+    --color-blue-50:    oklch(93.0% 0.034 232);   /* selected rows, option hover */
+    --color-blue-100:   oklch(89.0% 0.050 232);
+    --color-blue-200:   oklch(82.5% 0.074 232);
+    --color-blue-300:   oklch(73.5% 0.100 232);
+    --color-blue-400:   oklch(61.5% 0.130 232);
+    --color-blue-500:   oklch(52.0% 0.150 232);   /* focus */
+    --color-blue-600:   oklch(43.5% 0.140 232);   /* primary fill, links */
+    --color-blue-700:   oklch(36.5% 0.120 232);
+    --color-blue-800:   oklch(30.5% 0.100 232);
+    --color-blue-900:   oklch(25.0% 0.082 232);
+    --color-blue-950:   oklch(17.0% 0.058 232);
+
+    /* Information: a periwinkle at hue 285, 53 degrees off the accent. With
+       the primary itself being a blue, Info cannot also be a blue or the two
+       become a shade difference rather than a distinction - the failure the
+       first version of this palette measured and corrected, and the same one
+       Veridian hit between its Primary and Success. */
+    --color-sky-50:     oklch(96.3% 0.020 285);
+    --color-sky-100:    oklch(92.8% 0.038 285);
+    --color-sky-200:    oklch(86.5% 0.058 285);
+    --color-sky-300:    oklch(77.5% 0.085 285);
+    --color-sky-400:    oklch(66.0% 0.120 285);
+    --color-sky-500:    oklch(55.0% 0.148 285);
+    --color-sky-600:    oklch(46.5% 0.150 285);
+    --color-sky-700:    oklch(39.5% 0.130 285);
+    --color-sky-800:    oklch(33.0% 0.108 285);
+    --color-sky-900:    oklch(27.5% 0.086 285);
+    --color-sky-950:    oklch(19.0% 0.060 285);
+
+    /* Success: a green with a cool, sea-leaning cast at hue 155 - the place
+       the coastal note survives, in a supporting semantic role rather than
+       as the identity.
+
+       155 rather than the 165 this revision first tried. A true sea-glass at
+       165 measured only 73 in RGB distance from the blue primary: both are
+       cool and both are dark at the action step, so Primary and Success
+       became a shade apart rather than two colours. 155 at higher chroma
+       measures 90 and keeps white button text at 6.3:1. Semantic clarity
+       outranks the purity of the metaphor - a Success control that can be
+       mistaken for a Primary one is a real cost, and a slightly greener
+       green is not. */
+    --color-green-50:   oklch(96.3% 0.024 155);
+    --color-green-100:  oklch(92.8% 0.046 155);
+    --color-green-200:  oklch(86.3% 0.068 155);
+    --color-green-300:  oklch(77.0% 0.095 155);
+    --color-green-400:  oklch(66.5% 0.118 155);
+    --color-green-500:  oklch(55.5% 0.125 155);
+    --color-green-600:  oklch(47.5% 0.135 155);
+    --color-green-700:  oklch(40.5% 0.118 155);
+    --color-green-800:  oklch(34.0% 0.098 155);
+    --color-green-900:  oklch(28.0% 0.078 155);
+    --color-green-950:  oklch(19.0% 0.055 155);
+
+    /* Warning: a warm signal against a cool environment, which is exactly
+       what a warning should be here. The 500 step is held darker than stock
+       amber because the library's Warning button prints white text on
+       exactly that step. */
+    --color-amber-50:   oklch(96.5% 0.026 70);
+    --color-amber-100:  oklch(93.0% 0.046 70);
+    --color-amber-200:  oklch(87.0% 0.070 70);
+    --color-amber-300:  oklch(79.0% 0.094 70);
+    --color-amber-400:  oklch(70.0% 0.110 70);
+    --color-amber-500:  oklch(56.0% 0.110 70);
+    --color-amber-600:  oklch(48.5% 0.098 72);
+    /* The dark steps run warmer and more saturated than the light ones.
+       amber-800 is what a Warning badge prints its text in, and against a
+       Danger badge's red-800 the two were closer than the library's own
+       default manages. Shifting these steps to 78-80 widens that gap
+       without touching amber-500, which is pinned by the Warning button's
+       white text. */
+    --color-amber-700:  oklch(41.5% 0.105 78);
+    --color-amber-800:  oklch(35.0% 0.090 80);
+    --color-amber-900:  oklch(29.0% 0.074 80);
+    --color-amber-950:  oklch(19.0% 0.052 80);
+
+    /* Error: clear without being loud. Harbor reports a problem; it does not
+       raise its voice about one. */
+    --color-red-50:     oklch(96.5% 0.017 25);
+    --color-red-100:    oklch(93.0% 0.034 25);
+    --color-red-200:    oklch(86.5% 0.056 25);
+    --color-red-300:    oklch(77.0% 0.088 25);
+    --color-red-400:    oklch(65.0% 0.132 25);
+    --color-red-500:    oklch(55.0% 0.160 25);
+    --color-red-600:    oklch(47.5% 0.165 25);
+    --color-red-700:    oklch(40.5% 0.145 25);
+    --color-red-800:    oklch(34.0% 0.120 25);
+    --color-red-900:    oklch(28.0% 0.096 25);
+    --color-red-950:    oklch(19.0% 0.067 25);
+
+    /* 2. GEOMETRY. Carried over from the first version, which the review
+       found directionally right: the softest set in the library, and still
+       systematic - a control at 10 inside a container at 16, with a clear
+       step between them. Soft here is doing identity work rather than just
+       being soft: open water has no hard edges, and nothing in this theme
+       should look stamped out. Nothing approaches a pill, and `rounded-full`
+       is not a theme variable, so the things that are round because they are
+       physically round (the spinner, the switch knob, the timeline dots)
+       stay round. */
+    --radius-sm: 6px;
+    --radius-md: 10px;   /* buttons, inputs, menu items */
+    --radius-lg: 12px;
+    --radius-xl: 16px;   /* cards and panels */
+
+    /* 3. TYPE. One family, the system reading face - see the typography
+       note. No webfonts: a console should not need the network to draw its
+       own chrome. */
+    --font-display: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens. Everything whose value differs between modes lives
+       here, so the structural rules below stay unscoped and still correct in
+       both modes.
+
+       The shadows are cast in the environment's own blue-black rather than a
+       neutral grey, so a lifted surface still belongs to the water it sits
+       on. `--harbor-lift` is deliberately wide and weak: a large blur at low
+       opacity reads as a surface settling onto the page rather than being
+       raised off it. */
+    --harbor-band:  oklch(97.2% 0.012 235);       /* table head, quiet grouping tint */
+    --harbor-lift:
+        0 1px 2px -1px oklch(20.0% 0.018 232 / 0.08),
+        0 6px 16px -8px oklch(20.0% 0.018 232 / 0.14);
+    --harbor-elevated:
+        0 0 0 1px oklch(20.0% 0.018 232 / 0.06),
+        0 4px 12px -4px oklch(20.0% 0.018 232 / 0.12),
+        0 20px 44px -16px oklch(20.0% 0.018 232 / 0.22);
+    --harbor-field-disabled: var(--color-slate-100);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK ("after sunset")
+   Deep blue water rather than graphite. Every other dark theme in the
+   library grounds itself between 0.011 and 0.014 chroma - effectively a
+   neutral charcoal - and Harbor sits at 0.020 on a blue, so the dark mode
+   belongs to the same environment as the light one instead of defaulting to
+   the house dark grey. Quiet and stable, never cinematic: the primary text
+   is an off-white rather than a white, because a dark mode that is restful
+   to read is not the one with the most contrast in it.
+   ------------------------------------------------------------------------- */
+:root[data-skin="harbor"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.003 232);
+    --color-slate-50:   oklch(97.5% 0.006 232);
+    --color-slate-100:  oklch(93.5% 0.008 232);   /* primary text - eased off white */
+    --color-slate-200:  oklch(88.5% 0.010 232);
+    --color-slate-300:  oklch(82.5% 0.013 232);
+    --color-slate-400:  oklch(73.5% 0.018 233);   /* muted text */
+    --color-slate-500:  oklch(65.0% 0.020 233);   /* placeholder: 5.0:1 on a field */
+
+    /* Same measurement as the light field edge, against the dark field fill:
+       3:1 needs 54%, and the ~41% convention the earliest themes used for
+       this step only reaches 1.8:1 here. */
+    --color-slate-600:  oklch(54.0% 0.024 234);   /* field edge */
+    --color-slate-700:  oklch(35.0% 0.022 236);   /* container hairline */
+    --color-slate-800:  oklch(26.0% 0.022 238);   /* fields, fills */
+    --color-slate-900:  oklch(21.0% 0.021 239);   /* panel surface */
+    --color-slate-950:  oklch(16.0% 0.020 240);   /* page ground: deep water */
+
+    /* Only the light steps move. 600 stays at its light-mode value so a
+       Primary button keeps white text above 4.5:1 in both modes. */
+    --color-blue-300:   oklch(83.0% 0.070 232);
+    --color-blue-400:   oklch(75.5% 0.100 232);   /* links on dark */
+    --color-blue-500:   oklch(68.0% 0.125 232);   /* focus on dark */
+
+    /* The dark selected-row wash. The components paint selection as
+       `bg-blue-950/40` over the panel, so this step has to sit well clear of
+       the panel's own 21% or the state disappears entirely; 33% puts a
+       selected row at the same visibility as in light mode. */
+    --color-blue-950:   oklch(33.0% 0.090 232);
+
+    --color-green-300:  oklch(84.0% 0.082 155);
+    --color-green-400:  oklch(76.0% 0.105 155);
+    --color-green-500:  oklch(68.0% 0.115 155);
+
+    --color-sky-300:    oklch(84.0% 0.072 285);
+    --color-sky-400:    oklch(76.0% 0.105 285);
+    --color-sky-500:    oklch(68.0% 0.130 285);
+
+    --color-amber-300:  oklch(85.0% 0.082 70);
+    --color-amber-400:  oklch(78.0% 0.102 70);
+    --color-amber-500:  oklch(70.0% 0.115 70);
+
+    --color-red-300:    oklch(82.0% 0.092 25);
+    --color-red-400:    oklch(74.0% 0.134 25);
+    --color-red-500:    oklch(66.0% 0.168 25);
+
+    --harbor-band:  oklch(24.0% 0.022 238);
+    --harbor-lift:  0 0 0 1px oklch(0% 0 0 / 0.24);
+    --harbor-elevated:
+        0 0 0 1px oklch(0% 0 0 / 0.45),
+        0 4px 14px -4px oklch(0% 0 0 / 0.42),
+        0 22px 48px -16px oklch(0% 0 0 / 0.58);
+    --harbor-field-disabled: oklch(18.0% 0.020 240);
+}
+
+/* -------------------------------------------------------------------------
+   4. ELEVATION - FLAT, SOFTLY SEPARATED, GENTLY ELEVATED
+   Tailwind's shadow utilities are neutralised so nothing is raised by
+   accident. A field, a badge, a button and an alert stay flat. A panel, a
+   stat, a table and a page section are softly separated - surface step,
+   hairline, and a wide weak shadow underneath. Only the nine things that
+   genuinely float are elevated.
+   ------------------------------------------------------------------------- */
+[data-skin="harbor"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="harbor"] :is([data-card], [data-stat-card], [data-table], section.border) {
+    box-shadow: var(--harbor-lift);
+}
+
+[data-skin="harbor"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--harbor-elevated);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY - COMFORT FIRST
+   A moderate scale and a narrow weight range. Titles are the smallest and
+   lightest of the recent themes on purpose: Summit's 24/700 announces a
+   region, and Harbor would rather simply label one.
+   ------------------------------------------------------------------------- */
+[data-skin="harbor"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="harbor"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.008em;
+}
+
+/* `:not(.uppercase)` matters: the Home index writes its category labels as
+   `<h2 class="text-xs uppercase tracking-wide">` inside a bordered section,
+   so a bare `section.border > h2` selector catches them too and prints
+   "FORMS" at title size. That selector outranks the `.uppercase` rule below
+   on specificity, so ordering alone will not settle it. */
+[data-skin="harbor"] :is(h1, section.border > h2:not(.uppercase)) {
+    font-size: 1.25rem;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.011em;
+}
+
+/* Room to read. Prose and the library's own description lines get a taller
+   line than any other theme sets - the one Harbor decision that spends
+   vertical space, and the one that most directly serves a long sitting.
+   Scoped to paragraphs and help text so it never reaches a control's own
+   label or a table cell, where extra leading would only loosen a dense
+   layout that is meant to stay tight. */
+[data-skin="harbor"] :is(main p, [data-card] p, [data-alert] p, [data-empty-state] p) {
+    line-height: 1.65;
+}
+
+/* Section micro-labels, written by the library as `text-xs uppercase
+   tracking-wide` on an <h3>. Harbor keeps them quiet: the second weight
+   rather than the heaviest, and modest tracking - enough to read as a label,
+   short of the wide letterspacing Sterling and Summit use. No component uses
+   `uppercase` internally, so this only ever reaches page furniture. */
+[data-skin="harbor"] .uppercase {
+    font-weight: 600;
+    letter-spacing: 0.055em;
+    font-size: 0.6875rem;
+}
+
+/* A metric stays in the same voice as everything else, just larger - no
+   weight jump. */
+[data-skin="harbor"] [data-stat-card] dd > span:first-child {
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.016em;
+}
+
+[data-skin="harbor"] body > header > div > a:first-child {
+    font-weight: 600;
+    letter-spacing: -0.008em;
+}
+
+/* Identifiers and code keep tabular figures so columns of them line up. */
+[data-skin="harbor"] :is(code, .font-mono) {
+    font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   6. SURFACES - GENTLE SEPARATION
+   Grouping is established by a change of surface and a quiet line, not by a
+   drawn boundary. The panel header is tinted a shade rather than ruled off,
+   which is the softest of the three treatments in the library: Civic fills
+   the band and rules it, Summit draws a stronger edge, Harbor just lets the
+   tone change.
+   ------------------------------------------------------------------------- */
+[data-skin="harbor"] [data-card] > .border-b:first-child {
+    background-color: var(--harbor-band);
+}
+
+[data-skin="harbor"] [data-card] > .border-b:first-child > h3 {
+    font-weight: 600;
+    letter-spacing: -0.006em;
+}
+
+/* A fieldset's legend names a group of controls - Faceted Search's facets,
+   the Filter Bar's region, Radio Group. */
+[data-skin="harbor"] legend {
+    font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   7. CONTROLS AND STATE
+   Calm is not the same as ambiguous. Fields keep their components' own fill
+   and take the definite edge the palette defines, and a disabled control
+   reads as unavailable rather than as broken or illegible.
+   ------------------------------------------------------------------------- */
+[data-skin="harbor"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark "nothing chosen yet" by adding `text-slate-400`
+   to their own value slot; the same contrast floor applies there. */
+[data-skin="harbor"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+/* The components drop a disabled control to slate-400; Harbor holds the text
+   at slate-500 and fills the box instead, so the value can still be read by
+   someone who needs to know what it says. */
+[data-skin="harbor"] :is(input, textarea, select, [data-select-trigger], [data-combobox-input], [data-date-picker-trigger]):disabled {
+    background-color: var(--harbor-field-disabled);
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   8. DATA
+   The head is separated by a whisper of tone rather than by weight or a
+   rule, and its labels sit one step back from the data so the rows read
+   first. Dense information, calmly presented.
+   ------------------------------------------------------------------------- */
+[data-skin="harbor"] :is(table thead, [data-table] thead) {
+    background-color: var(--harbor-band);
+}
+
+[data-skin="harbor"] :is(table thead th, [data-table] thead th) {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--color-slate-600);
+}
+
+:root[data-skin="harbor"][data-theme="dark"] :is(table thead th, [data-table] thead th) {
+    color: var(--color-slate-300);
+}
+
+/* The sort control inside a heading inherits the heading's own colour so the
+   head row reads as one thing. */
+[data-skin="harbor"] :is(table thead th, [data-table] thead th) [data-table-sort] {
+    color: inherit;
+}
+
+/* -------------------------------------------------------------------------
+   9. FOCUS AND SELECTION
+   The one place Harbor is emphatic. Calm must never mean hard to find: the
+   ring is the accent at full strength, held clear of the control so it reads
+   against a panel, the open ground and a filled button alike.
+   ------------------------------------------------------------------------- */
+[data-skin="harbor"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+}
+
+[data-skin="harbor"] ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-slate-900);
+}

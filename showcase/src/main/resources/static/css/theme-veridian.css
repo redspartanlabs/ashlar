@@ -1,0 +1,420 @@
+/* =========================================================================
+   VERIDIAN - a refined, human-centered theme for the JTE + Tailwind
+   UI library.
+   =========================================================================
+
+   Enabled by `data-skin="veridian"` on <html>. Every rule is scoped under
+   that attribute, so the default appearance, Ledger and Foundry are all
+   untouched whether Veridian is on, off, or deleted.
+
+   THE IDEA
+   --------
+   Clarity without sterility. Veridian is the theme for software someone has
+   to sit in front of all day: composed rather than engineered, refined
+   rather than decorated, comfortable rather than dense.
+
+   It deliberately stays out of the other themes' territory. Ledger is a
+   printed record - ruled, square, papery. Foundry is a machined instrument -
+   layered, edged, technical. Veridian is neither: nothing here is ruled,
+   nothing is milled, and no surface pretends to be an object sitting above
+   the page. Hierarchy comes from type, weight, spacing and a single quiet
+   identity colour.
+
+   Four decisions carry it:
+
+     1. SURFACES, NOT CONTAINERS. Panels are calm areas within the page, a
+        shade lighter than the ground and bounded by a soft hairline. No
+        shadow in flow at all - elevation is spent only where something
+        genuinely floats above the page.
+     2. A QUIET IDENTITY COLOUR. Viridian is a blue-green pigment, so the
+        accent is a deep jade-teal rather than a literal green. It carries
+        interaction, focus, selection and links, and it is deliberately the
+        only saturated thing on a normal page.
+     3. SOFT STRUCTURE. 4-10px radii - modestly rounded, never pill-shaped,
+        never sharp. Borders are low-contrast; separation is usually a change
+        of surface rather than a line.
+     4. TYPE DOES THE WORK. A humanist display face for headings against the
+        system UI face for reading, moderate weights, and monospace reserved
+        for the one place it genuinely helps.
+
+   TYPOGRAPHY NOTE
+   ---------------
+   The handoff suggested Source Sans 3 but asked that it not be adopted
+   blindly. It is not installed on this machine (verified by measuring
+   rendered text width against the generic families rather than trusting
+   `document.fonts.check`, which reports true for everything), so committing
+   to it alone would have meant silently falling back. Rendering the real
+   headings in each available candidate showed:
+
+     * Segoe UI Variable Display - too light in the stem at 600; headings
+       read weak rather than confident.
+     * Sitka Display - same problem.
+     * Constantia / Sitka Text - handsome, but a serif pushes Veridian
+       towards the literary/luxury register the brief rules out.
+     * Candara - humanist and warm, but the flared stems get fussy at small
+       sizes.
+     * Corbel - humanist, slightly narrow, warm and quietly editorial; holds
+       weight at 600 and is unmistakably neither Foundry's gothic nor
+       Ledger's DIN.
+
+   So Corbel leads the display stack, with Source Sans 3 kept ahead of it for
+   anyone who does have it, and Segoe UI Variable Display behind it. Corbel
+   defaults to old-style (text) figures, which look wrong in data, so lining
+   tabular figures are forced wherever the display face is used.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 39 components and 6 utilities at once
+   without touching a template.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   Two consequences are load-bearing:
+     * every rule is scoped and targeted, never a broad element selector
+       that would overrule a class a caller wrote on purpose; and
+     * any rule keyed off a colour utility class (`.bg-white` and friends)
+       must also be scoped to one mode, because that class sits in the
+       markup in BOTH modes - the mistake that once made Ledger's dark
+       fields near-white under near-white text.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT
+   Neutrals carry a trace of the identity hue (~175-188) at very low chroma:
+   enough that the greys feel considered rather than default, nowhere near
+   enough to read as "green". Lightness ordering matches stock Tailwind, so
+   any utility used without a dark: counterpart still behaves.
+   ------------------------------------------------------------------------- */
+:root[data-skin="veridian"] {
+    /* Neutrals: surface -> ground -> ink */
+    --color-white:      oklch(99.3% 0.0025 175);  /* panel surface (never pure white) */
+    --color-slate-50:   oklch(97.3% 0.005 175);   /* page ground, quiet fills */
+    --color-slate-100:  oklch(94.6% 0.007 175);   /* secondary fills, bands */
+    --color-slate-200:  oklch(89.5% 0.009 175);   /* hairline */
+    --color-slate-300:  oklch(83.0% 0.011 175);   /* field edge */
+    --color-slate-400:  oklch(66.0% 0.013 175);   /* placeholder, decorative marks */
+    --color-slate-500:  oklch(52.0% 0.014 175);   /* muted text */
+    --color-slate-600:  oklch(44.0% 0.015 188);
+    --color-slate-700:  oklch(35.5% 0.015 180);   /* body text */
+    --color-slate-800:  oklch(28.0% 0.014 180);
+    --color-slate-900:  oklch(21.5% 0.013 180);   /* primary text */
+    --color-slate-950:  oklch(15.0% 0.011 180);
+
+    /* Identity: jade-teal. Viridian is a blue-green pigment, so this leans
+       teal rather than grass. It is the interaction colour - links, primary
+       action, focus, selection - and the only saturated thing on a calm
+       page. */
+    --color-blue-50:    oklch(96.5% 0.018 188);
+    --color-blue-100:   oklch(93.0% 0.032 188);
+    --color-blue-200:   oklch(87.0% 0.050 188);
+    --color-blue-300:   oklch(78.0% 0.070 188);
+    --color-blue-400:   oklch(67.0% 0.085 188);
+    --color-blue-500:   oklch(57.0% 0.090 188);   /* focus */
+    --color-blue-600:   oklch(48.5% 0.085 188);   /* primary fill, links */
+    --color-blue-700:   oklch(41.5% 0.075 188);
+    --color-blue-800:   oklch(35.0% 0.062 188);
+    --color-blue-900:   oklch(29.0% 0.050 188);
+    --color-blue-950:   oklch(20.0% 0.036 188);
+
+    /* Success: fern. Held 50 degrees off the identity hue, and warmer, so
+       "this succeeded" never reads as "this is the primary action". The
+       first pass sat at 145 against an identity of 178 and the Primary and
+       Success buttons were genuinely hard to tell apart side by side; the
+       separation below is what fixed that. */
+    --color-green-50:   oklch(96.5% 0.022 138);
+    --color-green-100:  oklch(93.0% 0.040 138);
+    --color-green-200:  oklch(87.0% 0.058 138);
+    --color-green-300:  oklch(78.0% 0.080 138);
+    --color-green-400:  oklch(68.0% 0.100 138);
+    --color-green-500:  oklch(58.0% 0.105 138);
+    --color-green-600:  oklch(49.0% 0.095 138);
+    --color-green-700:  oklch(41.5% 0.082 138);
+    --color-green-800:  oklch(34.5% 0.068 138);
+    --color-green-900:  oklch(28.5% 0.055 138);
+    --color-green-950:  oklch(19.5% 0.040 138);
+
+    /* Information: a calm slate-blue - the muted secondary of the palette. */
+    --color-sky-50:     oklch(96.5% 0.016 250);
+    --color-sky-100:    oklch(93.0% 0.030 250);
+    --color-sky-200:    oklch(87.0% 0.045 250);
+    --color-sky-300:    oklch(78.0% 0.065 250);
+    --color-sky-400:    oklch(68.0% 0.085 250);
+    --color-sky-500:    oklch(58.0% 0.088 246);
+    --color-sky-600:    oklch(50.0% 0.082 246);
+    --color-sky-700:    oklch(43.0% 0.075 246);
+    --color-sky-800:    oklch(36.0% 0.080 250);
+    --color-sky-900:    oklch(30.0% 0.065 250);
+    --color-sky-950:    oklch(21.0% 0.048 250);
+
+    /* Warning: honey. Darker at 500 than stock amber, because the library's
+       Warning button prints white text on exactly that step. */
+    --color-amber-50:   oklch(96.5% 0.026 72);
+    --color-amber-100:  oklch(93.0% 0.048 72);
+    --color-amber-200:  oklch(87.0% 0.072 72);
+    --color-amber-300:  oklch(79.0% 0.098 72);
+    --color-amber-400:  oklch(70.0% 0.115 72);
+    --color-amber-500:  oklch(56.0% 0.120 72);
+    --color-amber-600:  oklch(49.0% 0.105 72);
+    --color-amber-700:  oklch(42.0% 0.090 72);
+    --color-amber-800:  oklch(35.0% 0.075 72);
+    --color-amber-900:  oklch(29.0% 0.060 72);
+    --color-amber-950:  oklch(20.0% 0.044 72);
+
+    /* Error: a muted brick rather than a siren red - serious, not alarming. */
+    --color-red-50:     oklch(96.5% 0.020 22);
+    --color-red-100:    oklch(93.0% 0.038 22);
+    --color-red-200:    oklch(87.0% 0.062 22);
+    --color-red-300:    oklch(78.0% 0.095 22);
+    --color-red-400:    oklch(67.0% 0.140 22);
+    --color-red-500:    oklch(58.0% 0.165 22);
+    --color-red-600:    oklch(50.5% 0.170 22);
+    --color-red-700:    oklch(43.5% 0.150 22);
+    --color-red-800:    oklch(36.5% 0.125 22);
+    --color-red-900:    oklch(30.5% 0.100 22);
+    --color-red-950:    oklch(21.0% 0.070 22);
+
+    /* 2. GEOMETRY. Softly structured: modestly rounded, never pill-shaped,
+       never sharp. Badges keep the component's own `rounded-full`, which is
+       not a theme variable - a pill is the right shape for a badge, and
+       leaving it alone is also what keeps Veridian from reading as either
+       Ledger's squares or Foundry's plates. */
+    --radius-sm: 4px;
+    --radius-md: 7px;    /* buttons, inputs, menu items */
+    --radius-lg: 8px;
+    --radius-xl: 10px;   /* cards and panels */
+
+    /* 3. TYPE. See the typography note above for why Corbel leads the
+       display stack. No webfonts: an enterprise console should not need the
+       network to draw its own chrome. */
+    --font-display: "Source Sans 3", Corbel, "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens used by the structural rules below. */
+    --veridian-overlay-shadow:
+        0 1px 2px oklch(20% 0.02 180 / 0.06),
+        0 8px 24px -6px oklch(20% 0.02 180 / 0.16),
+        0 24px 48px -16px oklch(20% 0.02 180 / 0.18);
+    --veridian-field-disabled: var(--color-slate-100);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK
+   A deep, comfortable neutral rather than black, carrying the same trace of
+   the identity hue. Panels sit one quiet step above the ground; the accents
+   are raised in lightness so they keep their identity without glowing.
+   ------------------------------------------------------------------------- */
+:root[data-skin="veridian"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.002 175);
+    --color-slate-50:   oklch(97.5% 0.004 175);
+    --color-slate-100:  oklch(95.5% 0.005 175);   /* primary text */
+    --color-slate-200:  oklch(90.0% 0.008 176);
+    --color-slate-300:  oklch(84.0% 0.010 176);
+    --color-slate-400:  oklch(74.0% 0.013 188);   /* muted text */
+    --color-slate-500:  oklch(66.0% 0.014 188);   /* muted / placeholder: 4.8:1 on a field */
+    --color-slate-600:  oklch(42.0% 0.012 180);   /* stronger border */
+    --color-slate-700:  oklch(34.0% 0.011 180);   /* hairline */
+    --color-slate-800:  oklch(27.5% 0.010 180);   /* fields, fills, bands */
+    --color-slate-900:  oklch(23.0% 0.009 180);   /* panel surface */
+    --color-slate-950:  oklch(18.5% 0.008 180);   /* page ground */
+
+    --color-blue-300:   oklch(84.0% 0.065 188);
+    --color-blue-400:   oklch(76.0% 0.090 188);   /* links on dark */
+    --color-blue-500:   oklch(68.0% 0.095 188);   /* focus on dark */
+    --color-blue-950:   oklch(23.0% 0.040 188);
+
+    --color-green-300:  oklch(84.0% 0.075 138);
+    --color-green-400:  oklch(76.0% 0.100 138);
+    --color-green-500:  oklch(68.0% 0.105 138);
+
+    --color-sky-300:    oklch(84.0% 0.060 250);
+    --color-sky-400:    oklch(76.0% 0.085 250);
+    --color-sky-500:    oklch(68.0% 0.100 250);
+
+    --color-amber-300:  oklch(85.0% 0.080 72);
+    --color-amber-400:  oklch(78.0% 0.105 72);
+    --color-amber-500:  oklch(70.0% 0.115 72);
+
+    --color-red-300:    oklch(83.0% 0.090 22);
+    --color-red-400:    oklch(75.0% 0.130 22);
+    --color-red-500:    oklch(67.0% 0.160 22);
+
+    --veridian-overlay-shadow:
+        0 1px 2px oklch(0% 0 0 / 0.4),
+        0 10px 28px -6px oklch(0% 0 0 / 0.5),
+        0 28px 56px -18px oklch(0% 0 0 / 0.55);
+    --veridian-field-disabled: var(--color-slate-900);
+}
+
+/* -------------------------------------------------------------------------
+   4. ELEVATION
+   Nothing in flow floats. Tailwind's shadow utilities are neutralised
+   outright, and depth is handed back only to the components that genuinely
+   sit above the page - softly, with a wide diffuse falloff rather than a
+   hard drop.
+   ------------------------------------------------------------------------- */
+[data-skin="veridian"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="veridian"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--veridian-overlay-shadow);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY
+   Headings take the humanist display face at moderate weight; body text is
+   left in the reading face. Figures are tabular everywhere so columns of
+   numbers line up, and lining figures are forced on the display face
+   because Corbel's default old-style figures look wrong next to data.
+   ------------------------------------------------------------------------- */
+[data-skin="veridian"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="veridian"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.008em;
+}
+
+/* Moderate, not enormous: the page's own title and the title of a declared
+   surface. Component-internal headings (Card, Modal and Alert titles are all
+   <h3>) keep the sizes their components chose. */
+[data-skin="veridian"] :is(h1, section.border > h2) {
+    font-size: 1.3125rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+}
+
+/* Section micro-labels. The library writes these as
+   `text-xs uppercase tracking-wide` on an <h3>, so they pick up the display
+   face from the heading rule above - which is wanted here: they belong to
+   the same voice as the headings they sit under. Ledger sets them in
+   condensed caps over a rule and Foundry sets them in monospace; Veridian
+   only asks for medium weight, gentle tracking and no rule at all, so they
+   read as quiet signposting rather than as apparatus. No component uses
+   `uppercase` internally, so this only ever reaches page furniture. */
+[data-skin="veridian"] .uppercase {
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    font-size: 0.6875rem;
+}
+
+/* Monospace is reserved for the one thing it genuinely helps here: literal
+   code. Identifiers and metric values stay in the reading and display faces
+   with tabular figures, which is what keeps Veridian human next to Ledger's
+   ledger figures and Foundry's instrument readouts. */
+[data-skin="veridian"] code {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* A metric is a headline, not a readout: display face, lining figures. */
+[data-skin="veridian"] [data-stat-card] dd > span:first-child {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.015em;
+}
+
+[data-skin="veridian"] body > header > div > a:first-child {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+}
+
+/* -------------------------------------------------------------------------
+   6. SURFACES
+   A panel is a calm area within the page, not an object on top of it: a
+   shade lighter than the ground, a soft hairline, and no shadow. The
+   contrast between ground and surface is doing the work that a drop shadow
+   does in the default theme - which is why the ground is tinted rather than
+   near-white.
+   ------------------------------------------------------------------------- */
+[data-skin="veridian"] [data-card] > .border-b:first-child > h3 {
+    font-weight: 600;
+    letter-spacing: -0.006em;
+}
+
+/* -------------------------------------------------------------------------
+   7. CONTROLS
+   Fields are left sitting at their components' own levels - lighter than the
+   ground in light mode, a step above the panel in dark - because a calm,
+   approachable field is the point, and Foundry already owns the recessed
+   well. Only two things are added: a disabled field that actually looks
+   unavailable in dark mode (the components give it the same fill as an
+   editable one there), and a placeholder held to text contrast.
+   ------------------------------------------------------------------------- */
+[data-skin="veridian"] :is(input, textarea, select, [data-select-trigger]):disabled {
+    background-color: var(--veridian-field-disabled);
+}
+
+[data-skin="veridian"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark their "nothing chosen yet" state by adding
+   `text-slate-400` to their own value slot; the same contrast floor
+   applies there. */
+[data-skin="veridian"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   8. DATA
+   Orderly and comfortable rather than technical: headings sit back in
+   weight and colour so the data itself reads first, and row separation is
+   left to the component's own hairlines, which the soft palette has already
+   quietened. Row density is deliberately untouched - comfort is the point.
+   ------------------------------------------------------------------------- */
+[data-skin="veridian"] :is(table thead th, [data-table] thead th) {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--color-slate-600);
+}
+
+:root[data-skin="veridian"][data-theme="dark"] :is(table thead th, [data-table] thead th) {
+    color: var(--color-slate-300);
+}
+
+/* The sort control inside a heading inherits the heading's own colour rather
+   than staying at full-strength ink, so the header row reads as one thing. */
+[data-skin="veridian"] :is(table thead th, [data-table] thead th) [data-table-sort] {
+    color: inherit;
+}
+
+/* -------------------------------------------------------------------------
+   9. FOCUS AND SELECTION
+   Focus is the identity colour, comfortably offset rather than tight to the
+   control. Components that already draw a ring keep it - recoloured by the
+   palette above - and this is the floor for everything that does not.
+   ------------------------------------------------------------------------- */
+[data-skin="veridian"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+}
+
+[data-skin="veridian"] ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-slate-900);
+}

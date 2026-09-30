@@ -1,0 +1,443 @@
+/* =========================================================================
+   LEDGER - an experimental visual theme for the JTE + Tailwind UI library.
+   =========================================================================
+
+   Enabled by `data-skin="ledger"` on <html>. Every rule in this file is
+   scoped under that attribute, so removing the attribute (or this file)
+   returns the library to its stock appearance with no template changes.
+
+   THE IDEA
+   --------
+   The library's own doc comments already argue for a visual position, and
+   this theme takes them literally rather than inventing a mood on top:
+
+     * card.jte argues a shadow implies floating, and in-flow content is not
+       floating. -> Elevation here is reserved EXCLUSIVELY for real overlays
+       (modal, drawer, popover, tooltip, toast, menus). Everything in flow is
+       defined by ruled lines, not by soft boxes.
+     * The library is HTML-first and semantic, so its natural ancestor is the
+       printed document, not the app canvas. -> Structure is typographic:
+       hairline rules, alignment, weight, and letterspaced micro-labels.
+     * It is a record system - accounts, audit logs, identifiers, counts,
+       timestamps. -> Data is set in tabular monospace so columns of figures
+       line up and can be scanned. That is a reading aid, not decoration.
+     * It is explicit; nothing is implied. -> State is carried by a 3px rule
+       plus a label, never by a large saturated fill alone.
+
+   So: a ledger. Ruled paper, ink, and a square grid - an instrument for
+   reading records, not a dashboard of cards.
+
+   SIGNATURE DECISIONS
+   -------------------
+   1. Square geometry. Every rectangular radius is 0. Only genuinely round
+      things (spinner, switch knob, timeline dots) stay round.
+   2. Rules, not boxes. Hairlines everywhere; a 2px rule marks the top of a
+      real surface and the head of a table.
+   3. Ink on paper. A warm paper ground and near-black ink, with prussian
+      "writing ink" for anything interactive.
+   4. Chromatic ink for semantics only: oxblood (danger), bottle green
+      (success), ochre (warning), petrol (info).
+   5. Data in monospace; every figure tabular.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against CSS variables - `.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`. Re-pointing those variables re-skins
+   all 39 components and 6 utilities at once, coherently, without touching a
+   single template. Only the handful of things a palette cannot express
+   (geometry of a badge, the rule above a surface, monospace for figures)
+   need real rules, and those target the `data-*` hooks the components
+   already publish.
+
+   NOTE ON THE CASCADE: this file is unlayered, so its rules outrank
+   Tailwind's `@layer utilities`. That is deliberate but demands restraint -
+   every rule below is scoped and targeted, never a broad element selector
+   that would silently stomp a utility class a caller wrote on purpose.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT ("paper")
+   The neutral ramp is warm (hue 85) rather than Tailwind slate's cool blue:
+   paper stock, not screen grey. Lightness ordering matches stock Tailwind
+   exactly, so any class used without a dark: counterpart behaves as before.
+   ------------------------------------------------------------------------- */
+:root[data-skin="ledger"] {
+    /* Neutral: paper -> ink */
+    --color-white:      oklch(99.2% 0.004 85);   /* raised surface: card stock */
+    --color-slate-50:   oklch(96.4% 0.008 85);   /* page ground, footers, wells */
+    --color-slate-100:  oklch(93.2% 0.012 85);   /* fills, chips, table head */
+    --color-slate-200:  oklch(87.5% 0.014 85);   /* hairline */
+    --color-slate-300:  oklch(80.5% 0.016 85);   /* strong hairline, field edge */
+    --color-slate-400:  oklch(64.0% 0.016 85);   /* decorative marks, placeholder */
+    --color-slate-500:  oklch(51.0% 0.016 85);   /* muted text (>= 4.5:1 on paper) */
+    --color-slate-600:  oklch(43.0% 0.016 85);
+    --color-slate-700:  oklch(35.0% 0.015 85);   /* body text */
+    --color-slate-800:  oklch(27.0% 0.013 85);
+    --color-slate-900:  oklch(20.0% 0.012 85);   /* ink: headings, primary text */
+    --color-slate-950:  oklch(14.0% 0.010 85);
+
+    /* Blue: "writing ink" - prussian, deliberately low chroma so it reads as
+       ink rather than as a plastic accent. Anything interactive wears it. */
+    --color-blue-50:    oklch(96.0% 0.018 245);
+    --color-blue-100:   oklch(92.0% 0.032 245);
+    --color-blue-200:   oklch(85.0% 0.050 245);
+    --color-blue-300:   oklch(75.0% 0.075 245);
+    --color-blue-400:   oklch(63.0% 0.105 245);
+    --color-blue-500:   oklch(50.0% 0.130 245);  /* focus ring */
+    --color-blue-600:   oklch(42.0% 0.125 245);  /* primary fill, links */
+    --color-blue-700:   oklch(36.0% 0.110 245);
+    --color-blue-800:   oklch(30.0% 0.090 245);
+    --color-blue-900:   oklch(25.0% 0.070 245);
+    --color-blue-950:   oklch(19.0% 0.050 245);
+
+    /* Red: oxblood / red ink - the correction mark. */
+    --color-red-50:     oklch(96.0% 0.020 27);
+    --color-red-100:    oklch(92.0% 0.038 27);
+    --color-red-200:    oklch(85.0% 0.065 27);
+    --color-red-300:    oklch(76.0% 0.100 27);
+    --color-red-400:    oklch(64.0% 0.150 27);
+    --color-red-500:    oklch(55.0% 0.180 27);
+    --color-red-600:    oklch(48.0% 0.175 27);
+    --color-red-700:    oklch(41.0% 0.155 27);
+    --color-red-800:    oklch(34.0% 0.130 27);
+    --color-red-900:    oklch(28.0% 0.100 27);
+    --color-red-950:    oklch(20.0% 0.070 27);
+
+    /* Green: bottle green, the "entered and reconciled" mark. */
+    --color-green-50:   oklch(96.0% 0.020 152);
+    --color-green-100:  oklch(92.0% 0.038 152);
+    --color-green-200:  oklch(86.0% 0.055 152);
+    --color-green-300:  oklch(77.0% 0.080 152);
+    --color-green-400:  oklch(66.0% 0.105 152);
+    --color-green-500:  oklch(55.0% 0.105 152);
+    --color-green-600:  oklch(46.0% 0.095 152);
+    --color-green-700:  oklch(39.0% 0.082 152);
+    --color-green-800:  oklch(32.0% 0.068 152);
+    --color-green-900:  oklch(27.0% 0.055 152);
+    --color-green-950:  oklch(19.0% 0.040 152);
+
+    /* Amber: ochre. Deliberately darker than stock amber-500, because the
+       library's Warning button prints white text on it and stock amber
+       cannot carry white text accessibly. */
+    --color-amber-50:   oklch(96.5% 0.025 75);
+    --color-amber-100:  oklch(93.0% 0.045 75);
+    --color-amber-200:  oklch(87.0% 0.070 75);
+    --color-amber-300:  oklch(79.0% 0.095 75);
+    --color-amber-400:  oklch(68.0% 0.110 75);
+    --color-amber-500:  oklch(57.0% 0.115 75);
+    --color-amber-600:  oklch(50.0% 0.105 75);
+    --color-amber-700:  oklch(42.0% 0.090 75);
+    --color-amber-800:  oklch(35.0% 0.075 75);
+    --color-amber-900:  oklch(29.0% 0.060 75);
+    --color-amber-950:  oklch(20.0% 0.045 75);
+
+    /* Sky: petrol - the informational ink, held well away from the prussian
+       of interaction so "this is a link" never reads as "this is a notice". */
+    --color-sky-50:     oklch(96.0% 0.018 205);
+    --color-sky-100:    oklch(92.0% 0.032 205);
+    --color-sky-200:    oklch(86.0% 0.048 205);
+    --color-sky-300:    oklch(77.0% 0.070 205);
+    --color-sky-400:    oklch(66.0% 0.090 205);
+    --color-sky-500:    oklch(55.0% 0.100 205);
+    --color-sky-600:    oklch(47.0% 0.095 205);
+    --color-sky-700:    oklch(40.0% 0.082 205);
+    --color-sky-800:    oklch(33.0% 0.068 205);
+    --color-sky-900:    oklch(27.0% 0.055 205);
+    --color-sky-950:    oklch(19.0% 0.040 205);
+
+    /* 2. GEOMETRY - every rectangular corner is square. `rounded-full` is not
+       a variable and is left alone, so things that are round because they are
+       physically round (spinner, switch knob, timeline dots) stay round. */
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+
+    /* 3. TYPE. No webfonts: an enterprise console should not need a network
+       round-trip to render its own chrome. Identity comes from the pairing
+       and the treatment, not from an exotic face.
+         display - a DIN-ish technical grotesque for headings and labels
+         sans    - the system UI face for reading
+         mono    - figures, identifiers, code */
+    --font-display: "Bahnschrift", "DIN Alternate", "Roboto Condensed", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, Inter, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens (not Tailwind's) used by the structural rules below. */
+    --ledger-rule: var(--color-slate-300);
+    --ledger-rule-strong: var(--color-slate-900);
+    --ledger-overlay-shadow: 0 1px 2px oklch(0% 0 0 / 0.10), 0 12px 32px -8px oklch(0% 0 0 / 0.30);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK ("lamplight")
+   Not an inversion of the paper. The same instrument seen under a desk lamp:
+   a warm charcoal ground (never blue-black), paper-white ink, hairlines
+   lifted rather than darkened, and the same four semantic inks raised in
+   lightness so they keep their identity against a dark ground.
+   ------------------------------------------------------------------------- */
+:root[data-skin="ledger"][data-theme="dark"] {
+    --color-white:      oklch(99.0% 0.003 85);
+    --color-slate-50:   oklch(97.0% 0.005 85);
+    --color-slate-100:  oklch(94.0% 0.006 85);   /* primary text */
+    --color-slate-200:  oklch(88.0% 0.008 85);
+    --color-slate-300:  oklch(82.0% 0.010 85);   /* secondary text */
+    --color-slate-400:  oklch(72.0% 0.012 85);   /* muted text */
+    --color-slate-500:  oklch(65.0% 0.012 85);   /* placeholder/muted: 5.2:1 on surface */
+    --color-slate-600:  oklch(40.0% 0.010 85);   /* strong hairline */
+    --color-slate-700:  oklch(32.0% 0.009 85);   /* hairline */
+    --color-slate-800:  oklch(25.5% 0.008 85);   /* fills, footers, wells */
+    --color-slate-900:  oklch(20.0% 0.007 85);   /* surface */
+    --color-slate-950:  oklch(15.5% 0.006 85);   /* page ground */
+
+    --color-blue-300:   oklch(84.0% 0.070 245);
+    --color-blue-400:   oklch(76.0% 0.100 245);  /* links on dark */
+    --color-blue-500:   oklch(66.0% 0.130 245);  /* focus ring on dark */
+    --color-blue-950:   oklch(22.0% 0.050 245);
+
+    --color-red-300:    oklch(80.0% 0.100 27);
+    --color-red-400:    oklch(72.0% 0.140 27);
+    --color-red-500:    oklch(65.0% 0.170 27);
+
+    --color-green-300:  oklch(82.0% 0.075 152);
+    --color-green-400:  oklch(74.0% 0.105 152);
+    --color-green-500:  oklch(66.0% 0.105 152);
+
+    --color-amber-300:  oklch(84.0% 0.085 75);
+    --color-amber-400:  oklch(76.0% 0.110 75);
+    --color-amber-500:  oklch(68.0% 0.115 75);
+
+    --color-sky-300:    oklch(83.0% 0.070 205);
+    --color-sky-400:    oklch(75.0% 0.090 205);
+    --color-sky-500:    oklch(66.0% 0.100 205);
+
+    --ledger-rule: var(--color-slate-600);
+    --ledger-rule-strong: var(--color-slate-300);
+    --ledger-overlay-shadow: 0 1px 2px oklch(0% 0 0 / 0.5), 0 16px 40px -10px oklch(0% 0 0 / 0.7);
+}
+
+/* -------------------------------------------------------------------------
+   4. ELEVATION: flat in flow, lifted only when genuinely floating.
+   Tailwind's shadow utilities are neutralised wholesale, then handed back to
+   the overlays - the components that actually sit above the page - via the
+   `data-*` hooks they already publish for their own JavaScript.
+   ------------------------------------------------------------------------- */
+[data-skin="ledger"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="ledger"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--ledger-overlay-shadow);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY
+   Headings and micro-labels take the technical grotesque; body text stays in
+   the reading face. Figures are tabular everywhere, so any column of numbers
+   lines up whether or not it is in a table.
+   ------------------------------------------------------------------------- */
+[data-skin="ledger"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="ledger"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    letter-spacing: -0.005em;
+}
+
+/* The library's own convention for a structural label is
+   `text-xs uppercase tracking-wide`. Ledger reads that as a ledger column
+   heading: technical face, wide tracking, and a hairline ruled underneath
+   it across the full measure. (No component uses `uppercase` internally -
+   this pattern only ever appears as page furniture - so the rule is broad
+   without reaching inside any component.) */
+[data-skin="ledger"] .uppercase {
+    font-family: var(--font-display);
+    letter-spacing: 0.1em;
+}
+
+[data-skin="ledger"] h3.uppercase {
+    padding-bottom: 0.375rem;
+    border-bottom: 1px solid var(--color-slate-200);
+}
+
+/* Page and panel titles carry the weight in this system; everything else is
+   set quietly around them. Scoped to the page's own <h1> and to the title of
+   a declared surface, so component-internal headings (Card, Modal and Alert
+   titles are all <h3>) keep the sizes their components chose. */
+[data-skin="ledger"] :is(h1, section.border > h2) {
+    font-size: 1.375rem;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+/* Figures and identifiers. Restricted to content that is genuinely
+   identifier-like: metric values, code, badges, calendar figures, counters.
+   Long prose is never switched to monospace, and neither are table cells:
+   Data Table's cells carry no per-column hook, and right-alignment in this
+   library marks the actions column rather than a numeric one, so there is no
+   honest selector for "this column is figures". Tabular numerals on <body>
+   already line those columns up; that is the part that was actually a
+   reading aid. */
+[data-skin="ledger"] :is(
+    code,
+    [data-badge],
+    [data-stat-card] dd > span:first-child,
+    [data-date-picker-days] button,
+    [data-textarea-count],
+    [data-table-page-indicator],
+    [data-table-status],
+    [data-table-selection-count]
+) {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* The masthead reads as the cover line of the record it heads. */
+[data-skin="ledger"] body > header > div > a:first-child {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.9375rem;
+}
+
+[data-skin="ledger"] body > header {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--ledger-rule-strong);
+}
+
+/* Tracking that reads as a masthead on a desk monitor just costs line breaks
+   on a phone, so it is wound back where the width is not there to spend. */
+@media (max-width: 640px) {
+    [data-skin="ledger"] body > header > div > a:first-child {
+        letter-spacing: 0.05em;
+        font-size: 0.8125rem;
+    }
+}
+
+/* -------------------------------------------------------------------------
+   6. SURFACES: a real surface is announced by a heavier rule along its top
+   edge, the way a ruled page announces a new column of entries. Applied to
+   Card (via its own hook) and to any <section> that has declared itself a
+   bordered surface by carrying Tailwind's `border` class - which is exactly
+   the showcase page panels, and deliberately NOT Page Section, whose whole
+   point is that it owns no surface.
+   ------------------------------------------------------------------------- */
+[data-skin="ledger"] :is([data-card], section.border) {
+    border-top: 2px solid var(--ledger-rule-strong);
+}
+
+/* -------------------------------------------------------------------------
+   7. STATE IS A MARK, NOT A WASH.
+   Alerts and toasts keep their tinted ground (already faint in this palette)
+   and gain a 3px rule down the leading edge - the margin mark. Colour is
+   never the only carrier: the components' own icon and sr-only variant label
+   remain untouched.
+   ------------------------------------------------------------------------- */
+[data-skin="ledger"] :is([data-alert], [data-toast]) {
+    border-left-width: 3px;
+}
+
+/* Toast already draws its own semantic left rule (ToastStyles emits
+   `border-l-4 border-l-green-500` and friends) - the library invented this
+   mark before the theme did, and the palette above simply re-inks it. Alert
+   is the one that needs the colour supplied, because its container border is
+   a single faint tint on all four sides. Alert publishes its variant as a
+   data attribute for its own use, which is the hook used here. */
+[data-skin="ledger"] [data-alert-variant="info"]    { border-left-color: var(--color-sky-600); }
+[data-skin="ledger"] [data-alert-variant="success"] { border-left-color: var(--color-green-600); }
+[data-skin="ledger"] [data-alert-variant="warning"] { border-left-color: var(--color-amber-600); }
+[data-skin="ledger"] [data-alert-variant="error"]   { border-left-color: var(--color-red-600); }
+
+/* Badges are ledger tags, not pills. `rounded-full` is not a theme variable,
+   so squaring them needs this one targeted rule. */
+[data-skin="ledger"] [data-badge] {
+    border-radius: 0;
+}
+
+/* -------------------------------------------------------------------------
+   8. TABLES: ruled, not striped. The head is a micro-label sitting on a
+   heavy rule; the body is hairline-ruled; nothing is filled.
+   ------------------------------------------------------------------------- */
+[data-skin="ledger"] :is(table thead th, [data-table] thead th) {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.6875rem;
+}
+
+[data-skin="ledger"] :is(table thead, [data-table] thead) {
+    border-bottom: 2px solid var(--ledger-rule-strong);
+    background-color: transparent;
+}
+
+/* -------------------------------------------------------------------------
+   9. FIELDS are recessed from the surface they sit on, so a form reads as a
+   set of slots to be filled rather than as white-on-white. In dark mode the
+   same idea runs the other way - fields lift off the ground - and the
+   components already do exactly that with their own `dark:bg-slate-800`,
+   so this rule deliberately applies to light mode only.
+
+   The light-only scope is load-bearing, not cosmetic. `.bg-white` is in the
+   markup in BOTH modes (the components write `bg-white dark:bg-slate-800`),
+   and this file is unlayered, so an unscoped rule here outranks the `dark:`
+   utility and painted dark-mode fields in the near-white `slate-50` of the
+   dark ramp while the text stayed near-white too: typed values measured
+   1.1:1 - invisible while typing. Any future rule keyed off a colour
+   utility class has to be scoped the same way, because the class is present
+   regardless of which mode is actually showing.
+   ------------------------------------------------------------------------- */
+:root[data-skin="ledger"]:not([data-theme="dark"]) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select).bg-white {
+    background-color: var(--color-slate-50);
+}
+
+/* Placeholders are text and are held to text contrast. The library sets them
+   in slate-400, a tone the neutral ramp needs to stay light for decorative
+   marks and icons, so the fix belongs here rather than in the ramp: measured
+   at 3.3:1 against paper before this rule, 5.0:1 after. */
+[data-skin="ledger"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* Same rule for the custom controls, whose "nothing chosen yet" text is a
+   real element rather than a native placeholder. Each marks that state by
+   adding `text-slate-400` to its own value slot, which is the hook used
+   here - measured 3.3:1 before, 5.0:1 after, and unchanged in dark mode
+   where slate-500 is already what those components ask for. */
+[data-skin="ledger"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   10. FOCUS is never subtle. Components that already draw a ring keep it
+   (re-coloured to writing ink by the palette above); this is the safety net
+   for anything that does not, so keyboard focus is always visible.
+   ------------------------------------------------------------------------- */
+[data-skin="ledger"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+}
+
+[data-skin="ledger"] ::selection {
+    background-color: var(--color-blue-200);
+    color: var(--color-slate-900);
+}

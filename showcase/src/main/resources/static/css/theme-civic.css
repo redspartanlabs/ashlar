@@ -1,0 +1,605 @@
+/* =========================================================================
+   CIVIC - an institutional theme for the JTE + Tailwind UI library.
+   =========================================================================
+
+   Enabled by `data-skin="civic"` on <html>. Every rule is scoped under that
+   attribute, so the default appearance, Ledger, Foundry and Veridian are all
+   untouched whether Civic is on, off, or deleted.
+
+   THE IDEA
+   --------
+   Clean, trustworthy, institutional. Civic is the theme for software a
+   public body, a laboratory or a regulated organisation puts into service
+   and then keeps in service: the visual equivalent of a well-run registry.
+   Nothing is styled for delight; everything is styled so it can be read,
+   trusted, and still make sense in ten years.
+
+   It deliberately stays out of the other themes' territory. Ledger is a
+   printed record - ruled rows, square corners, papery warmth. Foundry is a
+   machined instrument - layered plates, cut edges, monospace apparatus.
+   Veridian is a calm workspace - soft hairlines, jade-teal, no structure you
+   could point at. Civic is none of those: it is a bounded, official
+   document. Its structure is the box, not the rule and not the plate.
+
+   Five decisions carry it:
+
+     1. THE MASTHEAD. The site header is a deep institutional navy with
+        light type - the one place in the theme where the identity colour
+        takes a whole surface. No other theme fills its header, so Civic is
+        recognisable before a single component is read. It is also the oldest
+        institutional device there is: the organisation puts its name at the
+        top, in its own colour, and the work happens below it on neutral
+        ground.
+     2. BOUNDED, FLAT SURFACES. White panels on a cool grey ground, each
+        bounded by a border you can actually see, and no shadow anywhere in
+        normal flow. Containment comes from the edge, not from a drop
+        shadow (Meridian) and not from a whisper (Veridian). Elevation is
+        spent only on things that genuinely float.
+     3. THE OFFICIAL BAND. Card headers and table heads take a filled
+        neutral band with a heavier rule under it. That is how an official
+        form separates "what this is" from "what it contains", and it is
+        what makes dense data read as organised rather than merely dense.
+     4. ONE VOICE. A single type family throughout, in two optical cuts.
+        Hierarchy is built from size, weight and tracking rather than from a
+        second personality - see the typography note below for why that is a
+        decision rather than a shortcut.
+     5. STATE YOU CANNOT MISS. The thickest focus ring of the five themes,
+        and selection and current-page marked with an inset edge as well as
+        a colour, so authority never rests on hue alone.
+
+   TYPOGRAPHY NOTE
+   ---------------
+   The other three custom themes each adopt a display face: Ledger takes
+   Bahnschrift/DIN, Foundry takes Franklin Gothic, Veridian takes Corbel.
+   Civic was measured against the same method (rendered text width per
+   family against the generic fallbacks, rather than `document.fonts.check`,
+   which reports true for everything). What is actually installed here and
+   still unclaimed is a poor institutional field:
+
+     * Tahoma, Verdana - legible, but they read as administrative software
+       from 2003, which is the "historical institutional" the brief rules
+       out.
+     * Century Gothic, Trebuchet MS - geometric and quirky respectively;
+       both read as period web design rather than as an institution.
+     * Gill Sans MT - genuinely institutional, but nostalgically so, and its
+       lowercase gets eccentric at control sizes.
+     * Calibri, Candara - the friendly Office register, not an authoritative
+       one. (Veridian had already rejected Candara on other grounds.)
+
+   None of them is better than no second face at all, so Civic does not take
+   one. It uses the system UI family throughout and switches to its Display
+   optical cut - tighter fitting, drawn for large sizes - for page and panel
+   titles at weight 700. That is one family, two cuts, and it is the most
+   institutional answer available: design systems for public bodies almost
+   always run a single family with a strong weight scale, because a second
+   personality is exactly what an official document does not want.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 48 catalog entries at once without
+   touching a template.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   Two consequences are load-bearing:
+     * every rule is scoped and targeted, never a broad element selector
+       that would overrule a class a caller wrote on purpose; and
+     * any rule keyed off a colour utility class (`.bg-white` and friends)
+       must also be scoped to one mode, because that class sits in the
+       markup in BOTH modes - the mistake that once made Ledger's dark
+       fields near-white under near-white text. Civic avoids the trap
+       entirely by driving mode-dependent fills through theme-local
+       variables (`--civic-band` and friends) that are redefined in the dark
+       block, so a single unscoped rule stays correct in both modes.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT
+   Neutrals are cool and almost achromatic - a trace of the identity hue
+   (258) at very low chroma, so the greys read as considered rather than
+   default, and never as warm. Warmth belongs to Ledger; a blue cast across
+   whole surfaces would belong to nobody.
+   ------------------------------------------------------------------------- */
+:root[data-skin="civic"] {
+    /* Neutrals: surface -> ground -> ink. The panel is effectively white -
+       an official form is printed on white - and the page beneath it is a
+       cool grey, so a panel is legible as a bounded area before its border
+       is even noticed. */
+    --color-white:      oklch(99.8% 0.0008 258);  /* panel surface */
+    --color-slate-50:   oklch(94.5% 0.006 258);   /* page ground, quiet fills */
+    --color-slate-100:  oklch(91.0% 0.008 258);   /* secondary fills */
+    --color-slate-200:  oklch(83.5% 0.012 258);   /* container border - visible, not a hairline */
+
+    /* The field edge, and the one value in this palette fixed by measurement
+       rather than by taste. A form control's boundary is what identifies it
+       as a control, so it has to clear 3:1 against the surface behind it
+       (WCAG 1.4.11); the first pass sat at 79.5% and managed 1.89:1, which
+       failed the requirement and, worse, failed Civic's own claim to draw an
+       edge you can actually see. 66.5% measures 3.03:1 on the panel. It
+       looks heavier than the other four themes' field borders because it is,
+       and because an institutional form is exactly where that is correct -
+       public-sector design systems draw this line darker still.
+
+       It is set against the page ground rather than the panel, which is the
+       worse of the two cases: a field inside a Card sits on white, but a
+       Filter Bar's fields sit straight on the ground, and the guarantee
+       should hold wherever a caller puts one. */
+    --color-slate-300:  oklch(62.5% 0.016 258);   /* field edge - 3.0:1 on the ground, 3.5:1 on a panel */
+    --color-slate-400:  oklch(64.0% 0.014 258);   /* decorative marks */
+    --color-slate-500:  oklch(48.0% 0.015 258);   /* muted text - 4.6:1 on white */
+    --color-slate-600:  oklch(41.0% 0.016 258);
+    --color-slate-700:  oklch(33.5% 0.017 258);   /* body text */
+    --color-slate-800:  oklch(26.0% 0.017 258);
+    --color-slate-900:  oklch(19.5% 0.016 258);   /* primary text */
+    --color-slate-950:  oklch(13.5% 0.014 258);
+
+    /* Identity: an institutional navy. Deep and low-chroma rather than the
+       saturated mid-blue a marketing site reaches for - the authority comes
+       from depth, not from brightness. The default library theme's blue sits
+       near this hue at roughly twice the chroma, which is exactly the
+       difference between "a brand colour" and "an official colour". */
+    --color-blue-50:    oklch(96.5% 0.016 258);
+    --color-blue-100:   oklch(92.5% 0.032 258);
+    --color-blue-200:   oklch(86.0% 0.055 258);
+    --color-blue-300:   oklch(76.5% 0.085 258);
+    --color-blue-400:   oklch(64.0% 0.125 258);
+    --color-blue-500:   oklch(53.0% 0.155 258);   /* focus - the bright step */
+    --color-blue-600:   oklch(44.5% 0.140 258);   /* primary fill, links: 5.4:1 */
+    --color-blue-700:   oklch(37.5% 0.120 258);
+    --color-blue-800:   oklch(30.5% 0.098 258);   /* the masthead */
+    --color-blue-900:   oklch(24.5% 0.078 258);
+    --color-blue-950:   oklch(17.0% 0.055 258);
+
+    /* Success: a settled institutional green. Reassuring, never a
+       notification green. Held 106 degrees off the identity hue so a
+       Success button and a Primary button are never confused - the mistake
+       Veridian had to correct during its own build. */
+    --color-green-50:   oklch(96.5% 0.020 152);
+    --color-green-100:  oklch(92.5% 0.038 152);
+    --color-green-200:  oklch(86.0% 0.058 152);
+    --color-green-300:  oklch(77.0% 0.080 152);
+    --color-green-400:  oklch(67.0% 0.100 152);
+    --color-green-500:  oklch(56.0% 0.105 152);
+    --color-green-600:  oklch(47.0% 0.095 152);
+    --color-green-700:  oklch(40.0% 0.082 152);
+    --color-green-800:  oklch(33.5% 0.068 152);
+    --color-green-900:  oklch(27.5% 0.055 152);
+    --color-green-950:  oklch(18.5% 0.040 152);
+
+    /* Information: a cooler, cyan-leaning blue, 46 degrees off the identity
+       hue. Far enough that an Info badge is not mistaken for a Primary
+       affordance, close enough that it still belongs to the same family. */
+    --color-sky-50:     oklch(96.5% 0.018 212);
+    --color-sky-100:    oklch(92.5% 0.034 212);
+    --color-sky-200:    oklch(86.0% 0.052 212);
+    --color-sky-300:    oklch(77.0% 0.072 212);
+    --color-sky-400:    oklch(66.0% 0.092 212);
+    --color-sky-500:    oklch(55.5% 0.098 212);
+    --color-sky-600:    oklch(47.5% 0.090 212);
+    --color-sky-700:    oklch(40.5% 0.078 212);
+    --color-sky-800:    oklch(34.0% 0.066 212);
+    --color-sky-900:    oklch(28.0% 0.054 212);
+    --color-sky-950:    oklch(19.0% 0.038 212);
+
+    /* Warning: ochre. Informative rather than urgent. The 500 step is held
+       darker than stock amber because the library's Warning button prints
+       white text on exactly that step. */
+    --color-amber-50:   oklch(96.5% 0.028 78);
+    --color-amber-100:  oklch(93.0% 0.050 78);
+    --color-amber-200:  oklch(87.0% 0.075 78);
+    --color-amber-300:  oklch(79.0% 0.100 78);
+    --color-amber-400:  oklch(70.0% 0.115 78);
+    --color-amber-500:  oklch(55.5% 0.115 78);
+    --color-amber-600:  oklch(48.0% 0.100 78);
+    --color-amber-700:  oklch(41.0% 0.086 78);
+    --color-amber-800:  oklch(34.0% 0.072 78);
+    --color-amber-900:  oklch(28.0% 0.058 78);
+    --color-amber-950:  oklch(19.0% 0.042 78);
+
+    /* Error: a deep, sober red. Serious, not alarmist - an institution
+       reporting a problem, not a siren. */
+    --color-red-50:     oklch(96.5% 0.018 25);
+    --color-red-100:    oklch(93.0% 0.035 25);
+    --color-red-200:    oklch(86.5% 0.058 25);
+    --color-red-300:    oklch(77.0% 0.090 25);
+    --color-red-400:    oklch(65.0% 0.135 25);
+    --color-red-500:    oklch(55.0% 0.160 25);
+    --color-red-600:    oklch(47.5% 0.165 25);
+    --color-red-700:    oklch(40.5% 0.145 25);
+    --color-red-800:    oklch(34.0% 0.120 25);
+    --color-red-900:    oklch(28.5% 0.098 25);
+    --color-red-950:    oklch(19.5% 0.068 25);
+
+    /* 2. GEOMETRY. Moderate and nearly uniform: a control and the panel it
+       sits in share almost the same corner, which is what makes a dense
+       screen look set rather than assembled. Not Ledger's zero, not
+       Veridian's 10 - and where Foundry's similar numbers read as a cut
+       edge on a machined plate, the same radius on a flat bordered box
+       reads simply as a box with its corners taken off. Badges keep the
+       component's own `rounded-full`, which is not a theme variable; the
+       border added in section 8 is what makes them read as official tokens
+       rather than coloured blobs. */
+    --radius-sm: 3px;
+    --radius-md: 5px;    /* buttons, inputs, menu items */
+    --radius-lg: 6px;
+    --radius-xl: 6px;    /* cards and panels */
+
+    /* 3. TYPE. One family, two optical cuts. See the typography note above
+       for why Civic declines a second face. No webfonts: an institution's
+       own console should not need the network to draw its chrome. */
+    --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens. Anything whose value differs between modes lives
+       here rather than in a `.bg-*`-keyed rule, so the structural rules
+       below can stay unscoped and still be correct in both modes. */
+    --civic-masthead:        var(--color-blue-800);
+    --civic-masthead-ink:    oklch(98% 0.004 258);
+    --civic-masthead-muted:  oklch(85% 0.020 258);
+    --civic-masthead-edge:   oklch(100% 0 0 / 0.22);
+    --civic-masthead-hover:  oklch(100% 0 0 / 0.10);
+    --civic-band:            oklch(95.0% 0.006 258);  /* panel header, table head */
+    --civic-band-active:     oklch(91.0% 0.014 258);  /* the sorted column */
+    /* The band's closing rule. Its own value rather than a palette step:
+       slate-300 is now dark enough to draw a field box, which at 2px under a
+       table head would read as a printed ruled line - Ledger's territory,
+       not Civic's. */
+    --civic-rule:            oklch(76.0% 0.014 258);
+    --civic-field-disabled:  var(--color-slate-100);
+    --civic-overlay-shadow:
+        0 0 0 1px oklch(20% 0.02 258 / 0.08),
+        0 4px 10px -2px oklch(20% 0.02 258 / 0.10),
+        0 18px 36px -12px oklch(20% 0.02 258 / 0.22);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK
+   The same institution after hours. Surfaces go to a near-neutral graphite
+   rather than to navy - a dark theme awash in the identity colour is the
+   quickest way to lose the restraint that defines this one - and only the
+   accents are raised in lightness so they keep working against it. The
+   masthead stays navy, because that is the identity, but a much deeper one.
+   ------------------------------------------------------------------------- */
+:root[data-skin="civic"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.001 258);
+    --color-slate-50:   oklch(97.5% 0.003 258);
+    --color-slate-100:  oklch(95.0% 0.004 258);   /* primary text */
+    --color-slate-200:  oklch(89.0% 0.006 258);
+    --color-slate-300:  oklch(82.5% 0.009 258);
+    --color-slate-400:  oklch(72.5% 0.012 258);   /* muted text */
+    --color-slate-500:  oklch(64.0% 0.013 258);   /* placeholder: 4.9:1 on a field */
+    /* Same measurement as the light field edge, against the dark field fill:
+       3:1 needs 54%, and the conventional slate-600 of the other themes
+       (~41%) only reaches 1.78:1 here. */
+    --color-slate-600:  oklch(54.0% 0.014 258);   /* field edge - 3.0:1 on a field */
+    --color-slate-700:  oklch(35.5% 0.011 258);   /* container border */
+    --color-slate-800:  oklch(26.5% 0.009 258);   /* fields, fills */
+    --color-slate-900:  oklch(21.5% 0.008 258);   /* panel surface */
+    --color-slate-950:  oklch(14.0% 0.006 258);   /* page ground */
+
+    /* Only the light steps move. 600 is deliberately left at its light-mode
+       value so a Primary button keeps white text at 5.4:1 in both modes -
+       the same choice Foundry and Veridian make, and for the same reason. */
+    --color-blue-300:   oklch(83.0% 0.075 258);
+    --color-blue-400:   oklch(75.0% 0.110 258);   /* links on dark */
+    --color-blue-500:   oklch(67.0% 0.140 258);   /* focus on dark */
+    --color-blue-950:   oklch(22.0% 0.045 258);
+
+    --color-green-300:  oklch(84.0% 0.075 152);
+    --color-green-400:  oklch(76.0% 0.098 152);
+    --color-green-500:  oklch(68.0% 0.105 152);
+
+    --color-sky-300:    oklch(84.0% 0.065 212);
+    --color-sky-400:    oklch(76.0% 0.088 212);
+    --color-sky-500:    oklch(68.0% 0.095 212);
+
+    --color-amber-300:  oklch(85.0% 0.085 78);
+    --color-amber-400:  oklch(78.0% 0.105 78);
+    --color-amber-500:  oklch(70.0% 0.120 78);
+
+    --color-red-300:    oklch(82.0% 0.095 25);
+    --color-red-400:    oklch(74.0% 0.140 25);
+    --color-red-500:    oklch(66.0% 0.175 25);
+
+    --civic-masthead:        oklch(23.0% 0.048 258);
+    --civic-masthead-ink:    oklch(95% 0.004 258);
+    --civic-masthead-muted:  oklch(74% 0.014 258);
+    --civic-masthead-edge:   oklch(100% 0 0 / 0.14);
+    --civic-masthead-hover:  oklch(100% 0 0 / 0.07);
+    --civic-band:            oklch(26.5% 0.009 258);
+    --civic-band-active:     oklch(31.0% 0.018 258);
+    --civic-rule:            oklch(44.0% 0.012 258);
+    --civic-field-disabled:  oklch(19.0% 0.007 258);
+    --civic-overlay-shadow:
+        0 0 0 1px oklch(0% 0 0 / 0.55),
+        0 4px 12px -2px oklch(0% 0 0 / 0.45),
+        0 20px 40px -12px oklch(0% 0 0 / 0.6);
+}
+
+/* -------------------------------------------------------------------------
+   4. ELEVATION
+   Nothing in normal flow floats. Tailwind's shadow utilities are neutralised
+   outright - which is what turns the showcase's own `shadow-lg` sections and
+   the library's `shadow-sm` fields into flat bounded areas - and depth is
+   handed back only to the components that genuinely sit above the page, as a
+   conventional enterprise drop with a thin containing ring.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="civic"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--civic-overlay-shadow);
+}
+
+/* -------------------------------------------------------------------------
+   5. THE MASTHEAD
+   The site header, and only the site header: `body > header` cannot reach
+   page-header.jte's own <header>, which is inside <main>. Everything inside
+   is re-pointed explicitly rather than by inheritance, because the header
+   also contains a Dropdown Menu whose panel is an ordinary light surface and
+   must not be dragged along with it.
+
+   `[data-nav-link]`/`[data-navbar-toggle]` joined the control list once
+   navbar.jte started composing real nav-link.jte destinations and its own
+   mobile-menu trigger into this same masthead - without this, both would
+   keep their ordinary slate-600/300 ink, which sits at roughly the same
+   lightness as the navy masthead itself and reads as barely-there text.
+   Their mobile-drawer copies are unaffected: that drawer is a sibling of
+   `header`, not a descendant of it, so this selector never reaches it, and
+   the drawer's own ordinary white/slate-900 surface needs no override at
+   all.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] body > header {
+    background-color: var(--civic-masthead);
+    border-bottom-color: var(--civic-masthead-edge);
+}
+
+[data-skin="civic"] body > header > div > a {
+    color: var(--civic-masthead-ink);
+}
+
+[data-skin="civic"] body > header > div .text-slate-500 {
+    color: var(--civic-masthead-muted);
+}
+
+/* The controls in the masthead become outlined rather than filled: a white
+   box on a navy bar reads as a cut-out, an outlined one reads as part of the
+   bar. `[data-nav-link]` has no border/fill to normalise (it's plain text),
+   so this only ever changes its ink there - the properties simply don't
+   apply to anything it hasn't already set. */
+[data-skin="civic"] body > header :is([data-dropdown-menu-trigger], [data-theme-toggle], [data-nav-link], [data-navbar-toggle]) {
+    background-color: transparent;
+    border-color: var(--civic-masthead-edge);
+    color: var(--civic-masthead-ink);
+}
+
+[data-skin="civic"] body > header :is([data-dropdown-menu-trigger], [data-theme-toggle], [data-nav-link], [data-navbar-toggle]):hover {
+    background-color: var(--civic-masthead-hover);
+}
+
+/* Focus has to switch to a light ring here - the identity navy is the
+   background now, so the usual ring would be invisible against it. */
+[data-skin="civic"] body > header :is([data-dropdown-menu-trigger], [data-theme-toggle], [data-nav-link], [data-navbar-toggle]):focus-visible {
+    outline-color: var(--civic-masthead-ink);
+}
+
+/* -------------------------------------------------------------------------
+   6. TYPOGRAPHY
+   One family in two optical cuts. Titles take the Display cut at 700 -
+   tighter fitting, drawn for size - and everything else stays in the Text
+   cut. Figures are tabular throughout so columns of numbers align, which
+   matters more here than in any other theme because Civic expects to be
+   full of them.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="civic"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.006em;
+}
+
+/* The page's own title, and the title of a declared surface. Weight 700
+   rather than Veridian's 600: this is the one place Civic raises its voice,
+   and the Display cut is light enough in the stem that 600 would read
+   tentative. Component-internal headings (Card, Modal and Alert titles are
+   all <h3>) keep the sizes their components chose. */
+[data-skin="civic"] :is(h1, section.border > h2) {
+    font-size: 1.375rem;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.016em;
+}
+
+/* Section micro-labels. The library writes these as
+   `text-xs uppercase tracking-wide` on an <h3>. Ledger sets them in
+   condensed caps over a rule, Foundry in monospace, Veridian in quiet
+   medium; Civic sets them in semibold with wide tracking - the register of
+   a form's section marker. No component uses `uppercase` internally, so
+   this only ever reaches page furniture. */
+[data-skin="civic"] .uppercase {
+    font-weight: 600;
+    letter-spacing: 0.085em;
+    font-size: 0.6875rem;
+}
+
+/* An identifier is a reference number: it keeps the monospace the library
+   already gives it, and Civic leans into that rather than away. Veridian
+   deliberately removed the distinction to stay human; Civic keeps it
+   because an official record's ID is a different kind of thing from its
+   description, and should look like one. */
+[data-skin="civic"] :is(code, .font-mono) {
+    font-variant-numeric: tabular-nums;
+}
+
+/* A metric is a headline, not a readout. */
+[data-skin="civic"] [data-stat-card] dd > span:first-child {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+[data-skin="civic"] body > header > div > a:first-child {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* -------------------------------------------------------------------------
+   7. PANELS AND THE OFFICIAL BAND
+   A Card's header is not just a heading above a body - it is the part of the
+   form that says what the form is. Filling it and putting a heavier rule
+   under it is the single most institutional gesture in the theme, and it is
+   the one that carries through to the table head in section 9.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] [data-card] > .border-b:first-child {
+    background-color: var(--civic-band);
+    border-bottom-color: var(--civic-rule);
+}
+
+[data-skin="civic"] [data-card] > .border-b:first-child > h3 {
+    font-weight: 600;
+    letter-spacing: -0.004em;
+}
+
+/* A Card's footer is where its actions live, and the separation between
+   content and actions should be as obvious as the one at the top. */
+[data-skin="civic"] [data-card] > .border-t:last-child {
+    border-top-color: var(--civic-rule);
+}
+
+/* -------------------------------------------------------------------------
+   8. CONTROLS AND STATE
+   Fields are white boxes with a definite edge - the palette's slate-300 is
+   dark enough to be seen rather than sensed, which is what stops a dense
+   form from dissolving. Nothing is made taller, rounder or glossier.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark "nothing chosen yet" by adding `text-slate-400`
+   to their own value slot; the same contrast floor applies there. */
+[data-skin="civic"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+/* A disabled control should read as unavailable, not as broken or as
+   illegible. The components drop it to slate-400; Civic holds the text at
+   slate-500 and fills the box instead, so the value can still be read by
+   someone who needs to know what it says. */
+[data-skin="civic"] :is(input, textarea, select, [data-select-trigger], [data-combobox-input], [data-date-picker-trigger]):disabled {
+    background-color: var(--civic-field-disabled);
+    color: var(--color-slate-500);
+}
+
+/* Buttons carry a little more weight than the library's default `font-medium`
+   - an action in an institutional UI should look like a decision. No
+   gradient, no shadow, no pill: the variants' own colours do the rest. */
+[data-skin="civic"] [data-btn] {
+    font-weight: 600;
+}
+
+/* Badges become bordered tokens rather than colour patches. The border is
+   mixed from the badge's own text colour, so every variant gets a matching
+   edge without this theme enumerating any of them - and a status reads as
+   something stamped on the record rather than something highlighted. */
+[data-skin="civic"] [data-badge] {
+    border: 1px solid color-mix(in oklab, currentColor 28%, transparent);
+    font-weight: 600;
+}
+
+/* Alerts and toasts get a heavier leading edge in the variant's own border
+   colour. This is the conventional severity marker in administrative
+   software, and it costs nothing in colour vocabulary because it reuses the
+   border the component already chose. */
+[data-skin="civic"] :is([data-alert], [data-toast]) {
+    border-left-width: 4px;
+}
+
+/* -------------------------------------------------------------------------
+   9. DATA
+   The table head is the official band again: filled, semibold, and closed
+   off with a heavier rule so the head reads as a separate register from the
+   body. Row separation is left to the component's own hairlines, which the
+   palette has already made visible - Civic wants rows legible, not ruled.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] :is(table thead, [data-table] thead) {
+    background-color: var(--civic-band);
+    border-bottom: 2px solid var(--civic-rule);
+}
+
+[data-skin="civic"] :is(table thead th, [data-table] thead th) {
+    font-weight: 600;
+    letter-spacing: 0.012em;
+    color: var(--color-slate-700);
+}
+
+:root[data-skin="civic"][data-theme="dark"] :is(table thead th, [data-table] thead th) {
+    color: var(--color-slate-200);
+}
+
+/* The sort control inside a heading inherits the heading's colour so the
+   head row reads as one thing. */
+[data-skin="civic"] :is(table thead th, [data-table] thead th) [data-table-sort] {
+    color: inherit;
+}
+
+/* A sorted column is marked on the column itself, not only by an arrow
+   glyph a few pixels wide. */
+[data-skin="civic"] [data-table-column][aria-sort]:not([aria-sort="none"]) {
+    background-color: var(--civic-band-active);
+}
+
+/* Selection carries an inset leading edge as well as a fill, so it survives
+   being looked at quickly - and so it does not depend on colour alone. The
+   script toggles the light and dark fill classes together, so keying off the
+   light one covers both modes. */
+[data-skin="civic"] [data-table-row].bg-blue-50\/60 {
+    box-shadow: inset 3px 0 0 var(--color-blue-600);
+}
+
+/* -------------------------------------------------------------------------
+   10. NAVIGATION AND FOCUS
+   "Where am I" is answered with an edge and a weight, not just a colour.
+   Focus is the thickest of the five themes: in a regulated environment the
+   keyboard path has to be obvious from across the desk.
+   ------------------------------------------------------------------------- */
+[data-skin="civic"] [data-dropdown-menu-item][aria-current] {
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--color-blue-600);
+}
+
+[data-skin="civic"] :focus-visible {
+    outline: 3px solid var(--color-blue-500);
+    outline-offset: 2px;
+}
+
+[data-skin="civic"] ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-slate-900);
+}

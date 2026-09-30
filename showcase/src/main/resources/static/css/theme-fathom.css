@@ -1,0 +1,502 @@
+/* =========================================================================
+   FATHOM - an ordered, engineered theme for the JTE + Tailwind UI library.
+   =========================================================================
+
+   Enabled by `data-skin="fathom"` on <html>. Every rule is scoped under that
+   attribute, so the default appearance and Ledger, Foundry, Veridian, Civic,
+   Sterling, Summit, Harbor, Axiom and Keystone are all untouched whether
+   Fathom is on, off, or deleted.
+
+   ORIGIN
+   ------
+   Generated from a semantic brief rather than a visual one:
+
+     Character  Conservative   Structure    Ordered
+     Intellect  Precise        Environment  Deep
+     Material   Industrial     Geometry     Soft
+     Tone       Crisp          Interaction  Informative
+
+   None of it was read as a decoration prompt. There is no machinery, no
+   rivets, no depth-gauge imagery and no nautical anything - the name is a
+   unit of measurement, which is the only sense in which it is used.
+
+   THE THESIS: A MEASURED Z-AXIS
+   -----------------------------
+   The set contains two apparent contradictions, and resolving them is the
+   whole design.
+
+   SOFT against CRISP resolves as rounded form with hard edge. Not a
+   compromise between the two - both, fully. Every corner in the theme is
+   generously eased, and every boundary is a defined line with no blur in it.
+   That is precision-moulded equipment: a laboratory enclosure, an instrument
+   case. Soft shape, sharp definition.
+
+   DEEP against CONSERVATIVE resolves by refusing to read "deep" as "dark".
+   Depth here is spatial legibility - you can always tell what is in front of
+   what, and by how much - which is exactly what ORDERED, INDUSTRIAL and
+   INFORMATIVE ask for as well. So Fathom's centrepiece is an ENUMERATED
+   ELEVATION LADDER: four levels, each one a stated distance, each assigned
+   to a class of thing on purpose.
+
+     L0  flat      fields, badges, buttons, alerts - defined by their edge
+     L1  raised    panels, cards, tables, page sections
+     L2  anchored  overlays tied to a trigger: menus, listboxes, popovers,
+                   tooltips, the date-picker panel
+     L3  detached  overlays that belong to the whole page: modal, drawer,
+                   toast
+
+   The L2/L3 split is the part that matters and it is the one thing no other
+   theme in this library does - all nine of them apply a single shadow to all
+   nine overlay components at once. Fathom separates them because the
+   distinction is TRUE: a dropdown is attached to the control that opened it
+   and should sit just above it, while a modal has left the page behind
+   entirely. Making that visible is the most informative thing elevation can
+   do, and it costs nothing but saying so.
+
+   Every shadow in the ladder is crisp rather than diffuse: a defining 1px
+   ring plus a drop whose blur is held below its own offset. Depth is
+   communicated by DISTANCE, not by haze.
+
+   ATMOSPHERIC PALETTE
+   -------------------
+   The second reading of DEEP is atmospheric: in air, things gain colour as
+   they recede. Fathom's neutral ramp does the same thing - chroma RISES with
+   depth, from 0.002 at the panel surface to 0.030 at the ink. The lit
+   surfaces are almost colourless and the shadows are anodized blue-grey.
+   Every other theme here holds its chroma roughly flat down the ramp; this
+   one treats depth as the thing that produces colour.
+
+   The accent sits at the same hue as the neutrals - the material saturated
+   rather than a colour applied to it, which is what anodizing actually is,
+   and the most INDUSTRIAL relationship a palette can have. CONSERVATIVE
+   keeps it deep and moderate rather than bright.
+
+   TYPOGRAPHY NOTE
+   ---------------
+   Fathom takes no display face. Every distinctive family on this machine is
+   claimed - Bahnschrift by Ledger, Franklin Gothic by Foundry, Corbel by
+   Veridian, the Segoe Display optical cut by Civic, Sitka by Sterling - and
+   CONSERVATIVE argues against a borrowed personality regardless: an
+   established tool does not change its voice. Hierarchy is built from size,
+   weight and ink, held at 600 rather than 700 because this theme states
+   things rather than announcing them.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 48 catalog entries at once without
+   touching a template.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   Two consequences are load-bearing:
+     * every rule is scoped and targeted, never a broad element selector
+       that would overrule a class a caller wrote on purpose; and
+     * any rule keyed off a colour utility class (`.bg-white` and friends)
+       must also be scoped to one mode, because that class sits in the
+       markup in BOTH modes - the mistake that once made Ledger's dark
+       fields near-white under near-white text. Fathom avoids the trap
+       entirely by driving every mode-dependent value through theme-local
+       variables that are redefined in the dark block.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT ("anodized")
+   Chroma rises with depth. The panel is effectively colourless, the ground
+   barely tinted, and by the time the ramp reaches ink it is a definite
+   blue-grey at 0.030. Read it as one material lit from the front: the
+   surfaces facing the light are neutral, the recesses hold colour.
+   ------------------------------------------------------------------------- */
+:root[data-skin="fathom"] {
+    /* Neutral: surface -> ground -> ink, gaining colour as it goes down */
+    --color-white:      oklch(99.6% 0.002 221);   /* panel surface */
+    --color-slate-50:   oklch(97.0% 0.004 221);   /* page ground */
+    --color-slate-100:  oklch(93.8% 0.006 221);   /* secondary fills */
+    --color-slate-200:  oklch(88.2% 0.009 221);   /* container border */
+
+    /* The field edge. A form control's boundary is what identifies it as a
+       control, so it has to clear 3:1 against the surface behind it
+       (WCAG 1.4.11), measured against the page ground rather than a panel
+       because that is the worse of the two cases - a Card's fields sit on
+       the panel, a Filter Bar's sit straight on the ground. That puts this
+       step darker than slate-400, inverting the usual ramp order; it is safe
+       because 300 is only ever used for borders here and 400 only for
+       decorative marks, and six themes in this library already do it. */
+    --color-slate-300:  oklch(61.5% 0.020 221);   /* field edge - 3.0:1 on the ground */
+
+    --color-slate-400:  oklch(64.5% 0.018 221);   /* decorative marks */
+    --color-slate-500:  oklch(48.5% 0.022 221);   /* muted text */
+    --color-slate-600:  oklch(41.0% 0.024 221);
+    --color-slate-700:  oklch(33.0% 0.026 221);   /* body text */
+    --color-slate-800:  oklch(25.5% 0.028 221);
+    --color-slate-900:  oklch(19.0% 0.030 221);   /* primary text - deepest colour */
+    --color-slate-950:  oklch(12.5% 0.030 221);
+
+    /* The accent: the same hue as the neutrals, saturated. Anodizing colours
+       a metal without changing what it is, and that is the relationship
+       here - not a brand colour laid over a grey system but the system's own
+       material brought up. Held at 0.110 because CONSERVATIVE rules out a
+       bright control colour; deep enough to carry white text at 5.9:1. */
+    /* Selection has to be legible for INFORMATIVE to mean anything: at
+       93.5%/0.026 a selected row measured 1.10:1 against an unselected one,
+       below the library's own 1.13 baseline. */
+    --color-blue-50:    oklch(92.4% 0.030 221);   /* selected rows, option hover */
+    --color-blue-100:   oklch(90.0% 0.042 221);
+    --color-blue-200:   oklch(83.5% 0.062 221);
+    --color-blue-300:   oklch(74.5% 0.085 221);
+    --color-blue-400:   oklch(62.5% 0.105 221);
+    --color-blue-500:   oklch(52.5% 0.118 221);   /* focus */
+    --color-blue-600:   oklch(44.0% 0.110 221);   /* primary fill, links */
+    --color-blue-700:   oklch(37.0% 0.096 221);
+    --color-blue-800:   oklch(31.0% 0.081 221);
+    --color-blue-900:   oklch(25.5% 0.066 221);
+    --color-blue-950:   oklch(17.5% 0.048 221);
+
+    /* Information at hue 288 - 67 degrees off the accent. With the accent
+       sharing the neutrals' own hue, an informational blue anywhere near it
+       would read as a slightly bluer version of the furniture rather than as
+       a distinct signal. */
+    --color-sky-50:     oklch(96.3% 0.020 288);
+    --color-sky-100:    oklch(92.8% 0.038 288);
+    --color-sky-200:    oklch(86.3% 0.058 288);
+    --color-sky-300:    oklch(77.5% 0.085 288);
+    --color-sky-400:    oklch(66.0% 0.118 288);
+    --color-sky-500:    oklch(55.5% 0.145 288);
+    --color-sky-600:    oklch(47.0% 0.145 288);
+    --color-sky-700:    oklch(40.0% 0.126 288);
+    --color-sky-800:    oklch(33.5% 0.104 288);
+    --color-sky-900:    oklch(28.0% 0.083 288);
+    --color-sky-950:    oklch(19.0% 0.058 288);
+
+    /* Success at hue 145. */
+    --color-green-50:   oklch(96.3% 0.022 145);
+    --color-green-100:  oklch(92.8% 0.042 145);
+    --color-green-200:  oklch(86.3% 0.064 145);
+    --color-green-300:  oklch(77.5% 0.092 145);
+    --color-green-400:  oklch(67.0% 0.120 145);
+    --color-green-500:  oklch(55.5% 0.132 145);
+    --color-green-600:  oklch(47.5% 0.140 145);
+    --color-green-700:  oklch(40.5% 0.122 145);
+    --color-green-800:  oklch(34.0% 0.100 145);
+    --color-green-900:  oklch(28.0% 0.080 145);
+    --color-green-950:  oklch(19.0% 0.056 145);
+
+    /* Warning. The 500 step is held darker than stock amber because the
+       library's Warning button prints white text on exactly that step, and
+       the dark steps run warmer so a Warning badge's text separates from a
+       Danger badge's. */
+    --color-amber-50:   oklch(96.3% 0.026 75);
+    --color-amber-100:  oklch(92.8% 0.046 75);
+    --color-amber-200:  oklch(86.5% 0.070 75);
+    --color-amber-300:  oklch(78.5% 0.094 75);
+    --color-amber-400:  oklch(69.5% 0.108 75);
+    --color-amber-500:  oklch(55.0% 0.108 75);
+    --color-amber-600:  oklch(48.0% 0.098 77);
+    --color-amber-700:  oklch(41.0% 0.102 80);
+    --color-amber-800:  oklch(34.5% 0.088 82);
+    --color-amber-900:  oklch(28.5% 0.072 82);
+    --color-amber-950:  oklch(19.0% 0.050 82);
+
+    /* Error at hue 25 - the most saturated thing in the palette, because a
+       conservative system still owes the user an unmissable failure. */
+    --color-red-50:     oklch(96.3% 0.017 25);
+    --color-red-100:    oklch(92.8% 0.034 25);
+    --color-red-200:    oklch(86.5% 0.055 25);
+    --color-red-300:    oklch(77.0% 0.086 25);
+    --color-red-400:    oklch(65.0% 0.128 25);
+    --color-red-500:    oklch(54.5% 0.158 25);
+    --color-red-600:    oklch(47.0% 0.162 25);
+    --color-red-700:    oklch(40.0% 0.142 25);
+    --color-red-800:    oklch(33.5% 0.118 25);
+    --color-red-900:    oklch(28.0% 0.094 25);
+    --color-red-950:    oklch(19.0% 0.066 25);
+
+    /* 2. GEOMETRY - SOFT, AND ORDERED. Every radius is a multiple of three:
+       3, 6, 9, 12. SOFT asks for approachable rounding rather than angular
+       construction, ORDERED asks for a stated system rather than four values
+       chosen by eye, and CONSERVATIVE caps the top of it - 12px on a panel
+       is eased, not fashionable. The softness lives in the corner; the
+       crispness lives in the edge that meets it. `rounded-full` is not a
+       theme variable and is left alone, so the things that are round because
+       they are physically round - the spinner, the switch knob, the timeline
+       dots - stay round. */
+    --radius-sm: 3px;
+    --radius-md: 6px;    /* buttons, inputs, menu items */
+    --radius-lg: 9px;
+    --radius-xl: 12px;   /* cards and panels */
+
+    /* 3. TYPE. One family - see the typography note. No webfonts: an
+       instrument should not need the network to draw its own chrome. */
+    --font-display: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* THE LADDER. Four stated levels. Each is a 1px defining ring plus a
+       drop whose blur is held below its own offset, so depth reads as
+       distance rather than as haze - CRISP applied to elevation. The ring is
+       what keeps an edge hard at every level. */
+    --fathom-l1:
+        0 0 0 1px oklch(19.0% 0.030 221 / 0.07),
+        0 1px 2px -1px oklch(19.0% 0.030 221 / 0.12);
+    --fathom-l2:
+        0 0 0 1px oklch(19.0% 0.030 221 / 0.10),
+        0 2px 3px -1px oklch(19.0% 0.030 221 / 0.12),
+        0 6px 8px -5px oklch(19.0% 0.030 221 / 0.16);
+    --fathom-l3:
+        0 0 0 1px oklch(19.0% 0.030 221 / 0.12),
+        0 4px 6px -2px oklch(19.0% 0.030 221 / 0.16),
+        0 18px 24px -12px oklch(19.0% 0.030 221 / 0.26);
+    --fathom-field-disabled: var(--color-slate-100);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK ("depth")
+   Where the atmospheric idea pays off. The ground is not a neutral charcoal
+   but a genuinely deep anodized blue-grey at full ramp chroma, and the
+   panels step up from it in measured increments rather than fading in. The
+   ladder survives intact: on a dark ground a downward shadow says little, so
+   each level's defining ring carries proportionally more of the work.
+   ------------------------------------------------------------------------- */
+:root[data-skin="fathom"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.002 221);
+    --color-slate-50:   oklch(97.3% 0.004 221);
+    --color-slate-100:  oklch(94.5% 0.005 221);   /* primary text */
+    --color-slate-200:  oklch(89.0% 0.007 221);
+    --color-slate-300:  oklch(83.0% 0.010 221);
+    --color-slate-400:  oklch(73.5% 0.014 221);   /* muted text */
+    --color-slate-500:  oklch(64.5% 0.018 221);   /* placeholder */
+
+    /* Same measurement as the light field edge, against the dark field fill:
+       3:1 needs ~54%, and the ~41% convention the earliest themes used for
+       this step only reaches 1.8:1 here. */
+    --color-slate-600:  oklch(54.0% 0.022 221);   /* field edge */
+
+    --color-slate-700:  oklch(34.0% 0.024 221);   /* container border */
+    --color-slate-800:  oklch(24.0% 0.028 221);   /* fields, fills */
+    --color-slate-900:  oklch(18.5% 0.030 221);   /* panel surface */
+    --color-slate-950:  oklch(13.5% 0.032 221);   /* page ground - deepest */
+
+    /* Only the light steps move. 600 stays at its light-mode value so a
+       Primary button keeps white text above 4.5:1 in both modes. */
+    --color-blue-300:   oklch(83.0% 0.068 221);
+    --color-blue-400:   oklch(75.5% 0.092 221);   /* links on dark */
+    --color-blue-500:   oklch(67.5% 0.112 221);   /* focus on dark */
+
+    /* The dark selected-row wash. The components paint selection as
+       `bg-blue-950/40` over the panel, so this step has to sit well clear of
+       the panel's own 18.5% or the state disappears entirely; 33% puts a
+       selected row at the same visibility as in light mode. */
+    --color-blue-950:   oklch(33.0% 0.082 221);
+
+    --color-green-300:  oklch(84.0% 0.084 145);
+    --color-green-400:  oklch(76.0% 0.108 145);
+    --color-green-500:  oklch(68.0% 0.122 145);
+
+    --color-sky-300:    oklch(84.0% 0.074 288);
+    --color-sky-400:    oklch(76.0% 0.106 288);
+    --color-sky-500:    oklch(68.0% 0.128 288);
+
+    --color-amber-300:  oklch(85.0% 0.082 75);
+    --color-amber-400:  oklch(78.0% 0.100 75);
+    --color-amber-500:  oklch(70.0% 0.112 75);
+
+    --color-red-300:    oklch(82.0% 0.090 25);
+    --color-red-400:    oklch(74.0% 0.130 25);
+    --color-red-500:    oklch(66.0% 0.162 25);
+
+    --fathom-l1: 0 0 0 1px oklch(0% 0 0 / 0.34);
+    --fathom-l2:
+        0 0 0 1px oklch(0% 0 0 / 0.48),
+        0 2px 3px -1px oklch(0% 0 0 / 0.38),
+        0 6px 8px -5px oklch(0% 0 0 / 0.45);
+    --fathom-l3:
+        0 0 0 1px oklch(0% 0 0 / 0.58),
+        0 4px 6px -2px oklch(0% 0 0 / 0.45),
+        0 18px 26px -12px oklch(0% 0 0 / 0.62);
+    --fathom-field-disabled: oklch(16.5% 0.030 221);
+}
+
+/* -------------------------------------------------------------------------
+   4. THE LADDER, APPLIED
+   Tailwind's shadow utilities are neutralised so nothing lands on a level by
+   accident, then each class of thing is placed on its stated level.
+
+   L0 is everything not named below - a field, a badge, a button, an alert -
+   and it is flat on purpose: those things are part of the surface they sit
+   on, and their edge is what defines them.
+   ------------------------------------------------------------------------- */
+[data-skin="fathom"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+/* L1 - raised. The working surfaces of a page. */
+[data-skin="fathom"] :is([data-card], [data-stat-card], [data-table], section.border) {
+    box-shadow: var(--fathom-l1);
+}
+
+/* L2 - anchored. These belong to the control that opened them and sit just
+   above it. Keeping them nearer than a modal is the single most informative
+   thing this theme does with elevation. */
+[data-skin="fathom"] :is(
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble]
+) {
+    box-shadow: var(--fathom-l2);
+}
+
+/* L3 - detached. These have left the page behind, and the distance says so. */
+[data-skin="fathom"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-toast]
+) {
+    box-shadow: var(--fathom-l3);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY
+   Ordered and unhurried. One step up to the page title, 600 throughout, and
+   tabular figures everywhere because PRECISE means a column of numbers is a
+   column.
+   ------------------------------------------------------------------------- */
+[data-skin="fathom"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="fathom"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.012em;
+}
+
+/* `:not(.uppercase)` matters: the Home index writes its category labels as
+   `<h2 class="text-xs uppercase tracking-wide">` inside a bordered section,
+   so a bare `section.border > h2` selector catches them too and prints
+   "FORMS" at title size. That selector outranks the `.uppercase` rule below
+   on specificity, so ordering alone will not settle it. */
+[data-skin="fathom"] :is(h1, section.border > h2:not(.uppercase)) {
+    font-size: 1.3125rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.016em;
+}
+
+/* Section micro-labels, written by the library as `text-xs uppercase
+   tracking-wide` on an <h3>. Evenly tracked and no heavier than any other
+   label - a conservative system does not shout its section names. */
+[data-skin="fathom"] .uppercase {
+    font-weight: 600;
+    letter-spacing: 0.065em;
+    font-size: 0.6875rem;
+}
+
+[data-skin="fathom"] [data-stat-card] dd > span:first-child {
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.018em;
+}
+
+[data-skin="fathom"] [data-card] > .border-b:first-child > h3 {
+    font-weight: 600;
+    letter-spacing: -0.010em;
+}
+
+[data-skin="fathom"] legend {
+    font-weight: 600;
+}
+
+[data-skin="fathom"] body > header > div > a:first-child {
+    font-weight: 600;
+    letter-spacing: -0.014em;
+}
+
+[data-skin="fathom"] :is(code, .font-mono) {
+    font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   6. STATE - INFORMATIVE
+   Each state changes a DIFFERENT property, so a user can tell which state
+   they are in rather than only that something happened:
+
+     hover     the surface changes          (the components' own fills)
+     focus     an outline appears           (section 8)
+     selected  surface plus a held edge     (the palette's blue-50 wash)
+     disabled  the box fills and the text stays readable
+
+   That last one is the theme's own correction. The components drop a
+   disabled control to slate-400, which reads as broken rather than as
+   unavailable; Fathom holds the text at slate-500 and fills the box, so the
+   value can still be read by someone who needs to know what it says.
+   INFORMATIVE means a state carries information even when the answer is
+   "you cannot use this".
+   ------------------------------------------------------------------------- */
+[data-skin="fathom"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark "nothing chosen yet" by adding `text-slate-400`
+   to their own value slot; the same contrast floor applies there. */
+[data-skin="fathom"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+[data-skin="fathom"] :is(input, textarea, select, [data-select-trigger], [data-combobox-input], [data-date-picker-trigger]):disabled {
+    background-color: var(--fathom-field-disabled);
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   7. DATA
+   Column names sit back in the ramp so the readings come first, and a sorted
+   column brings its own label to full ink - the sort state belongs to the
+   column it describes, which is the informative place to put it.
+   ------------------------------------------------------------------------- */
+[data-skin="fathom"] :is(table thead th, [data-table] thead th) {
+    font-weight: 600;
+    letter-spacing: 0.018em;
+    color: var(--color-slate-600);
+}
+
+:root[data-skin="fathom"][data-theme="dark"] :is(table thead th, [data-table] thead th) {
+    color: var(--color-slate-300);
+}
+
+[data-skin="fathom"] :is(table thead th, [data-table] thead th) [data-table-sort] {
+    color: inherit;
+}
+
+[data-skin="fathom"] [data-table-column][aria-sort]:not([aria-sort="none"]) [data-table-sort] {
+    color: var(--color-slate-900);
+}
+
+:root[data-skin="fathom"][data-theme="dark"] [data-table-column][aria-sort]:not([aria-sort="none"]) [data-table-sort] {
+    color: var(--color-slate-100);
+}
+
+/* -------------------------------------------------------------------------
+   8. FOCUS AND SELECTION
+   The one state that is allowed to be emphatic. Conservative governs how
+   loud a theme is, never whether the keyboard path can be found.
+   ------------------------------------------------------------------------- */
+[data-skin="fathom"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+}
+
+[data-skin="fathom"] ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-slate-900);
+}

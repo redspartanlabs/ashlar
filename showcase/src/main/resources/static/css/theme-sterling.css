@@ -1,0 +1,496 @@
+/* =========================================================================
+   STERLING - a refined, understated theme for the JTE + Tailwind UI library.
+   =========================================================================
+
+   Enabled by `data-skin="sterling"` on <html>. Every rule is scoped under
+   that attribute, so the default appearance, Ledger, Foundry, Veridian and
+   Civic are all untouched whether Sterling is on, off, or deleted.
+
+   THE IDEA
+   --------
+   Refined, precise, understated. Sterling is the theme for software that has
+   been in service long enough to have nothing left to prove: a professional
+   tool that states things rather than presenting them.
+
+   Its one structural conviction is that HIERARCHY IS TYPOGRAPHIC. Where the
+   other themes reach for apparatus - a rule, a plate, a filled band, a
+   masthead - Sterling reaches for weight, size, tracking and colour, and
+   leaves the structure almost invisible. What is left of the structure is
+   deliberately unequal: a hairline around a panel, because a panel only
+   needs to be suggested, and a definite edge around a field, because a
+   field has to be identifiable as a control. That asymmetry is the theme's
+   whole border policy, and it is the opposite of drawing every component as
+   a box.
+
+   Four decisions carry it:
+
+     1. A SERIF FOR HEADINGS, A SANS FOR LABELS. The only serif in the
+        library (see the typography note). Headings take it; the small
+        letterspaced labels deliberately stay in the reading face, which is
+        the convention an editorial system uses to separate voice from
+        apparatus.
+     2. SILVER, NOT GREY. The neutral ramp carries a faint cool cast at hue
+        265, so surfaces read as pewter and platinum rather than as neutral
+        screen grey (Foundry's mineral) or blue-grey (Civic's).
+     3. A SHALLOW ELEVATION LADDER. Sterling is the only theme of the six
+        with real shadow in normal flow, and it is one pixel of it. A
+        declared surface is lifted just off the page; nothing else is lifted
+        at all. Elevation is a statement about what a thing is, not a
+        decoration.
+     4. AN ACCENT THAT DOES NOT TINT. The blue's light steps are held at
+        roughly half the chroma of the deep ones, so a selected row or a
+        badge wash reads as silver-blue rather than as blue - the accent
+        saturates only where it means something.
+
+   TYPOGRAPHY NOTE
+   ---------------
+   Measured the same way the other themes were: rendered text width per
+   family against the generic fallbacks, rather than `document.fonts.check`,
+   which reports true for everything. The sans display faces worth having
+   are already taken - Bahnschrift by Ledger, Franklin Gothic by Foundry,
+   Corbel by Veridian, and Civic deliberately declined a second face and
+   took the Segoe Display optical cut - so Sterling was auditioned against
+   the installed serifs at real heading strings and sizes:
+
+     * Georgia - wide and heavy; reads as a 2005 website.
+     * Cambria - sturdy, slab-ish serifs; reads as a word-processor
+       template.
+     * Palatino Linotype, Constantia - both handsome, both calligraphic
+       enough to pull towards the literary register rather than the
+       professional one.
+     * Perpetua, Baskerville Old Face - too fine in the stem; they go weak
+       at interface sizes.
+     * Sitka Heading - moderate stroke contrast, compact, confident, and
+       optically drawn for exactly this size range. It reads refined and
+       current rather than traditional, which is the distinction between
+       "established" and "old-fashioned" the brief turns on.
+
+   Sitka Heading leads, with Sitka Text and Constantia behind it and the
+   generic serif last. Sitka's figures are forced to lining and tabular
+   wherever the face is used, because its defaults look wrong beside data.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 48 catalog entries at once without
+   touching a template.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   Two consequences are load-bearing:
+     * every rule is scoped and targeted, never a broad element selector
+       that would overrule a class a caller wrote on purpose; and
+     * any rule keyed off a colour utility class (`.bg-white` and friends)
+       must also be scoped to one mode, because that class sits in the
+       markup in BOTH modes - the mistake that once made Ledger's dark
+       fields near-white under near-white text. Sterling avoids the trap
+       entirely by driving every mode-dependent value through theme-local
+       variables that are redefined in the dark block.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT ("silver")
+   Clean white for a declared surface, cool off-white for the page beneath
+   it, and a neutral ramp with just enough chroma at hue 265 to read as
+   pewter rather than as default grey. Lightness ordering matches stock
+   Tailwind, so any utility used without a dark: counterpart still behaves.
+   ------------------------------------------------------------------------- */
+:root[data-skin="sterling"] {
+    /* Neutral: surface -> ground -> ink */
+    --color-white:      oklch(100% 0 0);          /* panel surface: clean white */
+    --color-slate-50:   oklch(97.2% 0.004 265);   /* page ground, quiet fills */
+    --color-slate-100:  oklch(94.2% 0.006 265);   /* secondary fills */
+    --color-slate-200:  oklch(89.5% 0.008 265);   /* hairline - panels, dividers, rows */
+    --color-slate-400:  oklch(65.0% 0.013 265);   /* decorative marks */
+    --color-slate-500:  oklch(49.0% 0.014 265);   /* muted text - 4.6:1 on the ground */
+    --color-slate-600:  oklch(41.5% 0.015 265);
+    --color-slate-700:  oklch(34.0% 0.016 265);   /* body text */
+    --color-slate-800:  oklch(26.5% 0.016 265);
+    --color-slate-900:  oklch(20.0% 0.015 265);   /* primary text */
+    --color-slate-950:  oklch(13.5% 0.013 265);
+
+    /* The field edge - the one asymmetry in Sterling's border policy, and
+       the one value here fixed by measurement rather than by taste. A panel
+       is bounded by slate-200 above, which is a hairline on purpose; a form
+       control is not a panel, and its boundary is what identifies it as a
+       control, so it has to clear 3:1 against the surface behind it
+       (WCAG 1.4.11). Measured against the page ground rather than the panel,
+       because that is the worse of the two cases - a Card's fields sit on
+       white, but a Filter Bar's sit straight on the ground. */
+    --color-slate-300:  oklch(63.5% 0.014 265);   /* field edge - 3.0:1 on the ground */
+
+    /* Accent: a deep professional blue at hue 256. The light steps are held
+       well below the chroma the default library theme uses - blue-50 and
+       blue-100 are what a selected row, a badge and an info wash are made
+       of, and Sterling wants those to read as silver-blue rather than as
+       colour. The saturation is spent at 500/600, where it carries focus,
+       links and the primary action.
+
+       The light end is held down in LIGHTNESS rather than only in chroma,
+       and that is a correction: the first pass had blue-50 at 97%/0.008,
+       which made a selected table row measure 1.05:1 against an unselected
+       one - a state that is technically present and practically invisible.
+       Restraint is not an excuse for a state you cannot see. These steps put
+       a selected row back at parity with the default theme (~1.12:1) while
+       still carrying about two thirds of its chroma. */
+    --color-blue-50:    oklch(93.5% 0.021 256);
+    --color-blue-100:   oklch(90.0% 0.034 256);
+    --color-blue-200:   oklch(84.0% 0.050 256);
+    --color-blue-300:   oklch(76.0% 0.070 256);
+    --color-blue-400:   oklch(65.0% 0.095 256);
+    --color-blue-500:   oklch(54.0% 0.140 256);   /* focus */
+    --color-blue-600:   oklch(45.5% 0.135 256);   /* primary fill, links */
+    --color-blue-700:   oklch(38.5% 0.118 256);
+    --color-blue-800:   oklch(32.0% 0.098 256);
+    --color-blue-900:   oklch(26.0% 0.078 256);
+    --color-blue-950:   oklch(18.0% 0.055 256);
+
+    /* Success: a restrained green, held 101 degrees off the accent so a
+       Success button is never mistaken for a Primary one. */
+    --color-green-50:   oklch(96.8% 0.018 155);
+    --color-green-100:  oklch(93.0% 0.034 155);
+    --color-green-200:  oklch(86.5% 0.052 155);
+    --color-green-300:  oklch(77.5% 0.074 155);
+    --color-green-400:  oklch(67.5% 0.095 155);
+    --color-green-500:  oklch(56.0% 0.100 155);
+    --color-green-600:  oklch(47.0% 0.092 155);
+    --color-green-700:  oklch(40.0% 0.080 155);
+    --color-green-800:  oklch(33.5% 0.066 155);
+    --color-green-900:  oklch(27.5% 0.053 155);
+    --color-green-950:  oklch(18.5% 0.038 155);
+
+    /* Information: held at hue 200, 56 degrees from the accent, so an Info
+       badge never reads as an interactive affordance. */
+    --color-sky-50:     oklch(96.8% 0.016 200);
+    --color-sky-100:    oklch(93.0% 0.030 200);
+    --color-sky-200:    oklch(86.5% 0.046 200);
+    --color-sky-300:    oklch(77.5% 0.066 200);
+    --color-sky-400:    oklch(67.0% 0.086 200);
+    --color-sky-500:    oklch(56.0% 0.092 200);
+    --color-sky-600:    oklch(47.5% 0.086 200);
+    --color-sky-700:    oklch(40.5% 0.074 200);
+    --color-sky-800:    oklch(34.0% 0.062 200);
+    --color-sky-900:    oklch(28.0% 0.050 200);
+    --color-sky-950:    oklch(19.0% 0.036 200);
+
+    /* Warning: a muted brass. The 500 step is held darker than stock amber
+       because the library's Warning button prints white text on exactly
+       that step. */
+    --color-amber-50:   oklch(96.8% 0.026 80);
+    --color-amber-100:  oklch(93.2% 0.046 80);
+    --color-amber-200:  oklch(87.0% 0.070 80);
+    --color-amber-300:  oklch(79.0% 0.094 80);
+    --color-amber-400:  oklch(70.0% 0.110 80);
+    --color-amber-500:  oklch(56.0% 0.110 80);
+    --color-amber-600:  oklch(48.5% 0.098 80);
+    --color-amber-700:  oklch(41.5% 0.084 80);
+    --color-amber-800:  oklch(34.5% 0.070 80);
+    --color-amber-900:  oklch(28.5% 0.056 80);
+    --color-amber-950:  oklch(19.0% 0.040 80);
+
+    /* Error: a deep, composed red. Unmistakable without raising its voice. */
+    --color-red-50:     oklch(96.8% 0.016 24);
+    --color-red-100:    oklch(93.2% 0.032 24);
+    --color-red-200:    oklch(86.5% 0.054 24);
+    --color-red-300:    oklch(77.0% 0.086 24);
+    --color-red-400:    oklch(65.0% 0.130 24);
+    --color-red-500:    oklch(55.0% 0.158 24);
+    --color-red-600:    oklch(47.5% 0.162 24);
+    --color-red-700:    oklch(40.5% 0.142 24);
+    --color-red-800:    oklch(34.0% 0.118 24);
+    --color-red-900:    oklch(28.0% 0.095 24);
+    --color-red-950:    oklch(19.0% 0.066 24);
+
+    /* 2. GEOMETRY. Tight and precise: enough radius to look finished, not
+       enough to look soft. Controls at 5px and panels at 9px keep a visible
+       step between the two, which is the one place Sterling lets geometry
+       carry hierarchy at all. `rounded-full` is not a theme variable and is
+       left alone, so things that are round because they are physically
+       round - the spinner, the switch knob, the timeline dots - stay round. */
+    --radius-sm: 2px;
+    --radius-md: 5px;    /* buttons, inputs, menu items */
+    --radius-lg: 7px;
+    --radius-xl: 9px;    /* cards and panels */
+
+    /* 3. TYPE. See the typography note above. No webfonts: a professional
+       console should not need the network to draw its own chrome. */
+    --font-display: "Sitka Heading", "Sitka Text", Constantia, Georgia, serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens. Everything whose value differs between modes lives
+       here, so the structural rules below stay unscoped and still correct in
+       both modes. */
+    --sterling-raise:
+        0 1px 2px -1px oklch(20% 0.015 265 / 0.10),
+        0 1px 1px -0.5px oklch(20% 0.015 265 / 0.06);
+    --sterling-overlay:
+        0 0 0 1px oklch(20% 0.015 265 / 0.06),
+        0 2px 6px -2px oklch(20% 0.015 265 / 0.10),
+        0 14px 32px -10px oklch(20% 0.015 265 / 0.20);
+    --sterling-field-disabled: var(--color-slate-100);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK ("graphite")
+   Not an inversion. The same instrument in a darker room: charcoal ground,
+   graphite panels one step above it, and a muted silver for type. The accent
+   is raised in lightness only as far as it needs to go - a dark Sterling
+   with a bright blue in it would be a different theme.
+   ------------------------------------------------------------------------- */
+:root[data-skin="sterling"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.001 265);
+    --color-slate-50:   oklch(97.5% 0.003 265);
+    --color-slate-100:  oklch(95.2% 0.004 265);   /* primary text */
+    --color-slate-200:  oklch(89.5% 0.006 265);
+    --color-slate-300:  oklch(83.0% 0.009 265);
+    --color-slate-400:  oklch(73.0% 0.012 265);   /* muted text */
+    --color-slate-500:  oklch(64.5% 0.013 265);   /* placeholder: 4.9:1 on a field */
+
+    /* Same measurement as the light field edge, against the dark field fill:
+       3:1 needs 54%, and the ~41% the other themes use for this step only
+       reaches 1.8:1 here. */
+    --color-slate-600:  oklch(54.0% 0.014 265);   /* field edge */
+    --color-slate-700:  oklch(34.5% 0.011 265);   /* hairline */
+    --color-slate-800:  oklch(26.5% 0.009 265);   /* fields, fills */
+    --color-slate-900:  oklch(21.5% 0.008 265);   /* panel surface */
+    --color-slate-950:  oklch(15.0% 0.007 265);   /* page ground */
+
+    /* Only the light steps move. 600 stays at its light-mode value so a
+       Primary button keeps white text above 4.5:1 in both modes - the same
+       choice the other themes make, for the same reason. */
+    --color-blue-300:   oklch(83.0% 0.070 256);
+    --color-blue-400:   oklch(75.0% 0.105 256);   /* links on dark */
+    --color-blue-500:   oklch(67.0% 0.135 256);   /* focus on dark */
+
+    /* The dark selected-row wash, and the same correction the light palette
+       needed. The components paint selection as `bg-blue-950/40` over the
+       panel; at the 22.5% this step started on - barely above the panel's
+       own 21.5% - the wash measured 1.004:1 and the state simply did not
+       exist. 33% puts it at 1.12:1, matching the light mode exactly. */
+    --color-blue-950:   oklch(33.0% 0.085 256);
+
+    --color-green-300:  oklch(84.0% 0.072 155);
+    --color-green-400:  oklch(76.0% 0.094 155);
+    --color-green-500:  oklch(68.0% 0.100 155);
+
+    --color-sky-300:    oklch(84.0% 0.062 200);
+    --color-sky-400:    oklch(76.0% 0.084 200);
+    --color-sky-500:    oklch(68.0% 0.090 200);
+
+    --color-amber-300:  oklch(85.0% 0.082 80);
+    --color-amber-400:  oklch(78.0% 0.102 80);
+    --color-amber-500:  oklch(70.0% 0.115 80);
+
+    --color-red-300:    oklch(82.0% 0.092 24);
+    --color-red-400:    oklch(74.0% 0.136 24);
+    --color-red-500:    oklch(66.0% 0.170 24);
+
+    /* On a dark ground a downward shadow is nearly invisible, so the raise
+       becomes a containing ring instead. Same intent, different physics. */
+    --sterling-raise: 0 0 0 1px oklch(0% 0 0 / 0.30);
+    --sterling-overlay:
+        0 0 0 1px oklch(0% 0 0 / 0.55),
+        0 2px 8px -2px oklch(0% 0 0 / 0.45),
+        0 16px 36px -10px oklch(0% 0 0 / 0.60);
+    --sterling-field-disabled: oklch(18.5% 0.007 265);
+}
+
+/* -------------------------------------------------------------------------
+   4. ELEVATION
+   Tailwind's shadow utilities are neutralised, then depth is handed back in
+   exactly two amounts. A declared surface gets one pixel of lift; the nine
+   things that genuinely float get a real, soft drop. Nothing else gets any -
+   fields, badges, alerts and buttons all sit flat on the page, which is what
+   keeps a dense screen from looking like a pile of cards.
+   ------------------------------------------------------------------------- */
+[data-skin="sterling"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="sterling"] :is([data-card], [data-stat-card], [data-table], section.border) {
+    box-shadow: var(--sterling-raise);
+}
+
+[data-skin="sterling"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--sterling-overlay);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY
+   The serif carries every heading; the reading face carries everything else,
+   including the small letterspaced labels. Figures are lining and tabular
+   throughout, because Sitka's defaults are not and because columns of
+   numbers have to align.
+   ------------------------------------------------------------------------- */
+[data-skin="sterling"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="sterling"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.008em;
+}
+
+/* Restrained on purpose. The page's own title is one step up from a panel
+   title, not three, and it stays at 600 - the whole theme runs on a narrow
+   weight range, and a 700 here would be the loudest thing on the screen.
+   Component-internal headings (Card, Modal and Alert titles are all <h3>)
+   keep the sizes their components chose.
+
+   `:not(.uppercase)` matters: the Home index writes its category labels as
+   `<h2 class="text-xs uppercase tracking-wide">` inside a bordered section,
+   so the bare `section.border > h2` selector the other themes use catches
+   them too and prints "FORMS" at title size. That selector outranks the
+   `.uppercase` rule below on specificity, so ordering alone will not settle
+   it - the exclusion has to be written here. */
+[data-skin="sterling"] :is(h1, section.border > h2:not(.uppercase)) {
+    font-size: 1.3125rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.014em;
+}
+
+/* Section micro-labels, written by the library as `text-xs uppercase
+   tracking-wide` on an <h3>. These are apparatus, not voice, so they are
+   pulled back out of the serif into the reading face - the editorial
+   convention Sterling is built on, and the clearest single difference from
+   the way Ledger (condensed caps over a rule), Foundry (monospace) and
+   Civic (semibold caps) treat the same element. No component uses
+   `uppercase` internally, so this only ever reaches page furniture. */
+[data-skin="sterling"] .uppercase {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-size: 0.6875rem;
+}
+
+/* A metric is a headline: the serif, at the same weight as everything else. */
+[data-skin="sterling"] [data-stat-card] dd > span:first-child {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.018em;
+}
+
+[data-skin="sterling"] body > header > div > a:first-child {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.006em;
+}
+
+/* The site header is left light and quiet, closed with the same hairline
+   every other surface uses. Sterling states where it is; it does not
+   announce it. */
+[data-skin="sterling"] body > header {
+    border-bottom-color: var(--color-slate-200);
+}
+
+/* -------------------------------------------------------------------------
+   6. SURFACES
+   A panel is a clean white area lifted one pixel off a cool off-white
+   ground and closed with a hairline. Its header is not filled and not ruled
+   any harder than anything else - the title's own weight is what separates
+   it from the body.
+   ------------------------------------------------------------------------- */
+[data-skin="sterling"] [data-card] > .border-b:first-child > h3 {
+    font-weight: 600;
+    letter-spacing: -0.006em;
+}
+
+/* -------------------------------------------------------------------------
+   7. CONTROLS
+   Fields keep their components' own fill and get the definite edge the
+   palette defines; nothing is made taller, rounder or glossier. A disabled
+   control reads as unavailable rather than as broken - the components drop
+   it to slate-400, and Sterling holds the text at slate-500 so the value can
+   still be read by someone who needs to know what it says.
+   ------------------------------------------------------------------------- */
+[data-skin="sterling"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark "nothing chosen yet" by adding `text-slate-400`
+   to their own value slot; the same contrast floor applies there. */
+[data-skin="sterling"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+[data-skin="sterling"] :is(input, textarea, select, [data-select-trigger], [data-combobox-input], [data-date-picker-trigger]):disabled {
+    background-color: var(--sterling-field-disabled);
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   8. DATA
+   The head recedes so the data reads first: no fill, no heavier rule, just a
+   smaller, tracked, muted label over the component's own hairline. This is
+   the inverse of the filled band Civic and Foundry both use, and it is the
+   most visible place Sterling's "hierarchy is typographic" rule shows up.
+   ------------------------------------------------------------------------- */
+[data-skin="sterling"] :is(table thead th, [data-table] thead th) {
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.045em;
+    color: var(--color-slate-500);
+}
+
+:root[data-skin="sterling"][data-theme="dark"] :is(table thead th, [data-table] thead th) {
+    color: var(--color-slate-400);
+}
+
+/* The sort control inside a heading inherits the heading's own colour rather
+   than staying at full-strength ink, so the head row reads as one thing. */
+[data-skin="sterling"] :is(table thead th, [data-table] thead th) [data-table-sort] {
+    color: inherit;
+}
+
+/* A sorted column brings its own label up to ink - the state is carried by
+   the label it belongs to, without adding a band behind it. */
+[data-skin="sterling"] [data-table-column][aria-sort]:not([aria-sort="none"]) [data-table-sort] {
+    color: var(--color-slate-900);
+}
+
+:root[data-skin="sterling"][data-theme="dark"] [data-table-column][aria-sort]:not([aria-sort="none"]) [data-table-sort] {
+    color: var(--color-slate-100);
+}
+
+/* Identifiers and code keep tabular figures so columns of them line up. */
+[data-skin="sterling"] :is(code, .font-mono) {
+    font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   9. FOCUS AND SELECTION
+   Understated everywhere else does not mean understated here. Focus is the
+   accent at full strength, offset clear of the control so it reads against
+   both a panel and the ground.
+   ------------------------------------------------------------------------- */
+[data-skin="sterling"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+}
+
+[data-skin="sterling"] ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-slate-900);
+}

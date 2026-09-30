@@ -1,0 +1,497 @@
+/* =========================================================================
+   SUMMIT - a structured, confident theme for the JTE + Tailwind UI library.
+   =========================================================================
+
+   Enabled by `data-skin="summit"` on <html>. Every rule is scoped under that
+   attribute, so the default appearance, Ledger, Foundry, Veridian, Civic and
+   Sterling are all untouched whether Summit is on, off, or deleted.
+
+   THE IDEA
+   --------
+   Structural confidence. Summit is the theme for software that runs an
+   operation: it wants to look organised, capable and decided, and it gets
+   there by making every boundary, every group and every level of the
+   hierarchy explicit rather than implied.
+
+   It is deliberately the opposite number of the two themes nearest it.
+   Civic is an official document - a navy masthead, filled bands, bounded
+   boxes, institutional formality. Sterling is refinement - hairlines,
+   a serif, a narrow weight range, structure you are not supposed to notice.
+   Summit notices. It is the theme where the structure is the point.
+
+   Five decisions carry it:
+
+     1. WEIGHT AS A SYSTEM, NOT A HEADLINE. Summit takes no second typeface
+        (see the typography note). Instead it applies weight structurally
+        throughout the interface - titles at 700, table heads at 700, labels
+        and buttons and navigation at 600 - where the other themes push
+        weight only at the top of the page. Confidence here is systemic.
+     2. A DEEP INDIGO, NOT ANOTHER BLUE. Hue 282 at moderate chroma: 20-plus
+        degrees off every other theme's accent, deep enough to read as
+        decided rather than bright, and far short of the saturation that
+        would make it a generic product blue.
+     3. THREE LEVELS, NAMED. Flat, structured, elevated. A field or a badge
+        is flat. A panel, a table or a section is structured - a visible
+        border and a real, small shadow. Only what floats is elevated.
+        Nothing sits between those levels by accident.
+     4. BORDERS THAT GROUP. Container borders are a step stronger than
+        Sterling's hairline, and the edges that separate a group from its
+        contents - a panel header from its body, a table head from its rows,
+        the app header from the page - are stronger again. Structure is
+        drawn, not suggested.
+     5. THE LARGEST GEOMETRY IN THE LIBRARY, SYSTEMATISED. 5/8/12/14, the
+        only genuinely contemporary radius set of the seven, and applied
+        with a clear step between a control and the container holding it.
+
+   TYPOGRAPHY NOTE
+   ---------------
+   Measured the same way the other themes were: rendered text width per
+   family against the generic fallbacks, rather than `document.fonts.check`,
+   which reports true for everything. Every display face worth having on
+   this machine is already claimed - Bahnschrift by Ledger, Franklin Gothic
+   by Foundry, Corbel by Veridian, the Segoe Display optical cut by Civic,
+   Sitka by Sterling - and what is left (Tahoma, Verdana, Century Gothic,
+   Trebuchet, Gill Sans, Rockwell) is dated, geometric or nostalgic in ways
+   that would read as a period costume rather than as contemporary
+   enterprise software.
+
+   So Summit takes no display face at all: one family, one optical cut, and
+   a weight scale that runs through the whole interface rather than stopping
+   at the headings. That is a different mechanism from Civic, which keeps
+   component defaults everywhere and switches to the Display cut at 700 only
+   for titles, and from Sterling, which changes face for headings and holds
+   a deliberately narrow weight range everywhere else.
+
+   HOW IT WORKS
+   ------------
+   Tailwind v4 compiles utilities against variables (`.bg-white` is
+   `background-color: var(--color-white)`, `.rounded-xl` is
+   `border-radius: var(--radius-xl)`), so re-pointing the palette, the radii
+   and the font stacks re-skins all 48 catalog entries at once without
+   touching a template.
+
+   This file is unlayered, so it outranks Tailwind's `@layer utilities`.
+   Two consequences are load-bearing:
+     * every rule is scoped and targeted, never a broad element selector
+       that would overrule a class a caller wrote on purpose; and
+     * any rule keyed off a colour utility class (`.bg-white` and friends)
+       must also be scoped to one mode, because that class sits in the
+       markup in BOTH modes - the mistake that once made Ledger's dark
+       fields near-white under near-white text. Summit avoids the trap
+       entirely by driving every mode-dependent value through theme-local
+       variables that are redefined in the dark block.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. PALETTE - LIGHT
+   Cool graphite neutrals at hue 275 - a shade cooler and more violet than
+   Civic's 258 or Sterling's 265, so the greys sit under the indigo rather
+   than fighting it. Lightness ordering matches stock Tailwind except at
+   slate-300, which is called out below.
+   ------------------------------------------------------------------------- */
+:root[data-skin="summit"] {
+    --color-white:      oklch(100% 0 0);          /* panel surface */
+    --color-slate-50:   oklch(97.0% 0.005 275);   /* page ground, quiet fills */
+    --color-slate-100:  oklch(93.8% 0.008 275);   /* secondary fills */
+    --color-slate-200:  oklch(88.0% 0.011 275);   /* container border */
+
+    /* The field edge. A form control's boundary is what identifies it as a
+       control, so it has to clear 3:1 against the surface behind it
+       (WCAG 1.4.11), measured against the page ground rather than a panel
+       because that is the worse of the two cases - a Card's fields sit on
+       white, a Filter Bar's sit straight on the ground. That puts this step
+       darker than slate-400, inverting the usual ramp order; it is safe
+       because 300 is only ever used for borders here and 400 only for
+       decorative marks, and Civic and Sterling both already do it. */
+    --color-slate-300:  oklch(62.0% 0.016 275);   /* field edge - 3.0:1 on the ground */
+
+    --color-slate-400:  oklch(64.5% 0.014 275);   /* decorative marks */
+    --color-slate-500:  oklch(48.5% 0.015 275);   /* muted text - 4.6:1 on the ground */
+    --color-slate-600:  oklch(41.0% 0.016 275);
+    --color-slate-700:  oklch(33.5% 0.017 275);   /* body text */
+    --color-slate-800:  oklch(26.0% 0.017 275);
+    --color-slate-900:  oklch(19.5% 0.016 275);   /* primary text */
+    --color-slate-950:  oklch(13.0% 0.014 275);
+
+    /* Primary: a deep indigo at hue 282. Far enough from Civic's 258,
+       Sterling's 256, Meridian's 262, Ledger's 245 and Foundry's 242 to be
+       a different colour rather than a different mix, and held at 0.165
+       chroma at the action step - two thirds of the default theme's 0.245,
+       which is the difference between a decided colour and a bright one.
+
+       The light steps are kept substantial rather than washed out: a
+       selected row has to be visible, and a theme about structure cannot
+       have an invisible selected state. */
+    --color-blue-50:    oklch(93.0% 0.028 282);   /* selected rows: 1.13:1, matching dark */
+    --color-blue-100:   oklch(90.5% 0.038 282);
+    --color-blue-200:   oklch(84.5% 0.058 282);
+    --color-blue-300:   oklch(76.0% 0.085 282);
+    --color-blue-400:   oklch(64.0% 0.130 282);
+    --color-blue-500:   oklch(53.0% 0.175 282);   /* focus */
+    --color-blue-600:   oklch(44.0% 0.165 282);   /* primary fill, links */
+    --color-blue-700:   oklch(37.0% 0.145 282);
+    --color-blue-800:   oklch(31.0% 0.120 282);
+    --color-blue-900:   oklch(25.5% 0.098 282);
+    --color-blue-950:   oklch(17.5% 0.070 282);
+
+    /* Secondary accent: a steel blue at hue 222, 60 degrees off the primary.
+       It is the library's Info colour, and holding it this far from the
+       indigo is what keeps "this is information" and "this is the action"
+       from ever reading as the same thing - the distinction between primary
+       actions and secondary information the palette is asked for. */
+    --color-sky-50:     oklch(96.8% 0.016 222);
+    --color-sky-100:    oklch(93.0% 0.032 222);
+    --color-sky-200:    oklch(86.5% 0.050 222);
+    --color-sky-300:    oklch(77.5% 0.072 222);
+    --color-sky-400:    oklch(66.5% 0.098 222);
+    --color-sky-500:    oklch(55.5% 0.105 222);
+    --color-sky-600:    oklch(47.5% 0.098 222);
+    --color-sky-700:    oklch(40.5% 0.085 222);
+    --color-sky-800:    oklch(34.0% 0.070 222);
+    --color-sky-900:    oklch(28.0% 0.056 222);
+    --color-sky-950:    oklch(19.0% 0.040 222);
+
+    /* Success: held 132 degrees off the primary so a Success button and a
+       Primary button are never confused. */
+    --color-green-50:   oklch(96.8% 0.020 150);
+    --color-green-100:  oklch(93.0% 0.038 150);
+    --color-green-200:  oklch(86.5% 0.056 150);
+    --color-green-300:  oklch(77.5% 0.078 150);
+    --color-green-400:  oklch(67.5% 0.100 150);
+    --color-green-500:  oklch(56.0% 0.105 150);
+    --color-green-600:  oklch(47.0% 0.096 150);
+    --color-green-700:  oklch(40.0% 0.083 150);
+    --color-green-800:  oklch(33.5% 0.069 150);
+    --color-green-900:  oklch(27.5% 0.055 150);
+    --color-green-950:  oklch(18.5% 0.040 150);
+
+    /* Warning. The 500 step is held darker than stock amber because the
+       library's Warning button prints white text on exactly that step. */
+    --color-amber-50:   oklch(96.8% 0.026 75);
+    --color-amber-100:  oklch(93.2% 0.046 75);
+    --color-amber-200:  oklch(87.0% 0.070 75);
+    --color-amber-300:  oklch(79.0% 0.096 75);
+    --color-amber-400:  oklch(70.0% 0.112 75);
+    --color-amber-500:  oklch(56.0% 0.112 75);
+    --color-amber-600:  oklch(48.5% 0.100 75);
+    --color-amber-700:  oklch(41.5% 0.086 75);
+    --color-amber-800:  oklch(34.5% 0.072 75);
+    --color-amber-900:  oklch(28.5% 0.057 75);
+    --color-amber-950:  oklch(19.0% 0.041 75);
+
+    /* Error: decisive without being alarmist. */
+    --color-red-50:     oklch(96.8% 0.017 22);
+    --color-red-100:    oklch(93.2% 0.034 22);
+    --color-red-200:    oklch(86.5% 0.056 22);
+    --color-red-300:    oklch(77.0% 0.090 22);
+    --color-red-400:    oklch(65.0% 0.135 22);
+    --color-red-500:    oklch(55.0% 0.165 22);
+    --color-red-600:    oklch(47.5% 0.170 22);
+    --color-red-700:    oklch(40.5% 0.148 22);
+    --color-red-800:    oklch(34.0% 0.122 22);
+    --color-red-900:    oklch(28.0% 0.098 22);
+    --color-red-950:    oklch(19.0% 0.068 22);
+
+    /* 2. GEOMETRY. The largest set in the library and the only contemporary
+       one - 14px on a panel reads as current software rather than as a
+       framework default. The step between a control at 8 and its container
+       at 14 is deliberate: it is the one place Summit lets geometry carry
+       grouping. `rounded-full` is not a theme variable and is left alone, so
+       things that are round because they are physically round - the spinner,
+       the switch knob, the timeline dots - stay round. */
+    --radius-sm: 5px;
+    --radius-md: 8px;    /* buttons, inputs, menu items */
+    --radius-lg: 12px;
+    --radius-xl: 14px;   /* cards and panels */
+
+    /* 3. TYPE. One family, one optical cut - see the typography note. No
+       webfonts: an operations console should not need the network to draw
+       its own chrome. */
+    --font-display: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, "Liberation Mono", monospace;
+
+    /* Theme-local tokens. Everything whose value differs between modes lives
+       here, so the structural rules below stay unscoped and still correct in
+       both modes.
+
+       `--summit-group-border` is the theme's grouping device: the edge
+       between a group and its contents - a panel header and its body, a
+       table head and its rows, the app header and the page - drawn a step
+       stronger than the container border around them. */
+    --summit-group-border: var(--color-slate-300);
+    --summit-structured:
+        0 1px 2px -1px oklch(19.5% 0.016 275 / 0.10),
+        0 2px 6px -2px oklch(19.5% 0.016 275 / 0.10);
+    --summit-elevated:
+        0 0 0 1px oklch(19.5% 0.016 275 / 0.06),
+        0 4px 10px -3px oklch(19.5% 0.016 275 / 0.12),
+        0 18px 40px -12px oklch(19.5% 0.016 275 / 0.24);
+    --summit-field-disabled: var(--color-slate-100);
+}
+
+/* -------------------------------------------------------------------------
+   PALETTE - DARK
+   Substantial rather than dim: a deep graphite ground with panels lifted a
+   clear step above it, borders kept genuinely visible, and only the accent's
+   light steps raised. Dark Summit keeps its structure by contrast and edge,
+   because a downward shadow says almost nothing on a dark ground.
+   ------------------------------------------------------------------------- */
+:root[data-skin="summit"][data-theme="dark"] {
+    --color-white:      oklch(99.5% 0.001 275);
+    --color-slate-50:   oklch(97.5% 0.003 275);
+    --color-slate-100:  oklch(95.2% 0.004 275);   /* primary text */
+    --color-slate-200:  oklch(89.5% 0.006 275);
+    --color-slate-300:  oklch(83.0% 0.009 275);
+    --color-slate-400:  oklch(73.0% 0.012 275);   /* muted text */
+    --color-slate-500:  oklch(64.5% 0.013 275);   /* placeholder: 4.9:1 on a field */
+
+    /* Same measurement as the light field edge, against the dark field fill:
+       3:1 needs 54%, and the ~41% convention the earlier themes used for
+       this step only reaches 1.8:1 here. */
+    --color-slate-600:  oklch(54.0% 0.015 275);   /* field edge */
+    --color-slate-700:  oklch(37.0% 0.013 275);   /* container border - kept visible */
+    --color-slate-800:  oklch(25.5% 0.010 275);   /* fields, fills */
+    --color-slate-900:  oklch(20.0% 0.009 275);   /* panel surface */
+    --color-slate-950:  oklch(14.5% 0.008 275);   /* page ground */
+
+    /* Only the light steps move. 600 stays at its light-mode value so a
+       Primary button keeps white text above 4.5:1 in both modes. */
+    --color-blue-300:   oklch(83.0% 0.080 282);
+    --color-blue-400:   oklch(75.0% 0.120 282);   /* links on dark */
+    --color-blue-500:   oklch(67.0% 0.155 282);   /* focus on dark */
+
+    /* The dark selected-row wash. The components paint selection as
+       `bg-blue-950/40` over the panel, so this step has to sit well clear of
+       the panel's own 20% or the state disappears; 33% puts a selected row
+       at the same visibility as in light mode. */
+    --color-blue-950:   oklch(33.0% 0.100 282);
+
+    --color-green-300:  oklch(84.0% 0.074 150);
+    --color-green-400:  oklch(76.0% 0.096 150);
+    --color-green-500:  oklch(68.0% 0.102 150);
+
+    --color-sky-300:    oklch(84.0% 0.066 222);
+    --color-sky-400:    oklch(76.0% 0.090 222);
+    --color-sky-500:    oklch(68.0% 0.098 222);
+
+    --color-amber-300:  oklch(85.0% 0.084 75);
+    --color-amber-400:  oklch(78.0% 0.104 75);
+    --color-amber-500:  oklch(70.0% 0.118 75);
+
+    --color-red-300:    oklch(82.0% 0.094 22);
+    --color-red-400:    oklch(74.0% 0.138 22);
+    --color-red-500:    oklch(66.0% 0.172 22);
+
+    --summit-group-border: var(--color-slate-600);
+    --summit-structured: 0 0 0 1px oklch(0% 0 0 / 0.35);
+    --summit-elevated:
+        0 0 0 1px oklch(0% 0 0 / 0.55),
+        0 4px 12px -3px oklch(0% 0 0 / 0.45),
+        0 20px 44px -12px oklch(0% 0 0 / 0.62);
+    --summit-field-disabled: oklch(17.5% 0.008 275);
+}
+
+/* -------------------------------------------------------------------------
+   4. ELEVATION - FLAT, STRUCTURED, ELEVATED
+   Tailwind's shadow utilities are neutralised so nothing is lifted by
+   accident, then depth is handed back in exactly two amounts on top of
+   flat. A field, a badge, a button and an alert are flat. A panel, a stat,
+   a table and a page section are structured. Only the nine things that
+   genuinely float are elevated.
+   ------------------------------------------------------------------------- */
+[data-skin="summit"] :is(.shadow-xs, .shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+    --tw-shadow: 0 0 #0000;
+}
+
+[data-skin="summit"] :is([data-card], [data-stat-card], [data-table], section.border) {
+    box-shadow: var(--summit-structured);
+}
+
+[data-skin="summit"] :is(
+    [data-modal-dialog],
+    [data-drawer-panel],
+    [data-popover-surface],
+    [data-tooltip-bubble],
+    [data-toast],
+    [data-dropdown-menu-list],
+    [data-select-menu],
+    [data-combobox-listbox],
+    [data-date-picker-panel]
+) {
+    box-shadow: var(--summit-elevated);
+}
+
+/* -------------------------------------------------------------------------
+   5. TYPOGRAPHY - WEIGHT AS A SYSTEM
+   One family throughout. Weight is applied structurally: 700 where something
+   names a region, 600 where something is a control or a label, and the
+   reading face left alone everywhere else.
+   ------------------------------------------------------------------------- */
+[data-skin="summit"] body {
+    font-variant-numeric: tabular-nums;
+}
+
+[data-skin="summit"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    letter-spacing: -0.012em;
+}
+
+/* The page's own title and the title of a declared surface: the most
+   present type in the library at 24px/700, and still well short of
+   marketing scale. Component-internal headings keep the sizes their
+   components chose.
+
+   `:not(.uppercase)` matters: the Home index writes its category labels as
+   `<h2 class="text-xs uppercase tracking-wide">` inside a bordered section,
+   so a bare `section.border > h2` selector catches them too and prints
+   "FORMS" at title size. That selector outranks the `.uppercase` rule below
+   on specificity, so ordering alone will not settle it. */
+[data-skin="summit"] :is(h1, section.border > h2:not(.uppercase)) {
+    font-size: 1.5rem;
+    line-height: 1.22;
+    font-weight: 700;
+    letter-spacing: -0.021em;
+}
+
+/* Panel and dialog titles - the second rank of "this names a region". */
+[data-skin="summit"] :is([data-card] > .border-b:first-child > h3, [data-modal-dialog] h3, [data-drawer-panel] h3) {
+    font-weight: 700;
+    letter-spacing: -0.012em;
+}
+
+/* Section micro-labels, written by the library as `text-xs uppercase
+   tracking-wide` on an <h3>. Heavier and tighter than Sterling's 600/0.08em:
+   compact, purposeful, and unmistakably a label rather than a whisper. No
+   component uses `uppercase` internally, so this only ever reaches page
+   furniture. */
+[data-skin="summit"] .uppercase {
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    font-size: 0.6875rem;
+}
+
+/* Controls and navigation carry the second weight. A button that commits
+   something should not be set lighter than the label above the field it
+   commits. */
+[data-skin="summit"] :is([data-btn], [data-dropdown-menu-item], [data-badge]) {
+    font-weight: 600;
+}
+
+/* A metric is the headline of its own card. */
+[data-skin="summit"] [data-stat-card] dd > span:first-child {
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 700;
+    letter-spacing: -0.024em;
+}
+
+[data-skin="summit"] body > header > div > a:first-child {
+    font-weight: 700;
+    letter-spacing: -0.014em;
+}
+
+/* Identifiers and code keep tabular figures so columns of them line up. */
+[data-skin="summit"] :is(code, .font-mono) {
+    font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   6. STRUCTURE - THE GROUPING EDGES
+   The app header is a navigation region and is closed off as one; a panel
+   header is separated from its body by the same stronger edge; and a Card's
+   footer - where its actions live - is separated from the content above it
+   for the same reason. Summit draws the boundary between a group and its
+   contents rather than filling either side of it, which is what keeps it
+   clear of Civic's bands.
+   ------------------------------------------------------------------------- */
+[data-skin="summit"] body > header {
+    border-bottom-color: var(--summit-group-border);
+}
+
+[data-skin="summit"] [data-card] > .border-b:first-child {
+    border-bottom-color: var(--summit-group-border);
+}
+
+[data-skin="summit"] [data-card] > .border-t:last-child {
+    border-top-color: var(--summit-group-border);
+}
+
+/* A fieldset's legend names a group of controls, so it takes the label
+   weight - Faceted Search's facets, the Filter Bar's region, Radio Group. */
+[data-skin="summit"] legend {
+    font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   7. CONTROLS AND STATE
+   States are meant to be decided, not detected. Fields keep their
+   components' own fill and take the definite edge the palette defines;
+   disabled reads as unavailable rather than as broken.
+   ------------------------------------------------------------------------- */
+[data-skin="summit"] ::placeholder {
+    color: var(--color-slate-500);
+    opacity: 1;
+}
+
+/* The custom controls mark "nothing chosen yet" by adding `text-slate-400`
+   to their own value slot; the same contrast floor applies there. */
+[data-skin="summit"] :is(
+    [data-select-value],
+    [data-combobox-value],
+    [data-date-picker-value],
+    [data-date-range-start],
+    [data-date-range-end]
+).text-slate-400 {
+    color: var(--color-slate-500);
+}
+
+/* The components drop a disabled control to slate-400; Summit holds the
+   text at slate-500 and fills the box instead, so the value can still be
+   read by someone who needs to know what it says. */
+[data-skin="summit"] :is(input, textarea, select, [data-select-trigger], [data-combobox-input], [data-date-picker-trigger]):disabled {
+    background-color: var(--summit-field-disabled);
+    color: var(--color-slate-500);
+}
+
+/* -------------------------------------------------------------------------
+   8. DATA
+   The table head is structural: full weight, ink colour, and closed off from
+   the rows by the grouping edge. It is not a filled band (Civic) and it does
+   not recede (Sterling) - it reads as the header of an organised table.
+   ------------------------------------------------------------------------- */
+[data-skin="summit"] :is(table thead th, [data-table] thead th) {
+    font-weight: 700;
+    letter-spacing: 0.005em;
+    color: var(--color-slate-800);
+}
+
+:root[data-skin="summit"][data-theme="dark"] :is(table thead th, [data-table] thead th) {
+    color: var(--color-slate-100);
+}
+
+[data-skin="summit"] :is(table thead, [data-table] thead) {
+    border-bottom: 1px solid var(--summit-group-border);
+}
+
+/* The sort control inside a heading inherits the heading's own colour so the
+   head row reads as one thing. */
+[data-skin="summit"] :is(table thead th, [data-table] thead th) [data-table-sort] {
+    color: inherit;
+}
+
+/* -------------------------------------------------------------------------
+   9. FOCUS AND SELECTION
+   A generous, decided halo - the accent at full strength, held clear of the
+   control so it reads against a panel, the page ground and a filled button
+   alike.
+   ------------------------------------------------------------------------- */
+[data-skin="summit"] :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 3px;
+}
+
+[data-skin="summit"] ::selection {
+    background-color: var(--color-blue-100);
+    color: var(--color-slate-900);
+}
