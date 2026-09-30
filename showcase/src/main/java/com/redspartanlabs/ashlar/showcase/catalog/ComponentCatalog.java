@@ -96,7 +96,10 @@ public final class ComponentCatalog {
         new ComponentPage("page-section", "Page Section", "Utilities"),
         // Batch 12
         new ComponentPage("form-actions", "Form Actions", "Utilities"),
-        new ComponentPage("status-line", "Status Line", "Utilities")
+        new ComponentPage("status-line", "Status Line", "Utilities"),
+        // Batch 13
+        new ComponentPage("filter-bar", "Filter Bar", "Utilities"),
+        new ComponentPage("key-value-list", "Key-Value List", "Utilities")
     );
 
     public static ComponentPage bySlug(String slug) {
