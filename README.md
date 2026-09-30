@@ -5,10 +5,9 @@ that render HTML on the server.
 
 A RedSpartan Labs project. Licensed under the [Apache License 2.0](LICENSE).
 
-> **Status: early.** This repository currently contains a validated vertical
-> slice — Button and Icon — proving that Ashlar can be consumed as a real
-> dependency. The remaining components are migrating from the laboratory
-> project they were developed in.
+> **Status: V1 completion.** The core JTE component migration is complete —
+> 61 components and 9 utilities, all consumable exactly as described below,
+> with 50 catalog routes documenting them in the showcase application.
 
 ## Modules
 
