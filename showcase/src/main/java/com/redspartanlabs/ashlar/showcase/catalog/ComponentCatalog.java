@@ -99,7 +99,9 @@ public final class ComponentCatalog {
         new ComponentPage("status-line", "Status Line", "Utilities"),
         // Batch 13
         new ComponentPage("filter-bar", "Filter Bar", "Utilities"),
-        new ComponentPage("key-value-list", "Key-Value List", "Utilities")
+        new ComponentPage("key-value-list", "Key-Value List", "Utilities"),
+        // Batch 14
+        new ComponentPage("page-header", "Page Header", "Utilities")
     );
 
     public static ComponentPage bySlug(String slug) {
