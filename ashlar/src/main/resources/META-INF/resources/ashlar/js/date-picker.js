@@ -108,7 +108,7 @@ function initDatePicker(root) {
     // sync with the template, the same fix already applied to the toggle
     // button component.
     const normalTriggerClasses = trigger.className.split(/\s+/).filter(Boolean);
-    const errorTriggerClasses = (trigger.dataset.errorClasses || "").split(/\s+/).filter(Boolean);
+    const errorTriggerClasses = (trigger.dataset.datePickerErrorClasses || "").split(/\s+/).filter(Boolean);
 
     const format = root.dataset.format || "MMM d, yyyy";
     const placeholder = root.dataset.placeholder || "Select a date";
