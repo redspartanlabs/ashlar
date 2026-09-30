@@ -156,6 +156,14 @@ function initDropdownMenu(root) {
                 case "Escape":
                     if (isOpen()) {
                         event.preventDefault();
+                        // Consumed here, so an enclosing Modal/Drawer/Popover
+                        // never also sees this same Escape - each one only
+                        // checks event.key, not defaultPrevented, so without
+                        // this a single Escape would close this menu *and*
+                        // whatever it's nested in. A second, later Escape
+                        // (nothing left open here) reaches that ancestor as
+                        // normal, since this branch only runs while isOpen().
+                        event.stopPropagation();
                         closeMenu(false);
                     }
                     return;
@@ -187,6 +195,15 @@ function initDropdownMenu(root) {
                 return;
             case "Escape":
                 event.preventDefault();
+                // Consumed here, so an enclosing Modal/Drawer/Popover never
+                // also sees this same Escape - each one only checks
+                // event.key, not defaultPrevented, so without this a single
+                // Escape would close this menu *and* whatever it's nested
+                // in. A second, later Escape (nothing left open here)
+                // reaches that ancestor as normal, since this branch only
+                // runs while isOpen() (checked just above, at the top of
+                // this switch).
+                event.stopPropagation();
                 closeMenu(true);
                 return;
             case "Tab":
