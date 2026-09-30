@@ -282,6 +282,14 @@ function initSelect(root) {
             case "Escape":
                 if (isOpen()) {
                     event.preventDefault();
+                    // Consumed here, so an enclosing Modal/Drawer/Popover
+                    // never also sees this same Escape - each one only
+                    // checks event.key, not defaultPrevented, so without
+                    // this a single Escape would close this listbox *and*
+                    // whatever it's nested in. A second, later Escape
+                    // (nothing left open here) reaches that ancestor as
+                    // normal, since this branch only runs while isOpen().
+                    event.stopPropagation();
                     closeMenu();
                 }
                 return;
