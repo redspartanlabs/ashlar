@@ -5,12 +5,29 @@
 
 <%-- The one HTML shell every showcase page renders through.
 
-     Deliberately minimal compared to the laboratory's own layout: that one
-     also composes a Navbar and a skin-selector Dropdown Menu, neither of
-     which is this showcase's concern (Navbar is now migrated and demonstrated
-     on its own page; the skin system is a playground-only experiment that
-     was never part of the migration contract). This shell carries only what
-     the migrated components actually need, and grows as they arrive.
+     SITE CHROME. The header and footer below are real Ashlar components
+     (Navbar, Theme Toggle, Footer), not hand-rolled markup - this shell
+     dogfoods the library it showcases rather than reimplementing a masthead
+     next to it. Composed exactly per each component's own documented
+     catalog usage (see pages/components/navbar.jte and footer.jte):
+     Navbar's `items` carries plain `nav-link` entries, its `actions` slot
+     carries the Theme Toggle (the one place its own doc comment says such a
+     control belongs), and Footer wraps a caller-composed copyright/links row
+     with ordinary flex utilities.
+
+     "Components" is the only nav-link today because it is the only
+     showcase section that exists - it points at `/`, which is also the
+     current homepage, because there is no separate catalog-index route yet
+     (that split, and a "Themes" destination, belong to the homepage work
+     this task deliberately does not touch). It is marked `current` on every
+     page that renders through this shell, because every such page - all 50
+     component pages - genuinely is inside that one section right now.
+
+     GitHub links to the project's own declared origin (see ashlar's
+     build.gradle.kts publishing block, `scm.url`), not a guessed address.
+     `nav-link.jte`'s API has no `target`/`rel` param, so - like every other
+     entry - it opens in the same tab; that is a minor documented limitation
+     of reusing the existing component as-is, not a new one introduced here.
 
      `contextPath` is threaded through because this application runs under a
      servlet context path. Note the split: the showcase resolves its OWN
@@ -109,6 +126,15 @@
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950">
 
+@template.ashlar.components.navbar(
+brand = @`<a href="${contextPath}/" class="text-lg font-semibold text-slate-900 dark:text-slate-100">Ashlar</a>`,
+items = @`
+    @template.ashlar.components.nav-link(label = "Components", href = contextPath + "/", current = true)
+    @template.ashlar.components.nav-link(label = "GitHub", href = "https://github.com/redspartanlabs/ashlar")
+`,
+actions = @`@template.ashlar.components.theme-toggle()`
+)
+
 <main class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10">
     ${content}
 </main>
@@ -116,5 +142,17 @@
 @if (afterMain != null)
     ${afterMain}
 @endif
+
+@template.ashlar.utilities.footer(
+content = @`
+    <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p>&copy; 2026 RedSpartan Labs.</p>
+        <div class="flex flex-wrap items-center gap-4">
+            <a href="${contextPath}/" class="hover:text-slate-700 hover:underline underline-offset-2 dark:hover:text-slate-200">Components</a>
+            <a href="https://github.com/redspartanlabs/ashlar" class="hover:text-slate-700 hover:underline underline-offset-2 dark:hover:text-slate-200">GitHub</a>
+        </div>
+    </div>
+`
+)
 </body>
 </html>
