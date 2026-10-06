@@ -24,6 +24,8 @@ public final class ComponentCatalog {
     }
 
     public static final List<ComponentPage> PAGES = List.of(
+        // Batch 2B
+        new ComponentPage("button", "Button", "Forms", "The action primitive: variants, sizes, icons, loading, and a self-contained toggle mode."),
         // Batch 3
         new ComponentPage("checkbox", "Checkbox", "Forms"),
         new ComponentPage("toggle", "Toggle / Switch", "Forms"),
@@ -36,7 +38,7 @@ public final class ComponentCatalog {
         // Batch 7
         new ComponentPage("textarea", "Textarea", "Forms"),
         // Batch 9
-        new ComponentPage("select", "Select List", "Forms"),
+        new ComponentPage("select", "Select List", "Forms", "A custom listbox dropdown backed by a real, hidden <select> - full keyboard support, type-ahead, and native form submission."),
         new ComponentPage("combobox", "Combobox", "Forms"),
         // Batch 10
         new ComponentPage("date-picker", "Date Picker", "Forms"),
@@ -57,6 +59,8 @@ public final class ComponentCatalog {
         // Batch 1
         new ComponentPage("badge", "Badge", "Content"),
         new ComponentPage("card", "Card", "Content"),
+        // Batch 2B
+        new ComponentPage("icon", "Icon", "Content", "The most-composed primitive in the library - bundled, stroke-only SVG artwork with the full set shown in place."),
         // Batch 7
         new ComponentPage("stat-card", "Stat / Metric Card", "Content"),
         // Batch 3
@@ -70,13 +74,13 @@ public final class ComponentCatalog {
         new ComponentPage("timeline", "Timeline", "Content"),
         // Batch 11
         new ComponentPage("table", "Table", "Content"),
-        new ComponentPage("data-table", "Data Table", "Content"),
+        new ComponentPage("data-table", "Data Table", "Content", "The model-driven table: declare columns, hand over rows, get sorting, pagination, search, and selection for free."),
         // Batch 1
         new ComponentPage("breadcrumbs", "Breadcrumbs", "Navigation / Overlay"),
         // Batch 3
         new ComponentPage("pagination", "Pagination", "Navigation / Overlay"),
         // Batch 1
-        new ComponentPage("modal", "Modal", "Navigation / Overlay"),
+        new ComponentPage("modal", "Modal", "Navigation / Overlay", "Accessible dialogs with focus trapping, Escape/backdrop control, and scroll locking."),
         new ComponentPage("tooltip", "Tooltip", "Navigation / Overlay"),
         // Batch 8
         new ComponentPage("tabs", "Tabs", "Navigation / Overlay"),
@@ -90,6 +94,8 @@ public final class ComponentCatalog {
         new ComponentPage("drawer", "Drawer", "Navigation / Overlay"),
         // Batch 6
         new ComponentPage("navbar", "Navbar", "Navigation / Overlay"),
+        // Batch 2B
+        new ComponentPage("nav-link", "NavLink", "Navigation / Overlay", "One entry in a navigation link list - a real link, or non-interactive current-page text."),
         new ComponentPage("sidebar", "Sidebar", "Navigation / Overlay"),
         new ComponentPage("theme-toggle", "Theme Toggle", "Navigation / Overlay"),
         // Batch 1

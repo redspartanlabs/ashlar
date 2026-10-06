@@ -2,6 +2,8 @@
 @param String contextPath
 @param gg.jte.Content content
 @param gg.jte.Content afterMain = null
+@param String description = "Ashlar is a server-rendered UI component system for Java and Kotlin, built with JTE."
+@param boolean componentsActive = true
 
 <%-- The one HTML shell every showcase page renders through.
 
@@ -16,12 +18,12 @@
      with ordinary flex utilities.
 
      "Components" is the only nav-link today because it is the only
-     showcase section that exists - it points at `/`, which is also the
-     current homepage, because there is no separate catalog-index route yet
-     (that split, and a "Themes" destination, belong to the homepage work
-     this task deliberately does not touch). It is marked `current` on every
-     page that renders through this shell, because every such page - all 50
-     component pages - genuinely is inside that one section right now.
+     showcase section that exists - it points at `/components`, the
+     catalog index, not `/` (the homepage is its own section now). A
+     "Themes" destination stays deferred: no `/themes` page exists yet.
+     `componentsActive` defaults `true` so all 50 existing component pages
+     keep marking it `current` with no edits of their own; the homepage is
+     the one caller that passes `false`.
 
      GitHub links to the project's own declared origin (see ashlar's
      build.gradle.kts publishing block, `scm.url`), not a guessed address.
@@ -38,6 +40,10 @@
      `afterMain` exists only for content that must sit outside <main> in the
      DOM (toast-region's own fixed-position stack, on the Toast showcase
      page) - everything else belongs in `content`.
+
+     `description` feeds the page's one meta description. Every component
+     page is the same generic library blurb by default; the homepage is the
+     one caller that passes its own, more specific sentence.
 
      THEME PRE-PAINT BOOTSTRAP. Sets `data-theme` on <html> before the
      stylesheet can paint anything, so the page never flashes the wrong
@@ -107,6 +113,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="${description}">
     <title>${title} - Ashlar</title>
     <link rel="stylesheet" href="${contextPath}/css/app.css">
     <%-- Ported skins. Each is inert unless <html> carries its own data-skin
@@ -129,7 +136,7 @@
 @template.ashlar.components.navbar(
 brand = @`<a href="${contextPath}/" class="text-lg font-semibold text-slate-900 dark:text-slate-100">Ashlar</a>`,
 items = @`
-    @template.ashlar.components.nav-link(label = "Components", href = contextPath + "/", current = true)
+    @template.ashlar.components.nav-link(label = "Components", href = contextPath + "/components", current = componentsActive)
     @template.ashlar.components.nav-link(label = "GitHub", href = "https://github.com/redspartanlabs/ashlar")
 `,
 actions = @`@template.ashlar.components.theme-toggle()`
@@ -148,7 +155,7 @@ content = @`
     <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p>&copy; 2026 RedSpartan Labs.</p>
         <div class="flex flex-wrap items-center gap-4">
-            <a href="${contextPath}/" class="hover:text-slate-700 hover:underline underline-offset-2 dark:hover:text-slate-200">Components</a>
+            <a href="${contextPath}/components" class="hover:text-slate-700 hover:underline underline-offset-2 dark:hover:text-slate-200">Components</a>
             <a href="https://github.com/redspartanlabs/ashlar" class="hover:text-slate-700 hover:underline underline-offset-2 dark:hover:text-slate-200">GitHub</a>
         </div>
     </div>

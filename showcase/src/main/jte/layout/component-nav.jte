@@ -13,7 +13,7 @@
 !{Optional<ComponentPage> next = ComponentCatalog.next(currentSlug);}
 
 <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
-    <a href="${contextPath}/" class="font-medium text-slate-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">&larr; Components</a>
+    <a href="${contextPath}/components" class="font-medium text-slate-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">&larr; Components</a>
 
     <div class="flex items-center gap-4">
         @if (prev.isPresent())

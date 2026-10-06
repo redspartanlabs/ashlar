@@ -26,6 +26,18 @@ public class HomeController {
     }
 
     /**
+     * The catalog index: every migrated component and utility, grouped by
+     * {@link ComponentCatalog}'s own categories. Split out from the
+     * homepage so `/` can be the product's front door and `/components`
+     * can be the thing it actually points visitors at.
+     */
+    @GetMapping("/components")
+    public String componentsIndex(HttpServletRequest request, Model model) {
+        model.addAttribute("contextPath", request.getContextPath());
+        return "pages/components-index";
+    }
+
+    /**
      * One route for every component showcase page rather than a method each -
      * {@link ComponentCatalog} is the single source of truth for which slugs
      * are valid, so a slug with no catalog entry is a 404 rather than a

@@ -1,4 +1,55 @@
+@import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import java.util.List
+
 @param String contextPath
+
+<%-- Batch 8 documentation page. Existing "Basic hierarchy" / "Deeper
+     hierarchy" / "Long labels" / "In page context" examples kept
+     verbatim, moved under Variants & States/Composition. Added: Quick
+     Start, formal grammar headings, How to Use, Composition
+     (breadcrumb-item documented here, not as a standalone page),
+     Accessibility, two API Reference tables, Related Components.
+
+     Verified against source before writing:
+     - breadcrumbs.jte's own single @param and its own doc comment.
+       Confirmed zero JavaScript - "the library's first purely static
+       composition," per its own comment - and a fixed, non-parameterized
+       aria-label="Breadcrumb" on the <nav>, since the WAI-ARIA APG names
+       this landmark exactly that; a caller wanting a different name is
+       asking for a different landmark, not a styling choice.
+     - Confirmed <ol>, not <ul>: a breadcrumb trail's position genuinely
+       is the hierarchy being communicated (Home > Products > Widgets is
+       a different trail than Widgets > Products > Home).
+     - breadcrumb-item.jte's own 3 @params and its doc comment. Confirmed
+       current=true wins over href even when both are supplied - the
+       current page can never render as a link to itself, by
+       construction, not by validating caller input. Confirmed there is
+       no truncation or overflow handling anywhere in the component - a
+       long trail simply wraps (demonstrated in the existing "Long
+       labels" example); there is no ellipsis/collapsing mechanism for a
+       breadcrumb trail itself (that only exists on Pagination, for
+       page numbers, not here).
+     - Confirmed the separator lives inside the same <li> as the crumb
+       it follows (aria-hidden, hidden on the first item via
+       group-first:hidden) rather than as its own list item - a bare
+       separator can't be a valid direct child of <ol>, and giving it
+       one would inflate the "item N of M" count a screen reader
+       announces for a list that's actually one item shorter. --%>
+!{String backtick = "`";}
+!{String quickStartCode = "@template.ashlar.components.breadcrumbs(\n"
+        + "    items = @" + backtick + "\n"
+        + "        @template.ashlar.components.breadcrumb-item(label = \"Home\", href = \"/\")\n"
+        + "        @template.ashlar.components.breadcrumb-item(label = \"Widgets\", current = true)\n"
+        + "    " + backtick + "\n"
+        + ")";}
+!{List<ApiParam> breadcrumbsApi = List.of(
+    ApiParam.required("items", "gg.jte.Content", "One or more breadcrumb-item(...) calls.")
+);}
+!{List<ApiParam> breadcrumbItemApi = List.of(
+    ApiParam.required("label", "String", "The crumb's text."),
+    ApiParam.optional("href", "String", "null", "Renders a real <a>. Ignored when current is true."),
+    ApiParam.optional("current", "boolean", "false", "Marks this as the page already being viewed: renders non-interactive text with aria-current=\"page\" instead of a link, even if href is also set.")
+);}
 
 @template.layout.page(
 contextPath = contextPath,
@@ -10,14 +61,13 @@ content = @`
             <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Breadcrumbs</h2>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Shows where the current page sits within a hierarchy. A real &lt;nav&gt;/&lt;ol&gt; trail of links, ending in the current page's own text - no JavaScript, no click handlers, no router integration.</p>
 
-            <div class="mt-6 flex flex-col gap-8">
+            <div class="mt-6 flex flex-col gap-10">
                 <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Basic hierarchy</h3>
+                    @template.layout.usage-snippet(label = "Quick Start", code = quickStartCode)
                     <div class="mt-3">
                         @template.ashlar.components.breadcrumbs(
                         items = @`
                             @template.ashlar.components.breadcrumb-item(label = "Home", href = "/")
-                            @template.ashlar.components.breadcrumb-item(label = "Products", href = "/products")
                             @template.ashlar.components.breadcrumb-item(label = "Widgets", current = true)
                         `
                         )
@@ -25,37 +75,60 @@ content = @`
                 </div>
 
                 <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Deeper hierarchy</h3>
-                    <div class="mt-3">
-                        @template.ashlar.components.breadcrumbs(
-                        items = @`
-                            @template.ashlar.components.breadcrumb-item(label = "Home", href = "/")
-                            @template.ashlar.components.breadcrumb-item(label = "Accounts", href = "/accounts")
-                            @template.ashlar.components.breadcrumb-item(label = "Acme Manufacturing", href = "/accounts/acme-manufacturing")
-                            @template.ashlar.components.breadcrumb-item(label = "Orders", href = "/accounts/acme-manufacturing/orders")
-                            @template.ashlar.components.breadcrumb-item(label = "Order #48213", current = true)
-                        `
-                        )
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">How to Use</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Place exactly one Breadcrumbs instance above a page's own title, reflecting that page's real position in the site hierarchy - it's page-level navigation, not page content, so it doesn't belong inside a Card alongside the content it precedes. Give every crumb except the last a real <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">href</code>; the last one should be <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">current = true</code> with no link, since it names the page the visitor is already on.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Variants &amp; States</h3>
+                    <div class="mt-4 flex flex-col gap-8">
+                        <div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Basic hierarchy</p>
+                            <div class="mt-3">
+                                @template.ashlar.components.breadcrumbs(
+                                items = @`
+                                    @template.ashlar.components.breadcrumb-item(label = "Home", href = "/")
+                                    @template.ashlar.components.breadcrumb-item(label = "Products", href = "/products")
+                                    @template.ashlar.components.breadcrumb-item(label = "Widgets", current = true)
+                                `
+                                )
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Deeper hierarchy</p>
+                            <div class="mt-3">
+                                @template.ashlar.components.breadcrumbs(
+                                items = @`
+                                    @template.ashlar.components.breadcrumb-item(label = "Home", href = "/")
+                                    @template.ashlar.components.breadcrumb-item(label = "Accounts", href = "/accounts")
+                                    @template.ashlar.components.breadcrumb-item(label = "Acme Manufacturing", href = "/accounts/acme-manufacturing")
+                                    @template.ashlar.components.breadcrumb-item(label = "Orders", href = "/accounts/acme-manufacturing/orders")
+                                    @template.ashlar.components.breadcrumb-item(label = "Order #48213", current = true)
+                                `
+                                )
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long labels</p>
+                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Labels wrap in place rather than overflowing the page - resize the window to see it. There is no truncation or collapsing mechanism; a long trail simply wraps.</p>
+                            <div class="mt-3 max-w-sm">
+                                @template.ashlar.components.breadcrumbs(
+                                items = @`
+                                    @template.ashlar.components.breadcrumb-item(label = "Home", href = "/")
+                                    @template.ashlar.components.breadcrumb-item(label = "Reports", href = "/reports")
+                                    @template.ashlar.components.breadcrumb-item(label = "Quarterly Enterprise Revenue Summary by Region and Product Line", current = true)
+                                `
+                                )
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Long labels</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Labels wrap in place rather than overflowing the page - resize the window to see it.</p>
-                    <div class="mt-3 max-w-sm">
-                        @template.ashlar.components.breadcrumbs(
-                        items = @`
-                            @template.ashlar.components.breadcrumb-item(label = "Home", href = "/")
-                            @template.ashlar.components.breadcrumb-item(label = "Reports", href = "/reports")
-                            @template.ashlar.components.breadcrumb-item(label = "Quarterly Enterprise Revenue Summary by Region and Product Line", current = true)
-                        `
-                        )
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">In page context</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Breadcrumbs sit above a page's own title, not inside a Card - they're page-level navigation, not page content.</p>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Composition</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Breadcrumbs is the wrapper half of a wrapper/item pair, the same split List, Tree, and Pagination each use. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">breadcrumb-item</code> is not a separate catalog component; it only ever exists composed into Breadcrumbs' own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">items</code> slot, documented here in the table below. Breadcrumbs sits above a page's own title, as its own separate element - not inside a Card, since it's navigation, not content.</p>
                     <div class="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800/50">
                         @template.ashlar.components.breadcrumbs(
                         items = @`
@@ -67,6 +140,47 @@ content = @`
                         <h1 class="mt-3 text-xl font-semibold text-slate-900 dark:text-slate-100">Team Members</h1>
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage who has access to this workspace.</p>
                     </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Accessibility</h3>
+                    <div class="mt-2 grid gap-6 sm:grid-cols-2">
+                        <div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
+                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                                <li>A real &lt;nav aria-label="Breadcrumb"&gt; landmark, named exactly as the WAI-ARIA APG specifies, so assistive tech can jump straight to it.</li>
+                                <li>A real &lt;ol&gt;, so the trail's own hierarchy is announced as an ordered list with no extra ARIA.</li>
+                                <li><code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">aria-current="page"</code> on the current crumb, and nowhere else.</li>
+                                <li>A hidden (not merely decorative-by-convention) separator, so it's never announced, and never present on the first crumb.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
+                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                                <li>Exactly one <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">current = true</code> crumb per trail, matching the page actually being viewed.</li>
+                                <li>Real <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">href</code> values for every other crumb - a trail with no working links isn't useful navigation.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">breadcrumbs</p>
+                        @template.layout.api-reference(apiParams = breadcrumbsApi)
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">breadcrumb-item</p>
+                        @template.layout.api-reference(apiParams = breadcrumbItemApi)
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Related Components</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        <a href="${contextPath}/components/pagination" class="text-blue-700 hover:underline dark:text-blue-400">Pagination</a>, the same wrapper/item split applied to page numbers rather than a hierarchy &middot;
+                        <a href="${contextPath}/components/list" class="text-blue-700 hover:underline dark:text-blue-400">List</a> for a flat set of rows, not a trail
+                    </p>
                 </div>
             </div>
         </section>
