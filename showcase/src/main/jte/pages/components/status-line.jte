@@ -1,4 +1,5 @@
 @import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
 @import java.util.List
 
 @param String contextPath
@@ -39,151 +40,196 @@
 !{List<ApiParam> statusLineApi = List.of(
     ApiParam.required("content", "gg.jte.Content", "The message - plain text, a link, or a small composed component like a Badge. Rendered inside a real <p>.")
 );}
+!{List<PageAnchor> sections = List.of(
+    new PageAnchor("quick-start", "Quick Start"),
+    new PageAnchor("how-to-use", "How to Use"),
+    new PageAnchor("variants", "Variants & States"),
+    new PageAnchor("composition", "Composition"),
+    new PageAnchor("pitfalls", "Pitfalls & Troubleshooting"),
+    new PageAnchor("accessibility", "Accessibility"),
+    new PageAnchor("api-reference", "API Reference"),
+    new PageAnchor("related", "Related Components")
+);}
 
 @template.layout.page(
 contextPath = contextPath,
 title = "Status Line",
 content = @`
-    @template.layout.component-nav(currentSlug = "status-line", contextPath = contextPath)
+    @template.layout.component-header(contextPath = contextPath, slug = "status-line", sections = sections)
 
-        <section class="rounded-xl border border-slate-200 bg-white p-8 shadow-lg dark:border-slate-700 dark:bg-slate-900">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Status Line</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A single inline status/informational message - muted typography only, no surface, no JavaScript. Not a replacement for Alert or Badge.</p>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A single inline status/informational message - muted typography only, no surface, no JavaScript. Not a replacement for Alert or Badge.</p>
 
-            <div class="mt-6 flex flex-col gap-10">
-                <div>
-                    @template.layout.usage-snippet(label = "Quick Start", code = quickStartCode)
-                    <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                        @template.ashlar.utilities.status-line(
-                        content = @`Last updated September 21, 2026`
-                        )
-                    </div>
+    <div class="mt-8 flex flex-col gap-10">
+        <section id="quick-start" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Quick Start",
+            content = @`
+                @template.layout.usage-snippet(label = "", code = quickStartCode)
+                <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                    @template.ashlar.utilities.status-line(
+                    content = @`Last updated September 21, 2026`
+                    )
                 </div>
+            `
+            )
+        </section>
 
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">How to Use</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Reach for Status Line for one quiet, informational sentence near the content it describes - a record count, a last-updated time, a recoverable "no results" message. For a persistent message with real semantic weight, use <a href="${contextPath}/components/alert" class="text-blue-700 hover:underline dark:text-blue-400">Alert</a> instead; for a small inline status indicator, use <a href="${contextPath}/components/badge" class="text-blue-700 hover:underline dark:text-blue-400">Badge</a>. The two are not competing for the same job and are often used right beside each other, shown below.</p>
-                </div>
+        <section id="how-to-use" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "How to Use",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">Reach for Status Line for one quiet, informational sentence near the content it describes - a record count, a last-updated time, a recoverable "no results" message. For a persistent message with real semantic weight, use <a href="${contextPath}/components/alert" class="text-blue-700 hover:underline dark:text-blue-400">Alert</a> instead; for a small inline status indicator, use <a href="${contextPath}/components/badge" class="text-blue-700 hover:underline dark:text-blue-400">Badge</a>. The two are not competing for the same job and are often used right beside each other, shown below.</p>
+            `
+            )
+        </section>
 
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Variants &amp; States</h3>
-                    <div class="mt-4 flex flex-col gap-8">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Basic</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.status-line(
-                                content = @`Last updated September 21, 2026`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Longer message</p>
-                            <div class="mt-3 max-w-md rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.status-line(
-                                content = @`No results matched your filters. Try widening the date range or removing one of the applied account filters.`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Rich content</p>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A message can contain a link or another existing component - Status Line never needs to understand it.</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.status-line(
-                                content = @`Changes saved. <a href="/components/status-line" class="text-blue-700 hover:underline dark:text-blue-400">View audit log</a>.`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Narrow / mobile layout</p>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A long message wraps like any other paragraph text - no truncation, no fixed width.</p>
-                            <div class="mt-3 max-w-xs rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.status-line(
-                                content = @`No results matched your filters. Try widening the date range or removing one of the applied account filters.`
-                                )
-                            </div>
+        <section id="variants" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Variants & States",
+            content = @`
+                <div class="flex flex-col gap-8">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Basic</p>
+                        <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.status-line(
+                            content = @`Last updated September 21, 2026`
+                            )
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Composition</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Composes naturally alongside <a href="${contextPath}/components/badge" class="text-blue-700 hover:underline dark:text-blue-400">Badge</a> - Status Line stays plain text-level while the Badge carries its own status semantics, so the two never compete for the same job.</p>
-                    <div class="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                        @template.ashlar.components.badge(text = "Operational", variant = "Success")
-                        @template.ashlar.utilities.status-line(
-                        content = @`All systems normal as of 9:41 AM.`
-                        )
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Longer message</p>
+                        <div class="mt-3 max-w-md rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.status-line(
+                            content = @`No results matched your filters. Try widening the date range or removing one of the applied account filters.`
+                            )
+                        </div>
                     </div>
-                    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">A realistic composition: a record count inside a <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a>, above a <a href="${contextPath}/components/form-actions" class="text-blue-700 hover:underline dark:text-blue-400">Form Actions</a> row - exactly the kind of small informational line this utility exists for.</p>
-                    <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                        @template.ashlar.utilities.page-section(
-                        title = "Accounts",
-                        description = "Enterprise accounts currently on file.",
-                        content = @`
-                            @template.ashlar.components.card(
-                            body = @`
-                                <div class="flex flex-col items-start gap-3">
-                                    @template.ashlar.utilities.status-line(
-                                    content = @`Showing 24 of 128 records.`
-                                    )
-                                    @template.ashlar.components.badge(text = "3 items selected", variant = "Info")
-                                </div>
-                            `,
-                            footer = @`
-                                @template.ashlar.utilities.form-actions(
-                                    content = @`
-                                        @template.ashlar.components.button(text = "Export selected", type = "Secondary")
-                                        @template.ashlar.components.button(text = "Archive selected", type = "Primary")
-                                    `
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Rich content</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A message can contain a link or another existing component - Status Line never needs to understand it.</p>
+                        <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.status-line(
+                            content = @`Changes saved. <a href="/components/status-line" class="text-blue-700 hover:underline dark:text-blue-400">View audit log</a>.`
+                            )
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Narrow / mobile layout</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A long message wraps like any other paragraph text - no truncation, no fixed width.</p>
+                        <div class="mt-3 max-w-xs rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.status-line(
+                            content = @`No results matched your filters. Try widening the date range or removing one of the applied account filters.`
+                            )
+                        </div>
+                    </div>
+                </div>
+            `
+            )
+        </section>
+
+        <section id="composition" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Composition",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">Composes naturally alongside <a href="${contextPath}/components/badge" class="text-blue-700 hover:underline dark:text-blue-400">Badge</a> - Status Line stays plain text-level while the Badge carries its own status semantics, so the two never compete for the same job.</p>
+                <div class="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                    @template.ashlar.components.badge(text = "Operational", variant = "Success")
+                    @template.ashlar.utilities.status-line(
+                    content = @`All systems normal as of 9:41 AM.`
+                    )
+                </div>
+                <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">A realistic composition: a record count inside a <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a>, above a <a href="${contextPath}/components/form-actions" class="text-blue-700 hover:underline dark:text-blue-400">Form Actions</a> row - exactly the kind of small informational line this utility exists for.</p>
+                <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                    @template.ashlar.utilities.page-section(
+                    title = "Accounts",
+                    description = "Enterprise accounts currently on file.",
+                    content = @`
+                        @template.ashlar.components.card(
+                        body = @`
+                            <div class="flex flex-col items-start gap-3">
+                                @template.ashlar.utilities.status-line(
+                                content = @`Showing 24 of 128 records.`
                                 )
-                            `
+                                @template.ashlar.components.badge(text = "3 items selected", variant = "Info")
+                            </div>
+                        `,
+                        footer = @`
+                            @template.ashlar.utilities.form-actions(
+                                content = @`
+                                    @template.ashlar.components.button(text = "Export selected", type = "Secondary")
+                                    @template.ashlar.components.button(text = "Archive selected", type = "Primary")
+                                `
                             )
                         `
                         )
-                    </div>
+                    `
+                    )
                 </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Pitfalls &amp; Troubleshooting</h3>
-                    <ul class="mt-2 list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                        <li><strong class="font-medium text-slate-700 dark:text-slate-300">There is no live-region role, on purpose.</strong> This is server-rendered, static content on first paint - adding <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">role="status"</code> to that would risk an unwanted announcement the moment the page loads. If your own JavaScript swaps this content in after the page has already loaded, that dynamic update is what would need a live region - add it yourself at that point, since this utility has no way to know in advance whether that applies.</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Accessibility</h3>
-                    <div class="mt-2 grid gap-6 sm:grid-cols-2">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
-                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                                <li>A real &lt;p&gt;, so it reads as ordinary phrasing content with no extra ARIA needed for static text.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
-                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                                <li>A live-region role yourself if you ever update this content dynamically after page load - see Pitfalls.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    @template.layout.api-reference(apiParams = statusLineApi)
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Related Components</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        <a href="${contextPath}/components/alert" class="text-blue-700 hover:underline dark:text-blue-400">Alert</a> for a persistent message with real semantic weight &middot;
-                        <a href="${contextPath}/components/badge" class="text-blue-700 hover:underline dark:text-blue-400">Badge</a> for a small inline status indicator &middot;
-                        <a href="${contextPath}/components/filter-bar" class="text-blue-700 hover:underline dark:text-blue-400">Filter Bar</a>, a common neighbor above a result set
-                    </p>
-                </div>
-            </div>
+            `
+            )
         </section>
+
+        <section id="pitfalls" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Pitfalls & Troubleshooting",
+            content = @`
+                <ul class="list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">There is no live-region role, on purpose.</strong> This is server-rendered, static content on first paint - adding <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">role="status"</code> to that would risk an unwanted announcement the moment the page loads. If your own JavaScript swaps this content in after the page has already loaded, that dynamic update is what would need a live region - add it yourself at that point, since this utility has no way to know in advance whether that applies.</li>
+                </ul>
+            `
+            )
+        </section>
+
+        <section id="accessibility" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Accessibility",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>A real &lt;p&gt;, so it reads as ordinary phrasing content with no extra ARIA needed for static text.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>A live-region role yourself if you ever update this content dynamically after page load - see Pitfalls.</li>
+                        </ul>
+                    </div>
+                </div>
+            `
+            )
+        </section>
+
+        <section id="api-reference" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "API Reference",
+            content = @`
+                @template.layout.api-reference(apiParams = statusLineApi)
+            `
+            )
+        </section>
+
+        <section id="related" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Related Components",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <a href="${contextPath}/components/alert" class="text-blue-700 hover:underline dark:text-blue-400">Alert</a> for a persistent message with real semantic weight &middot;
+                    <a href="${contextPath}/components/badge" class="text-blue-700 hover:underline dark:text-blue-400">Badge</a> for a small inline status indicator &middot;
+                    <a href="${contextPath}/components/filter-bar" class="text-blue-700 hover:underline dark:text-blue-400">Filter Bar</a>, a common neighbor above a result set
+                </p>
+            `
+            )
+        </section>
+    </div>
+
+    <div class="mt-10 border-t border-slate-200 pt-6 dark:border-slate-800">
+        @template.layout.component-nav(currentSlug = "status-line", contextPath = contextPath)
+    </div>
 `
 )

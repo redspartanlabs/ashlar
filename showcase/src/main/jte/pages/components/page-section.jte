@@ -1,4 +1,5 @@
 @import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
 @import java.util.List
 
 @param String contextPath
@@ -35,156 +36,196 @@
     ApiParam.optional("description", "String", "\"\"", "Supporting text below the title."),
     ApiParam.required("content", "gg.jte.Content", "The section's body - any content, in whatever shape it already has. This utility never influences how it looks, only its position relative to the heading above it.")
 );}
+!{List<PageAnchor> sections = List.of(
+    new PageAnchor("quick-start", "Quick Start"),
+    new PageAnchor("how-to-use", "How to Use"),
+    new PageAnchor("variants", "Variants & States"),
+    new PageAnchor("composition", "Composition"),
+    new PageAnchor("accessibility", "Accessibility"),
+    new PageAnchor("api-reference", "API Reference"),
+    new PageAnchor("related", "Related Components")
+);}
 
 @template.layout.page(
 contextPath = contextPath,
 title = "Page Section",
 content = @`
-    @template.layout.component-nav(currentSlug = "page-section", contextPath = contextPath)
+    @template.layout.component-header(contextPath = contextPath, slug = "page-section", sections = sections)
 
-        <section class="rounded-xl border border-slate-200 bg-white p-8 shadow-lg dark:border-slate-700 dark:bg-slate-900">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Page Section</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A layout utility for grouping a page's content under a subsection heading. No surface of its own, no JavaScript - it owns the heading-to-content spacing, not the content's appearance.</p>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A layout utility for grouping a page's content under a subsection heading. No surface of its own, no JavaScript - it owns the heading-to-content spacing, not the content's appearance.</p>
 
-            <div class="mt-6 flex flex-col gap-10">
-                <div>
-                    @template.layout.usage-snippet(label = "Quick Start", code = quickStartCode)
-                    <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                        @template.ashlar.utilities.page-section(
-                        title = "Account Information",
-                        content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
-                        )
-                    </div>
+    <div class="mt-8 flex flex-col gap-10">
+        <section id="quick-start" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Quick Start",
+            content = @`
+                @template.layout.usage-snippet(label = "", code = quickStartCode)
+                <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                    @template.ashlar.utilities.page-section(
+                    title = "Account Information",
+                    content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
+                    )
                 </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">How to Use</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use one Page Section per logical subsection of a page, beneath its single <a href="${contextPath}/components/page-header" class="text-blue-700 hover:underline dark:text-blue-400">Page Header</a>. It never adds a surface - a Card placed inside still looks exactly like a Card - so pair it with one whenever the subsection actually needs a visible boundary.</p>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Variants &amp; States</h3>
-                    <div class="mt-4 flex flex-col gap-8">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + content</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-section(
-                                title = "Account Information",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + description + content</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-section(
-                                title = "Account Information",
-                                description = "Manage the account details for this user.",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Multiple sections on one page</p>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Each section owns its own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">&lt;h2&gt;</code>, forming a flat list of subsections beneath a page's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">&lt;h1&gt;</code>.</p>
-                            <div class="mt-3 flex flex-col gap-8 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-section(
-                                title = "Account Information",
-                                description = "Manage the account details for this user.",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
-                                )
-                                @template.ashlar.utilities.page-section(
-                                title = "Preferences",
-                                description = "Configure application preferences.",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Notification and display settings live here.</p>`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long title</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-section(
-                                title = "Quarterly Compliance and Access Review for Enterprise Accounts",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Section content goes here.</p>`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long description</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-section(
-                                title = "Audit Log",
-                                description = "A complete, chronological record of every access change, permission grant, and administrative action taken across all enterprise accounts, retained for the duration required by your organization's compliance policy.",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Section content goes here.</p>`
-                                )
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Narrow / mobile layout</p>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">No fixed widths - the section and its content occupy the available width at any viewport size.</p>
-                            <div class="mt-3 max-w-xs rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-section(
-                                title = "Account Information",
-                                description = "Manage the account details for this user.",
-                                content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
-                                )
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Composition</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Page Section belongs to the same layout family as <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a> and <a href="${contextPath}/components/page-header" class="text-blue-700 hover:underline dark:text-blue-400">Page Header</a> - see Page Shell's own page for the full composition shown together. Its content never gains a surface from this utility, as shown below with a composed Card.</p>
-                    <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                        @template.ashlar.utilities.page-section(
-                        title = "Recent Activity",
-                        description = "The latest activity for this account.",
-                        content = @`
-                            @template.ashlar.components.card(
-                                body = @`<p class="text-sm text-slate-600 dark:text-slate-300">Dana Whitfield updated billing contact - 2 hours ago.</p>`
-                            )
-                        `
-                        )
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Accessibility</h3>
-                    <div class="mt-2 grid gap-6 sm:grid-cols-2">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
-                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                                <li>A real &lt;section&gt; immediately preceded by its own &lt;h2&gt; - already an accessible-name-bearing landmark by native HTML semantics, with no role or aria-labelledby needed.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
-                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                                <li>A single Page Header's &lt;h1&gt; above these &lt;h2&gt;s, so the heading hierarchy stays correct.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    @template.layout.api-reference(apiParams = pageSectionApi)
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Related Components</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        <a href="${contextPath}/components/page-header" class="text-blue-700 hover:underline dark:text-blue-400">Page Header</a>, the &lt;h1&gt; above it &middot;
-                        <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a>, the outer wrapper &middot;
-                        <a href="${contextPath}/components/card" class="text-blue-700 hover:underline dark:text-blue-400">Card</a> for a subsection that needs a visible surface
-                    </p>
-                </div>
-            </div>
+            `
+            )
         </section>
+
+        <section id="how-to-use" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "How to Use",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">Use one Page Section per logical subsection of a page, beneath its single <a href="${contextPath}/components/page-header" class="text-blue-700 hover:underline dark:text-blue-400">Page Header</a>. It never adds a surface - a Card placed inside still looks exactly like a Card - so pair it with one whenever the subsection actually needs a visible boundary.</p>
+            `
+            )
+        </section>
+
+        <section id="variants" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Variants & States",
+            content = @`
+                <div class="flex flex-col gap-8">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + content</p>
+                        <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-section(
+                            title = "Account Information",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
+                            )
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + description + content</p>
+                        <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-section(
+                            title = "Account Information",
+                            description = "Manage the account details for this user.",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
+                            )
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Multiple sections on one page</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Each section owns its own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">&lt;h2&gt;</code>, forming a flat list of subsections beneath a page's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">&lt;h1&gt;</code>.</p>
+                        <div class="mt-3 flex flex-col gap-8 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-section(
+                            title = "Account Information",
+                            description = "Manage the account details for this user.",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
+                            )
+                            @template.ashlar.utilities.page-section(
+                            title = "Preferences",
+                            description = "Configure application preferences.",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Notification and display settings live here.</p>`
+                            )
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long title</p>
+                        <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-section(
+                            title = "Quarterly Compliance and Access Review for Enterprise Accounts",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Section content goes here.</p>`
+                            )
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long description</p>
+                        <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-section(
+                            title = "Audit Log",
+                            description = "A complete, chronological record of every access change, permission grant, and administrative action taken across all enterprise accounts, retained for the duration required by your organization's compliance policy.",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Section content goes here.</p>`
+                            )
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Narrow / mobile layout</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">No fixed widths - the section and its content occupy the available width at any viewport size.</p>
+                        <div class="mt-3 max-w-xs rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-section(
+                            title = "Account Information",
+                            description = "Manage the account details for this user.",
+                            content = @`<p class="text-sm text-slate-600 dark:text-slate-300">Name, email, and role settings live here.</p>`
+                            )
+                        </div>
+                    </div>
+                </div>
+            `
+            )
+        </section>
+
+        <section id="composition" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Composition",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">Page Section belongs to the same layout family as <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a> and <a href="${contextPath}/components/page-header" class="text-blue-700 hover:underline dark:text-blue-400">Page Header</a> - see Page Shell's own page for the full composition shown together. Its content never gains a surface from this utility, as shown below with a composed Card.</p>
+                <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                    @template.ashlar.utilities.page-section(
+                    title = "Recent Activity",
+                    description = "The latest activity for this account.",
+                    content = @`
+                        @template.ashlar.components.card(
+                            body = @`<p class="text-sm text-slate-600 dark:text-slate-300">Dana Whitfield updated billing contact - 2 hours ago.</p>`
+                        )
+                    `
+                    )
+                </div>
+            `
+            )
+        </section>
+
+        <section id="accessibility" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Accessibility",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>A real &lt;section&gt; immediately preceded by its own &lt;h2&gt; - already an accessible-name-bearing landmark by native HTML semantics, with no role or aria-labelledby needed.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>A single Page Header's &lt;h1&gt; above these &lt;h2&gt;s, so the heading hierarchy stays correct.</li>
+                        </ul>
+                    </div>
+                </div>
+            `
+            )
+        </section>
+
+        <section id="api-reference" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "API Reference",
+            content = @`
+                @template.layout.api-reference(apiParams = pageSectionApi)
+            `
+            )
+        </section>
+
+        <section id="related" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Related Components",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <a href="${contextPath}/components/page-header" class="text-blue-700 hover:underline dark:text-blue-400">Page Header</a>, the &lt;h1&gt; above it &middot;
+                    <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a>, the outer wrapper &middot;
+                    <a href="${contextPath}/components/card" class="text-blue-700 hover:underline dark:text-blue-400">Card</a> for a subsection that needs a visible surface
+                </p>
+            `
+            )
+        </section>
+    </div>
+
+    <div class="mt-10 border-t border-slate-200 pt-6 dark:border-slate-800">
+        @template.layout.component-nav(currentSlug = "page-section", contextPath = contextPath)
+    </div>
 `
 )

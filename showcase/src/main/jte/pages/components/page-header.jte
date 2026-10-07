@@ -1,30 +1,17 @@
 @import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
 @import java.util.List
 
 @param String contextPath
 
-<%-- Batch 12 (final) documentation page. Existing "Title only" / "Title +
-     description" / "Title + actions" / "Title + description + actions" /
-     "Multiple actions" / "Long title" / "Long description" / "Narrow /
-     mobile layout" examples kept verbatim. Added: Quick Start, formal
-     grammar headings, How to Use, Composition, Accessibility, API
-     Reference, Related Components.
-
-     Verified against source before writing:
-     - page-header.jte's own 3 @params and doc comment. Confirmed `title`
-       always renders as a real <h1> with no titleLevel escape hatch -
-       this utility exists to BE a page's one primary heading, not a
-       general-purpose heading wrapper, so there is exactly one correct
-       level for it.
-     - Confirmed `actions` is gg.jte.Content, matching card.jte's own
-       footer slot precisely: this utility owns layout only (which
-       actions exist, how many, what they do is entirely the calling
-       page's decision).
-     - Confirmed the responsive reflow is plain flex (`flex-col
-       sm:flex-row`) with no fixed widths on either side - the heading
-       column wraps onto as many lines as a long title/description need,
-       and `flex-wrap` on the actions group lets several actions wrap
-       onto their own line rather than overflowing. --%>
+<%-- A genuine, unavoidable exception on this specific page: Page Header's
+     own job is to render a real h1, so demonstrating it live puts
+     several more h1 elements in the body below the showcase page's own
+     real h1 (rendered by component-header.jte). Same category of
+     exception as Navbar's own shared "Menu" h2 on other pages - a real
+     component faithfully rendering its own correct heading level, not a
+     page-authoring defect worth hiding or renaming. --%>
+!{String backtick = "`";}
 !{String quickStartCode = """
     @template.ashlar.utilities.page-header(
         title = "Dashboard",
@@ -35,77 +22,152 @@
     ApiParam.optional("description", "String", "\"\"", "Supporting text below the title."),
     ApiParam.optional("actions", "gg.jte.Content", "null", "Composed Button(s) or other controls - which actions exist, how many, and what they do is entirely the calling page's decision.")
 );}
+!{List<PageAnchor> sections = List.of(
+    new PageAnchor("quick-start", "Quick Start"),
+    new PageAnchor("how-to-use", "How to Use"),
+    new PageAnchor("variants", "Variants & States"),
+    new PageAnchor("composition", "Composition"),
+    new PageAnchor("accessibility", "Accessibility"),
+    new PageAnchor("api-reference", "API Reference"),
+    new PageAnchor("related", "Related Components")
+);}
+!{String titleOnlyCode = """
+    @template.ashlar.utilities.page-header(title = "Dashboard")""";}
+!{String titleDescriptionCode = """
+    @template.ashlar.utilities.page-header(
+        title = "Dashboard",
+        description = "Overview of system activity."
+    )""";}
+!{String titleActionsCode = "@template.ashlar.utilities.page-header(\n"
+        + "    title = \"Dashboard\",\n"
+        + "    actions = @" + backtick + "@template.ashlar.components.button(text = \"New report\", type = \"Primary\")" + backtick + "\n"
+        + ")";}
+!{String titleDescActionsCode = "@template.ashlar.utilities.page-header(\n"
+        + "    title = \"Dashboard\",\n"
+        + "    description = \"Overview of system activity.\",\n"
+        + "    actions = @" + backtick + "@template.ashlar.components.button(text = \"New report\", type = \"Primary\")" + backtick + "\n"
+        + ")";}
+!{String multipleActionsCode = "@template.ashlar.utilities.page-header(\n"
+        + "    title = \"Accounts\",\n"
+        + "    description = \"Manage enterprise accounts and their access.\",\n"
+        + "    actions = @" + backtick + "\n"
+        + "        @template.ashlar.components.button(text = \"Export\", type = \"Secondary\")\n"
+        + "        @template.ashlar.components.button(text = \"Invite member\", type = \"Ghost\")\n"
+        + "        @template.ashlar.components.button(text = \"New account\", type = \"Primary\")\n"
+        + "    " + backtick + "\n"
+        + ")";}
+!{String longTitleCode = "@template.ashlar.utilities.page-header(\n"
+        + "    title = \"Quarterly Compliance and Access Review for Enterprise Accounts\",\n"
+        + "    actions = @" + backtick + "@template.ashlar.components.button(text = \"Export\", type = \"Secondary\")" + backtick + "\n"
+        + ")";}
+!{String longDescriptionCode = """
+    @template.ashlar.utilities.page-header(
+        title = "Audit Log",
+        description = "A complete, chronological record of every access change, permission grant, and administrative action taken across all enterprise accounts, retained for the duration required by your organization's compliance policy."
+    )""";}
+!{String mobileLayoutCode = "@template.ashlar.utilities.page-header(\n"
+        + "    title = \"Dashboard\",\n"
+        + "    description = \"Overview of system activity.\",\n"
+        + "    actions = @" + backtick + "\n"
+        + "        @template.ashlar.components.button(text = \"Export\", type = \"Secondary\")\n"
+        + "        @template.ashlar.components.button(text = \"New report\", type = \"Primary\")\n"
+        + "    " + backtick + "\n"
+        + ")";}
 
 @template.layout.page(
 contextPath = contextPath,
 title = "Page Header",
 content = @`
-    @template.layout.component-nav(currentSlug = "page-header", contextPath = contextPath)
+    @template.layout.component-header(contextPath = contextPath, slug = "page-header", sections = sections)
 
-        <section class="rounded-xl border border-slate-200 bg-white p-8 shadow-lg dark:border-slate-700 dark:bg-slate-900">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Page Header</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A layout utility for a page's own title, optional description, and optional application-supplied actions. No surface of its own, no JavaScript - it owns structure, not appearance or behavior.</p>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">A layout utility for a page's own title, optional description, and optional application-supplied actions. No surface of its own, no JavaScript - it owns structure, not appearance or behavior.</p>
 
-            <div class="mt-6 flex flex-col gap-10">
-                <div>
-                    @template.layout.usage-snippet(label = "Quick Start", code = quickStartCode)
-                    <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                        @template.ashlar.utilities.page-header(
-                        title = "Dashboard",
-                        description = "Overview of system activity."
-                        )
-                    </div>
+    <div class="mt-8 flex flex-col gap-10">
+        <section id="quick-start" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Quick Start",
+            content = @`
+                @template.layout.usage-snippet(label = "", code = quickStartCode)
+                <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                    @template.ashlar.utilities.page-header(
+                    title = "Dashboard",
+                    description = "Overview of system activity."
+                    )
                 </div>
+            `
+            )
+        </section>
 
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">How to Use</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use exactly one Page Header per page, at the top of your <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a>, for the page's one real &lt;h1&gt;. For a subsection heading beneath it, that's <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a>'s job, not a second Page Header.</p>
-                </div>
+        <section id="how-to-use" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "How to Use",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">Use exactly one Page Header per page, at the top of your <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a>, for the page's one real &lt;h1&gt;. For a subsection heading beneath it, that's <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a>'s job, not a second Page Header.</p>
+            `
+            )
+        </section>
 
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Variants &amp; States</h3>
-                    <div class="mt-4 flex flex-col gap-8">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title only</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-header(title = "Dashboard")
-                            </div>
+        <section id="variants" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Variants & States",
+            content = @`
+                <div class="flex flex-col gap-8">
+                    @template.layout.example(
+                    label = "Title only",
+                    code = titleOnlyCode,
+                    content = @`
+                        <div class="rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-header(title = "Dashboard")
                         </div>
+                    `
+                    )
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + description</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-header(
-                                title = "Dashboard",
-                                description = "Overview of system activity."
-                                )
-                            </div>
+                    @template.layout.example(
+                    label = "Title + description",
+                    code = titleDescriptionCode,
+                    content = @`
+                        <div class="rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-header(
+                            title = "Dashboard",
+                            description = "Overview of system activity."
+                            )
                         </div>
+                    `
+                    )
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + actions</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-header(
-                                title = "Dashboard",
-                                actions = @`@template.ashlar.components.button(text = "New report", type = "Primary")`
-                                )
-                            </div>
+                    @template.layout.example(
+                    label = "Title + actions",
+                    code = titleActionsCode,
+                    content = @`
+                        <div class="rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-header(
+                            title = "Dashboard",
+                            actions = @`@template.ashlar.components.button(text = "New report", type = "Primary")`
+                            )
                         </div>
+                    `
+                    )
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Title + description + actions</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-header(
-                                title = "Dashboard",
-                                description = "Overview of system activity.",
-                                actions = @`@template.ashlar.components.button(text = "New report", type = "Primary")`
-                                )
-                            </div>
+                    @template.layout.example(
+                    label = "Title + description + actions",
+                    code = titleDescActionsCode,
+                    content = @`
+                        <div class="rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-header(
+                            title = "Dashboard",
+                            description = "Overview of system activity.",
+                            actions = @`@template.ashlar.components.button(text = "New report", type = "Primary")`
+                            )
                         </div>
+                    `
+                    )
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Multiple actions</p>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Actions are supplied by the caller - Page Header only arranges them and lets them wrap.</p>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Multiple actions</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Actions are supplied by the caller - Page Header only arranges them and lets them wrap.</p>
+                        @template.layout.example(
+                        code = multipleActionsCode,
+                        content = @`
                             <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
                                 @template.ashlar.utilities.page-header(
                                 title = "Accounts",
@@ -117,31 +179,42 @@ content = @`
                                 `
                                 )
                             </div>
-                        </div>
+                        `
+                        )
+                    </div>
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long title</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-header(
-                                title = "Quarterly Compliance and Access Review for Enterprise Accounts",
-                                actions = @`@template.ashlar.components.button(text = "Export", type = "Secondary")`
-                                )
-                            </div>
+                    @template.layout.example(
+                    label = "Long title",
+                    code = longTitleCode,
+                    content = @`
+                        <div class="rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-header(
+                            title = "Quarterly Compliance and Access Review for Enterprise Accounts",
+                            actions = @`@template.ashlar.components.button(text = "Export", type = "Secondary")`
+                            )
                         </div>
+                    `
+                    )
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Long description</p>
-                            <div class="mt-3 rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
-                                @template.ashlar.utilities.page-header(
-                                title = "Audit Log",
-                                description = "A complete, chronological record of every access change, permission grant, and administrative action taken across all enterprise accounts, retained for the duration required by your organization's compliance policy."
-                                )
-                            </div>
+                    @template.layout.example(
+                    label = "Long description",
+                    code = longDescriptionCode,
+                    content = @`
+                        <div class="rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
+                            @template.ashlar.utilities.page-header(
+                            title = "Audit Log",
+                            description = "A complete, chronological record of every access change, permission grant, and administrative action taken across all enterprise accounts, retained for the duration required by your organization's compliance policy."
+                            )
                         </div>
+                    `
+                    )
 
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Narrow / mobile layout</p>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Below the <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">sm</code> breakpoint the actions move below the heading and wrap instead of overflowing.</p>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Narrow / mobile layout</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Below the <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">sm</code> breakpoint the actions move below the heading and wrap instead of overflowing.</p>
+                        @template.layout.example(
+                        code = mobileLayoutCode,
+                        content = @`
                             <div class="mt-3 max-w-xs rounded-lg border border-dashed border-slate-200 p-4 dark:border-slate-700">
                                 @template.ashlar.utilities.page-header(
                                 title = "Dashboard",
@@ -152,46 +225,65 @@ content = @`
                                 `
                                 )
                             </div>
-                        </div>
+                        `
+                        )
                     </div>
                 </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Composition</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Page Header is the top block of the same layout family as <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a> and <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a> - see Page Shell's own page for the full composition shown together. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">actions</code> accepts ordinary composed Button calls, the same shape as Card's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">footer</code> slot.</p>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Accessibility</h3>
-                    <div class="mt-2 grid gap-6 sm:grid-cols-2">
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
-                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                                <li>A real &lt;h1&gt; - the page's one primary heading, with no risk of landing at the wrong level since there's no parameter to change it.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
-                            <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                                <li>Using this exactly once per page - a second &lt;h1&gt; elsewhere would contradict the one real page title.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    @template.layout.api-reference(apiParams = pageHeaderApi)
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Related Components</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a>, the outer wrapper this sits inside &middot;
-                        <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a> for the subsection heading beneath it &middot;
-                        <a href="${contextPath}/components/form-actions" class="text-blue-700 hover:underline dark:text-blue-400">Form Actions</a> for a form's own end-aligned buttons instead of page-level actions
-                    </p>
-                </div>
-            </div>
+            `
+            )
         </section>
+
+        <section id="composition" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Composition",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">Page Header is the top block of the same layout family as <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a> and <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a> - see Page Shell's own page for the full composition shown together. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">actions</code> accepts ordinary composed Button calls, the same shape as Card's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">footer</code> slot.</p>
+            `
+            )
+        </section>
+
+        <section id="accessibility" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Accessibility",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>A real &lt;h1&gt; - the page's one primary heading, with no risk of landing at the wrong level since there's no parameter to change it.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Using this exactly once per page - a second &lt;h1&gt; elsewhere would contradict the one real page title.</li>
+                        </ul>
+                    </div>
+                </div>
+            `
+            )
+        </section>
+
+        <section id="api-reference" class="scroll-mt-20">
+            @template.layout.api-reference(apiParams = pageHeaderApi)
+        </section>
+
+        <section id="related" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Related Components",
+            content = @`
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <a href="${contextPath}/components/page-shell" class="text-blue-700 hover:underline dark:text-blue-400">Page Shell</a>, the outer wrapper this sits inside &middot;
+                    <a href="${contextPath}/components/page-section" class="text-blue-700 hover:underline dark:text-blue-400">Page Section</a> for the subsection heading beneath it &middot;
+                    <a href="${contextPath}/components/form-actions" class="text-blue-700 hover:underline dark:text-blue-400">Form Actions</a> for a form's own end-aligned buttons instead of page-level actions
+                </p>
+            `
+            )
+        </section>
+    </div>
+
+    <div class="mt-10 border-t border-slate-200 pt-6 dark:border-slate-800">
+        @template.layout.component-nav(currentSlug = "page-header", contextPath = contextPath)
+    </div>
 `
 )
