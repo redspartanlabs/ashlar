@@ -107,7 +107,7 @@ content = @`
                     </div>
 
                     @template.layout.example(
-                    label = "Accept restriction &amp; help text",
+                    label = "Accept restriction & help text",
                     code = acceptCode,
                     content = @`
                         @template.ashlar.components.file-upload(

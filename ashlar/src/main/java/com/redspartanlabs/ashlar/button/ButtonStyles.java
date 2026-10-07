@@ -19,7 +19,8 @@ public final class ButtonStyles {
         return "inline-flex items-center justify-center gap-2 rounded-md font-medium " +
                 "transition-colors duration-150 ease-in-out cursor-pointer select-none " +
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " +
-                "disabled:cursor-not-allowed disabled:opacity-60";
+                "disabled:cursor-not-allowed disabled:opacity-60 " +
+                "aria-disabled:cursor-not-allowed aria-disabled:opacity-60";
     }
 
     private static String size(ButtonSize size, boolean iconOnly) {
@@ -47,24 +48,24 @@ public final class ButtonStyles {
     private static String variant(ButtonVariant variant) {
         return switch (variant) {
             case PRIMARY -> "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 " +
-                    "focus-visible:ring-blue-500 disabled:hover:bg-blue-600";
+                    "focus-visible:ring-blue-500 disabled:hover:bg-blue-600 aria-disabled:hover:bg-blue-600";
             case SECONDARY -> "bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 " +
-                    "active:bg-slate-100 focus-visible:ring-blue-500 disabled:hover:bg-white " +
+                    "active:bg-slate-100 focus-visible:ring-blue-500 disabled:hover:bg-white aria-disabled:hover:bg-white " +
                     "dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-700 " +
-                    "dark:active:bg-slate-600 dark:disabled:hover:bg-slate-800";
+                    "dark:active:bg-slate-600 dark:disabled:hover:bg-slate-800 dark:aria-disabled:hover:bg-slate-800";
             case SUCCESS -> "bg-green-600 text-white shadow-sm hover:bg-green-700 active:bg-green-800 " +
-                    "focus-visible:ring-green-500 disabled:hover:bg-green-600";
+                    "focus-visible:ring-green-500 disabled:hover:bg-green-600 aria-disabled:hover:bg-green-600";
             case WARNING -> "bg-amber-500 text-white shadow-sm hover:bg-amber-600 active:bg-amber-700 " +
-                    "focus-visible:ring-amber-500 disabled:hover:bg-amber-500";
+                    "focus-visible:ring-amber-500 disabled:hover:bg-amber-500 aria-disabled:hover:bg-amber-500";
             case DANGER -> "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800 " +
-                    "focus-visible:ring-red-500 disabled:hover:bg-red-600";
+                    "focus-visible:ring-red-500 disabled:hover:bg-red-600 aria-disabled:hover:bg-red-600";
             case INFO -> "bg-sky-600 text-white shadow-sm hover:bg-sky-700 active:bg-sky-800 " +
-                    "focus-visible:ring-sky-500 disabled:hover:bg-sky-600";
+                    "focus-visible:ring-sky-500 disabled:hover:bg-sky-600 aria-disabled:hover:bg-sky-600";
             case GHOST -> "bg-transparent text-slate-700 hover:bg-slate-100 active:bg-slate-200 " +
-                    "focus-visible:ring-blue-500 disabled:hover:bg-transparent " +
+                    "focus-visible:ring-blue-500 disabled:hover:bg-transparent aria-disabled:hover:bg-transparent " +
                     "dark:text-slate-300 dark:hover:bg-slate-800 dark:active:bg-slate-700";
             case LINK -> "bg-transparent text-blue-600 shadow-none underline-offset-4 hover:underline " +
-                    "hover:text-blue-700 active:text-blue-800 focus-visible:ring-blue-500 disabled:hover:no-underline " +
+                    "hover:text-blue-700 active:text-blue-800 focus-visible:ring-blue-500 disabled:hover:no-underline aria-disabled:hover:no-underline " +
                     "dark:text-blue-400 dark:hover:text-blue-300 dark:active:text-blue-200";
         };
     }

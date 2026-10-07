@@ -16,7 +16,7 @@ import java.util.Set;
 public record PageAnchor(String id, String label) {
 
     private static final Set<String> START_IDS = Set.of("quick-start", "how-to-use");
-    private static final Set<String> EXPLORE_IDS = Set.of("variants", "composition", "common-patterns");
+    private static final Set<String> EXPLORE_IDS = Set.of("variants", "loading", "composition", "common-patterns");
 
     /**
      * Classifies a section id into one of three navigation groups, by the

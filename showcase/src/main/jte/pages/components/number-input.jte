@@ -151,7 +151,7 @@ content = @`
                     </div>
 
                     @template.layout.example(
-                    label = "Min/max &amp; decimal step",
+                    label = "Min/max & decimal step",
                     code = minMaxCode,
                     content = @`
                         <div class="grid gap-4 sm:grid-cols-2">
@@ -178,7 +178,7 @@ content = @`
                     )
 
                     @template.layout.example(
-                    label = "Disabled &amp; readonly",
+                    label = "Disabled & readonly",
                     code = disabledReadonlyCode,
                     content = @`
                         <div class="grid gap-4 sm:grid-cols-2">

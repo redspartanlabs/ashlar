@@ -27,7 +27,7 @@ dependencies {
     implementation("gg.jte:jte-spring-boot-starter-4:3.2.4")
 
     // Ashlar as an ordinary dependency. Swapping this line for
-    // implementation("com.redspartanlabs:ashlar:<version>") is the only change an
+    // implementation("dev.redspartan:ashlar:<version>") is the only change an
     // external consumer would make - everything below is what that consumer's
     // build has to do as well, and is the thing being validated.
     implementation(project(":ashlar"))

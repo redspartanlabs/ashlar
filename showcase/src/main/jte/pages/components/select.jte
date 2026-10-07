@@ -110,7 +110,7 @@
     ApiParam.optional("placeholder", "String", "\"Select an option\"", "Shown only while nothing is selected."),
     ApiParam.optional("required", "boolean", "false", "Enables native constraint validation through the hidden <select>."),
     ApiParam.optional("disabled", "boolean", "false", "Disables the whole control."),
-    ApiParam.optional("clearable", "boolean", "false", "Adds a clear (&times;) button that removes the selection entirely once one is made."),
+    ApiParam.optional("clearable", "boolean", "false", "Adds a clear (×) button that removes the selection entirely once one is made."),
     ApiParam.optional("requiredMessage", "String", "\"Please make a selection.\"", "Validation message, announced via role=\"alert\" when a required Select is submitted empty.")
 );}
 !{List<PageAnchor> sections = List.of(

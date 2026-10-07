@@ -147,7 +147,7 @@ content = @`
                     </div>
 
                     @template.layout.example(
-                    label = "Preselected range &amp; help text",
+                    label = "Preselected range & help text",
                     code = preselectedCode,
                     content = @`
                         <div class="max-w-xl">
@@ -183,7 +183,7 @@ content = @`
                     </div>
 
                     @template.layout.example(
-                    label = "Min/max bounds &amp; disabled",
+                    label = "Min/max bounds & disabled",
                     code = minMaxDisabledCode,
                     content = @`
                         <div class="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">

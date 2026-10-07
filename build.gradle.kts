@@ -8,8 +8,11 @@ plugins {
 }
 
 allprojects {
-    group = "com.redspartanlabs"
-    version = "0.1.0-SNAPSHOT"
+    // The Maven group is the reverse of the project's verified domain
+    // (redspartan.dev). It is deliberately NOT the Java package, which stays
+    // com.redspartanlabs.ashlar - the two are independent on Maven Central.
+    group = "dev.redspartan"
+    version = "0.1.0"
 
     repositories {
         mavenCentral()

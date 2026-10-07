@@ -70,6 +70,7 @@
     new PageAnchor("how-to-use", "How to Use"),
     new PageAnchor("variants", "Variants & States"),
     new PageAnchor("composition", "Composition"),
+    new PageAnchor("best-practices", "Best Practices"),
     new PageAnchor("accessibility", "Accessibility"),
     new PageAnchor("api-reference", "API Reference"),
     new PageAnchor("related", "Related Components")
@@ -200,6 +201,30 @@ content = @`
             content = @`
                 <p class="text-sm text-slate-500 dark:text-slate-400"><code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">items</code> is composed from <a href="${contextPath}/components/nav-link" class="text-blue-700 hover:underline dark:text-blue-400">NavLink</a> calls - see that page for its own full API. The one fact worth restating here precisely: Navbar renders that same <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">items</code> content twice, once into the desktop list and once more into the mobile drawer's own list, so each NavLink call you write produces two actual list items in the final page - this is not a mistake to guard against, it's exactly what lets you compose the link list once.</p>
                 <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">The mobile menu is a real, unmodified <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a> - not a separate mobile-navigation component - so it inherits that component's focus trap, Escape handling, backdrop, and scroll lock with no reimplementation. <a href="${contextPath}/components/theme-toggle" class="text-blue-700 hover:underline dark:text-blue-400">Theme Toggle</a>'s own documented "most common home" is this component's <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">actions</code> slot, demonstrated above.</p>
+            `
+            )
+        </section>
+
+        <section id="best-practices" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Best Practices",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Do</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Put anything that must stay reachable regardless of screen width - a <a href="${contextPath}/components/theme-toggle" class="text-blue-700 hover:underline dark:text-blue-400">Theme Toggle</a>, a compact search - in <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">actions</code>, not <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">items</code>. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">actions</code> is deliberately never duplicated into the mobile drawer, so a control placed there never ends up as two separate, potentially disagreeing copies of itself on the page at once.</li>
+                            <li>Set <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">current = true</code> explicitly on whichever nav-link matches the page actually being viewed - Navbar has no idea what the current URL is, so this is never inferred automatically.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Avoid</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Assuming a stateful or non-idempotent component composed into <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">items</code> renders only once - it renders twice, once into the desktop list and once more into the mobile drawer's own list, since both are real DOM nodes built from the same composed content.</li>
+                            <li>Reaching for Navbar when what's actually needed is a persistent side column - that's <a href="${contextPath}/components/sidebar" class="text-blue-700 hover:underline dark:text-blue-400">Sidebar</a>'s job, with no built-in responsive collapse of its own.</li>
+                        </ul>
+                    </div>
+                </div>
             `
             )
         </section>

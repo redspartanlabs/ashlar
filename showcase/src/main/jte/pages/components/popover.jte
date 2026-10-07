@@ -76,6 +76,7 @@
     new PageAnchor("how-to-use", "How to Use"),
     new PageAnchor("variants", "Variants & States"),
     new PageAnchor("composition", "Composition"),
+    new PageAnchor("best-practices", "Best Practices"),
     new PageAnchor("pitfalls", "Pitfalls"),
     new PageAnchor("accessibility", "Accessibility"),
     new PageAnchor("api-reference", "API Reference"),
@@ -272,6 +273,31 @@ content = @`
             title = "Composition",
             content = @`
                 <p class="text-sm text-slate-500 dark:text-slate-400">Unlike Tooltip's plain-text <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">content</code>, Popover's is real <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">gg.jte.Content</code> - that single difference is the entire reason this component exists alongside Tooltip rather than Tooltip simply growing a richer-content option. Checkboxes, buttons, a Text Input, a Badge, a link - all compose in normally and stay fully operable, demonstrated above in "Interactive content" and "Richer content". The trigger itself is equally opaque composition: any real content works, with a synthetic button role added only when nothing inside is already natively interactive.</p>
+            `
+            )
+        </section>
+
+        <section id="best-practices" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Best Practices",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Do</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Reach for Popover specifically when the content needs to be clickable - a form, a real link, a button. For plain text only, <a href="${contextPath}/components/tooltip" class="text-blue-700 hover:underline dark:text-blue-400">Tooltip</a> is the simpler, hover-revealed fit.</li>
+                            <li>Use a real <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">&lt;button&gt;</code> as the trigger where possible - it needs no synthetic role/tabindex fallback.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Avoid</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Choosing a placement with no room to open in - it nudges along its centering axis but never flips to the opposite side, so it can still clip.</li>
+                            <li>Placing a trigger inside an <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">overflow-hidden</code> ancestor, including a real <a href="${contextPath}/components/table" class="text-blue-700 hover:underline dark:text-blue-400">Table</a>'s own horizontal scroller - there is no portal here either. See Pitfalls.</li>
+                            <li>Nesting a Popover inside an open <a href="${contextPath}/components/modal" class="text-blue-700 hover:underline dark:text-blue-400">Modal</a> or <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a> without accounting for Escape closing both at once - see Pitfalls.</li>
+                        </ul>
+                    </div>
+                </div>
             `
             )
         </section>

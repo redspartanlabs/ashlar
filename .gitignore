@@ -10,6 +10,13 @@ node_modules/
 # Generated stylesheet - build output, not source.
 showcase/src/main/resources/static/css/app.css
 
+### Secrets - never commit signing material or publishing credentials ###
+*.asc
+*.gpg
+*.pgp
+*.key
+secring.*
+
 ### IDE ###
 .idea/
 *.iml

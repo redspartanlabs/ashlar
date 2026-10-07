@@ -186,7 +186,7 @@ content = @`
                     </div>
 
                     @template.layout.example(
-                    label = "Descriptions &amp; help text",
+                    label = "Descriptions & help text",
                     code = descriptionsCode,
                     content = @`
                         <div class="max-w-md">
@@ -202,7 +202,7 @@ content = @`
                     )
 
                     @template.layout.example(
-                    label = "Disabled group &amp; individually disabled option",
+                    label = "Disabled group & individually disabled option",
                     code = disabledCode,
                     content = @`
                         <div class="grid gap-6 sm:grid-cols-2">

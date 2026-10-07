@@ -14,6 +14,7 @@
 @param String ariaLabel = ""
 @param boolean disabled = false
 @param boolean loading = false
+@param boolean loadingOnSubmit = false
 @param boolean fullWidth = false
 @param boolean toggle = false
 @param boolean pressed = false
@@ -29,12 +30,14 @@
 !{boolean effectiveIconOnly = iconOnly || (hasIcon && text.isEmpty());}
 !{String buttonClasses = ButtonStyles.classes(resolvedVariant, resolvedSize, effectiveIconOnly, fullWidth, pressed);}
 !{String iconSizeClasses = ButtonStyles.iconSizeClasses(resolvedSize);}
-!{boolean showLeadingIcon = hasIcon && !loading && (effectiveIconOnly || "leading".equals(iconPosition));}
-!{boolean showTrailingIcon = hasIcon && !effectiveIconOnly && !loading && "trailing".equals(iconPosition);}
+!{boolean showLeadingIcon = hasIcon && (effectiveIconOnly || "leading".equals(iconPosition));}
+!{boolean showTrailingIcon = hasIcon && !effectiveIconOnly && "trailing".equals(iconPosition);}
 
 <%-- Smart attributes: a null/false expression makes JTE omit the attribute entirely. --%>
 !{String idAttr = id.isEmpty() ? null : id;}
 !{String ariaBusyAttr = loading ? "true" : null;}
+!{String ariaDisabledAttr = loading ? "true" : null;}
+!{String iconHiddenClass = loading ? "hidden" : null;}
 !{String ariaLabelAttr = effectiveIconOnly ? (ariaLabel.isEmpty() ? text : ariaLabel) : (ariaLabel.isEmpty() ? null : ariaLabel);}
 !{String togglePressedAttr = toggle ? String.valueOf(pressed) : null;}
 !{String toggleBaseClassesAttr = toggle ? ButtonStyles.restingClasses(resolvedVariant, resolvedSize, effectiveIconOnly, fullWidth) : null;}
@@ -48,8 +51,10 @@
         class="${buttonClasses}"
         data-btn
         data-btn-variant="${resolvedVariant.name().toLowerCase()}"
-        disabled="${disabled || loading}"
+        disabled="${disabled}"
         aria-busy="${ariaBusyAttr}"
+        aria-disabled="${ariaDisabledAttr}"
+        data-btn-loading-on-submit="${loadingOnSubmit}"
         aria-label="${ariaLabelAttr}"
         data-btn-toggle="${toggle}"
         aria-pressed="${togglePressedAttr}"
@@ -66,7 +71,7 @@
     ></span>
 
     @if (showLeadingIcon)
-        <span data-btn-icon aria-hidden="true">
+        <span data-btn-icon class="${iconHiddenClass}" aria-hidden="true">
             @template.ashlar.components.icon(icon = icon, classes = iconSizeClasses)
         </span>
     @endif
@@ -78,7 +83,7 @@
     @endif
 
     @if (showTrailingIcon)
-        <span data-btn-icon aria-hidden="true">
+        <span data-btn-icon class="${iconHiddenClass}" aria-hidden="true">
             @template.ashlar.components.icon(icon = icon, classes = iconSizeClasses)
         </span>
     @endif

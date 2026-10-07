@@ -138,7 +138,7 @@ content = @`
                     )
 
                     @template.layout.example(
-                    label = "Disabled &amp; help text",
+                    label = "Disabled & help text",
                     code = disabledHelpCode,
                     content = @`
                         <div class="grid gap-4 sm:grid-cols-2">

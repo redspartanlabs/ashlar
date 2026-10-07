@@ -68,6 +68,7 @@
     new PageAnchor("how-to-use", "How to Use"),
     new PageAnchor("variants", "Variants & States"),
     new PageAnchor("composition", "Composition"),
+    new PageAnchor("best-practices", "Best Practices"),
     new PageAnchor("pitfalls", "Pitfalls"),
     new PageAnchor("accessibility", "Accessibility"),
     new PageAnchor("api-reference", "API Reference"),
@@ -173,6 +174,30 @@ content = @`
             title = "Composition",
             content = @`
                 <p class="text-sm text-slate-500 dark:text-slate-400">Drawer uses the same trigger contract as Modal, not the wrapper/item or single-slot patterns the rest of the library uses: the drawer itself is rendered once, anywhere on the page, and any element elsewhere carrying <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">data-drawer-open="{id}"</code> opens it - demonstrated in "Several triggers, one drawer" above, where two independent buttons both open the same instance. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">body</code> and <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">footer</code> are ordinary composition slots, the same shape as Card's - Text Input, Checkbox, and Button all compose in normally, shown in "Interactive content and a footer" above.</p>
+            `
+            )
+        </section>
+
+        <section id="best-practices" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Best Practices",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Do</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Render each Drawer instance once on the page and open it from any number of triggers carrying its id - never duplicate the drawer's own markup per trigger.</li>
+                            <li>Reach for Drawer only when the content genuinely needs to block the page and hold focus, the same commitment as Modal - use <a href="${contextPath}/components/popover" class="text-blue-700 hover:underline dark:text-blue-400">Popover</a> instead when it doesn't.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Avoid</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Nesting a Drawer inside an open <a href="${contextPath}/components/modal" class="text-blue-700 hover:underline dark:text-blue-400">Modal</a> (or vice versa) - one Escape press closes both; see Pitfalls.</li>
+                            <li>Expecting a Top/Bottom placement - only Left and Right exist, by design.</li>
+                        </ul>
+                    </div>
+                </div>
             `
             )
         </section>

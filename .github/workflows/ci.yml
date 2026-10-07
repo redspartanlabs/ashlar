@@ -1,0 +1,37 @@
+name: CI
+
+# Builds and tests everything - the library and the showcase - on every push to
+# the main branches and on every pull request. Nothing here publishes anything
+# and no secret is available to it.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # The showcase compiles its stylesheet with Tailwind, which needs Node.
+      # The library module alone does not.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - run: ./gradlew build

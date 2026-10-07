@@ -7,13 +7,13 @@ A RedSpartan Labs project. Licensed under the [Apache License 2.0](LICENSE).
 
 > **Status: V1 completion.** The core JTE component migration is complete —
 > 61 components and 9 utilities, all consumable exactly as described below,
-> with 50 catalog routes documenting them in the showcase application.
+> with 53 catalog routes documenting them in the showcase application.
 
 ## Modules
 
 | Module | Published | Purpose |
 | --- | --- | --- |
-| `ashlar` | `com.redspartanlabs:ashlar` | The library: Java support classes, JTE templates, CSS and JS assets. |
+| `ashlar` | `dev.redspartan:ashlar` | The library: Java support classes, JTE templates, JavaScript assets and a generated Tailwind class list. It ships no prebuilt CSS. |
 | `showcase` | no | A Spring Boot application that consumes Ashlar exactly as an external consumer would. |
 
 ## Consuming Ashlar
@@ -27,7 +27,7 @@ Three additions to a consumer's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.redspartanlabs:ashlar:<version>")
+    implementation("dev.redspartan:ashlar:<version>")
 }
 
 // 1. A resolvable view of the artifact, to read templates out of the jar.
@@ -35,7 +35,7 @@ val ashlarArtifact = configurations.create("ashlarArtifact") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
-dependencies { ashlarArtifact("com.redspartanlabs:ashlar:<version>") }
+dependencies { ashlarArtifact("dev.redspartan:ashlar:<version>") }
 
 // 2. Stage one JTE source root: your templates plus Ashlar's.
 val jteSourceRoot = layout.buildDirectory.dir("jte-sources")
@@ -77,10 +77,16 @@ AshlarAssets.basePath(contextPath + "/ashlar");
 
 ### Styling
 
-Ashlar's components use Tailwind utility classes. Point your Tailwind build at
-the staged template root so those classes survive content scanning:
+Ashlar ships no CSS: its components use Tailwind utility classes, and your own
+Tailwind build generates the stylesheet. Tailwind must scan the directory
+containing the staged Ashlar templates and the generated
+`ashlar/tailwind/classes.txt` - that is the `jte-sources` directory the staging
+step above creates (`build/jte-sources`). The `classes.txt` file lists the
+classes Ashlar applies from Java and JavaScript, which appear in no template.
 
 ```css
+/* The path is relative to this stylesheet. For a stylesheet at
+   src/main/tailwind/app.css, the staged root is three levels up. */
 @source "../../../build/jte-sources";
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 ```

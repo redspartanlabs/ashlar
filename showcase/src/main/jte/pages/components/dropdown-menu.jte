@@ -77,6 +77,7 @@
     new PageAnchor("how-to-use", "How to Use"),
     new PageAnchor("variants", "Variants & States"),
     new PageAnchor("composition", "Composition"),
+    new PageAnchor("best-practices", "Best Practices"),
     new PageAnchor("pitfalls", "Pitfalls"),
     new PageAnchor("accessibility", "Accessibility"),
     new PageAnchor("api-reference", "API Reference"),
@@ -283,6 +284,30 @@ content = @`
             title = "Composition",
             content = @`
                 <p class="text-sm text-slate-500 dark:text-slate-400">Dropdown Menu is the wrapper half of a wrapper/item pair, the same split Accordion and Breadcrumbs use. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">dropdown-menu-item</code> is not a separate catalog component; it only ever exists composed into the menu's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">items</code> slot, documented here in the table below. There is no submenu slot on an item - a flat list of actions is the entire supported shape.</p>
+            `
+            )
+        </section>
+
+        <section id="best-practices" class="scroll-mt-20">
+            @template.ashlar.utilities.page-section(
+            title = "Best Practices",
+            content = @`
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Do</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Keep the item list flat and short - a row's "Actions" menu, an account menu. There is no submenu support, so a deeply nested menu structure isn't something to design toward here.</li>
+                            <li>Omit <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">href</code> on purpose for an action that isn't currently available, the way "Archive" does above - it renders as non-interactive text instead of a dead link.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Avoid</p>
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
+                            <li>Placing a trigger inside any <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">overflow-hidden</code>/<code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">overflow-x-auto</code> ancestor - including a real <a href="${contextPath}/components/table" class="text-blue-700 hover:underline dark:text-blue-400">Table</a>'s own horizontal scroller - without first confirming the panel has room; there is no viewport-edge correction or portal to rescue it. See Pitfalls.</li>
+                            <li>Reaching for this component to choose a form value - that's <a href="${contextPath}/components/select" class="text-blue-700 hover:underline dark:text-blue-400">Select</a> or <a href="${contextPath}/components/combobox" class="text-blue-700 hover:underline dark:text-blue-400">Combobox</a>'s job.</li>
+                        </ul>
+                    </div>
+                </div>
             `
             )
         </section>

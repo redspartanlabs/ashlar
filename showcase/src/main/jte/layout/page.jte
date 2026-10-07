@@ -1,3 +1,6 @@
+@import com.redspartanlabs.ashlar.select.SelectOption
+@import java.util.List
+
 @param String title
 @param String contextPath
 @param gg.jte.Content content
@@ -72,7 +75,64 @@
         work, deferred along with the rest of the homepage redesign - this
         bootstrap only establishes the attribute a later menu would drive.
         Until then, a skin is reachable by visiting `?skin=<name>` once
-        (which also persists it) or by setting `localStorage.skin` directly. --%>
+        (which also persists it) or by setting `localStorage.skin` directly.
+
+     DOCUMENTATION-SITE POLISH PASS: the switcher UI deferred above now
+     exists, as a real Ashlar Select rather than a new control - composed
+     into Navbar's own `actions` slot beside Theme Toggle, the exact slot
+     that stays visible in the top bar at every width (Navbar never
+     duplicates `actions` into its mobile drawer), so no separate
+     mobile-drawer wiring was needed. skin-select.js (a new showcase-only
+     asset, not an Ashlar component file) reads this same rendered
+     <select>'s own option values as its list of valid skins, rather than
+     hardcoding a second list next to this one. Select still owns none of
+     the actual skin state: it only ever reflects `data-skin` (corrected
+     into the UI once the page has loaded, the same category of problem
+     Theme Toggle already solves for light/dark) and, on a real selection,
+     writes through to the exact same `localStorage.skin`/`data-skin` pair
+     this bootstrap script establishes - one source of truth, not two.
+
+     `clearable = true` represents the no-skin/default-Ashlar state as a
+     real clear affordance (empty value, same as Select's own internal
+     placeholder option) rather than an extra selectable row invented for
+     this - `placeholder = "Default"` is what the trigger shows whenever
+     nothing is selected, including on first load before skin-select.js
+     has corrected it.
+
+     That clear button and the chevron used to collide: audited and fixed
+     directly in ashlar/select.jte (see that file's own doc comment) once
+     the overlap turned out to be a real, reusable defect in the
+     component's default markup - affecting every `clearable = true`
+     caller, not only this narrowed navbar one - rather than something to
+     work around here with a showcase-only replacement.
+
+     Select's own stacked-form box model (a block label, `mb-6`, a
+     `max-w-sm` trigger) does not fit a navbar action row, so the wrapper
+     below applies the exact technique filter-bar.jte already uses for the
+     same mismatch - `[&>div]:mb-0` strips the trailing margin, and the
+     real label is visually hidden (`sr-only`, not removed - the accessible
+     name still comes from it) in favor of one small static "Theme" caption
+     so sighted and assistive-tech users each hear/see the word exactly
+     once. The trigger itself is further narrowed via its own stable
+     `data-select-trigger` hook - `w-auto` lets it shrink to its real
+     content (the selected skin's label plus the chevron and, now, the
+     clear button) instead of filling whatever width an ancestor offers,
+     and `max-w-36` stays only as a ceiling for a hypothetically long
+     label. No override of the trigger's own `pr-8` padding is needed or
+     applied here - that reserved band is exactly what the select.jte fix
+     above now uses correctly. --%>
+!{List<SelectOption> skinOptions = List.of(
+    SelectOption.of("axiom", "Axiom"),
+    SelectOption.of("civic", "Civic"),
+    SelectOption.of("fathom", "Fathom"),
+    SelectOption.of("foundry", "Foundry"),
+    SelectOption.of("harbor", "Harbor"),
+    SelectOption.of("keystone", "Keystone"),
+    SelectOption.of("ledger", "Ledger"),
+    SelectOption.of("sterling", "Sterling"),
+    SelectOption.of("summit", "Summit"),
+    SelectOption.of("veridian", "Veridian")
+);}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,8 +199,23 @@ items = @`
     @template.ashlar.components.nav-link(label = "Components", href = contextPath + "/components", current = componentsActive)
     @template.ashlar.components.nav-link(label = "GitHub", href = "https://github.com/redspartanlabs/ashlar")
 `,
-actions = @`@template.ashlar.components.theme-toggle()`
+actions = @`
+    @template.ashlar.components.theme-toggle()
+    <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-slate-700 dark:text-slate-300" aria-hidden="true">Theme</span>
+        <div class="[&>div]:mb-0 [&_label]:sr-only [&_[data-select-trigger]]:w-auto [&_[data-select-trigger]]:max-w-36" data-skin-select>
+            @template.ashlar.components.select(
+            name = "skin",
+            label = "Theme",
+            options = skinOptions,
+            placeholder = "Default"
+            )
+        </div>
+    </div>
+`
 )
+
+<script src="${contextPath}/js/skin-select.js"></script>
 
 <main class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10">
     ${content}

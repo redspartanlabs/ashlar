@@ -228,6 +228,7 @@ content = @`
                 <ul class="list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">Two different ids triggering the same confusion.</strong> <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">data-modal-open</code>'s value must match the modal's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">id</code> exactly - a mismatch fails silently rather than erroring, since any element can carry that attribute.</li>
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">A disabled close button with no other way out.</strong> See "Avoid" above - verify a footer action exists before turning off the header close button and Escape together.</li>
+                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">A Modal containing an open Drawer or Popover closes both of them on one Escape press.</strong> This component's own Escape listener is bound to the whole document with no stopPropagation, the same shape as <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a>'s and <a href="${contextPath}/components/popover" class="text-blue-700 hover:underline dark:text-blue-400">Popover</a>'s own listeners - nothing here isolates an Escape meant for a nested one of those from also reaching this Modal's.</li>
                 </ul>
             `
             )
