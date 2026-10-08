@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.accordion.AccordionExpansion
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.accordion.AccordionExpansion
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String id
 @param gg.jte.Content items

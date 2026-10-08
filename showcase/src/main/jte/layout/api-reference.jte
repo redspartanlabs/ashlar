@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import dev.redspartanlabs.ashlar.showcase.catalog.ApiParam
 @import java.util.List
 
 @param List<ApiParam> apiParams

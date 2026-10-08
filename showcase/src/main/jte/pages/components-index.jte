@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.showcase.catalog.ComponentCatalog
-@import com.redspartanlabs.ashlar.showcase.catalog.ComponentPage
+@import dev.redspartanlabs.ashlar.showcase.catalog.ComponentCatalog
+@import dev.redspartanlabs.ashlar.showcase.catalog.ComponentPage
 
 @param String contextPath
 

@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param String title
 @param gg.jte.Content body = null

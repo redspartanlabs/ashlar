@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.facet.FacetContext
+@import dev.redspartanlabs.ashlar.facet.FacetContext
 
 @param String label
 @param String value

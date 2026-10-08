@@ -1,7 +1,7 @@
-@import com.redspartanlabs.ashlar.tooltip.TooltipIds
-@import com.redspartanlabs.ashlar.tooltip.TooltipPlacement
-@import com.redspartanlabs.ashlar.tooltip.TooltipStyles
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.tooltip.TooltipIds
+@import dev.redspartanlabs.ashlar.tooltip.TooltipPlacement
+@import dev.redspartanlabs.ashlar.tooltip.TooltipStyles
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param gg.jte.Content trigger
 @param String content

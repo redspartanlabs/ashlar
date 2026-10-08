@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.skeleton.SkeletonShape
-@import com.redspartanlabs.ashlar.skeleton.SkeletonStyles
+@import dev.redspartanlabs.ashlar.skeleton.SkeletonShape
+@import dev.redspartanlabs.ashlar.skeleton.SkeletonStyles
 
 @param String width = "100%"
 @param String height = "1rem"

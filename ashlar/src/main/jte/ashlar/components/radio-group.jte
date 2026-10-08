@@ -1,5 +1,5 @@
 @import java.util.List
-@import com.redspartanlabs.ashlar.radio.RadioOption
+@import dev.redspartanlabs.ashlar.radio.RadioOption
 
 @param String name
 @param String label

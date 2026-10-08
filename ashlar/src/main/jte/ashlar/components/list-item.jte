@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param String label
 @param String description = ""

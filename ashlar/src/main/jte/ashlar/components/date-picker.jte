@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.datepicker.DateDisplayFormat
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.datepicker.DateDisplayFormat
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String name
 @param String label

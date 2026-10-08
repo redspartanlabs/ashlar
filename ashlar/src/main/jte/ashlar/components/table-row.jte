@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.table.TableContext
+@import dev.redspartanlabs.ashlar.table.TableContext
 
 @param gg.jte.Content cells
 @param String rowKey = ""

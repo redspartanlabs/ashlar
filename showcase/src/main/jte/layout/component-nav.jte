@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.showcase.catalog.ComponentCatalog
-@import com.redspartanlabs.ashlar.showcase.catalog.ComponentPage
+@import dev.redspartanlabs.ashlar.showcase.catalog.ComponentCatalog
+@import dev.redspartanlabs.ashlar.showcase.catalog.ComponentPage
 @import java.util.Optional
 
 @param String currentSlug
@@ -13,14 +13,14 @@
 !{Optional<ComponentPage> next = ComponentCatalog.next(currentSlug);}
 
 <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
-    <a href="${contextPath}/components" class="font-medium text-slate-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">&larr; Components</a>
+    <a href="${contextPath}/components" class="font-medium text-slate-600 hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">&larr; Components</a>
 
     <div class="flex items-center gap-4">
         @if (prev.isPresent())
-            <a href="${contextPath}/components/${prev.get().slug()}" class="font-medium text-slate-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">&larr; ${prev.get().name()}</a>
+            <a href="${contextPath}/components/${prev.get().slug()}" class="font-medium text-slate-600 hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">&larr; ${prev.get().name()}</a>
         @endif
         @if (next.isPresent())
-            <a href="${contextPath}/components/${next.get().slug()}" class="font-medium text-slate-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">${next.get().name()} &rarr;</a>
+            <a href="${contextPath}/components/${next.get().slug()}" class="font-medium text-slate-600 hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">${next.get().name()} &rarr;</a>
         @endif
     </div>
 </div>

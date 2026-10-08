@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.select.SelectOption
+@import dev.redspartanlabs.ashlar.select.SelectOption
 @import java.util.List
 
 @param String title
@@ -193,6 +193,13 @@
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950">
 
+<%-- The navbar is lifted into its own stacking context above the sticky
+     "On this page" outline bar (sm:sticky, z-10) that follows it on component
+     pages. The skin Select's open listbox is a descendant of the navbar and
+     is z-10 itself; without this, the outline bar - later in the document,
+     same z-index - painted over the lower options. The navbar is not
+     sticky, so nothing else changes: it still scrolls away normally. --%>
+<div class="relative z-20">
 @template.ashlar.components.navbar(
 brand = @`<a href="${contextPath}/" class="text-lg font-semibold text-slate-900 dark:text-slate-100">Ashlar</a>`,
 items = @`
@@ -214,6 +221,7 @@ actions = @`
     </div>
 `
 )
+</div>
 
 <script src="${contextPath}/js/skin-select.js"></script>
 

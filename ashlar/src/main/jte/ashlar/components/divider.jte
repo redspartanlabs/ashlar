@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.divider.DividerOrientation
-@import com.redspartanlabs.ashlar.divider.DividerStyles
+@import dev.redspartanlabs.ashlar.divider.DividerOrientation
+@import dev.redspartanlabs.ashlar.divider.DividerStyles
 
 @param String orientation = "Horizontal"
 

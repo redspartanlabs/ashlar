@@ -1,10 +1,10 @@
 @import java.util.List
 @import java.util.Map
-@import com.redspartanlabs.ashlar.datatable.DataTableColumn
-@import com.redspartanlabs.ashlar.datatable.DataTableRow
-@import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
-@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
-@import com.redspartanlabs.ashlar.showcase.datatable.SampleAccountData
+@import dev.redspartanlabs.ashlar.datatable.DataTableColumn
+@import dev.redspartanlabs.ashlar.datatable.DataTableRow
+@import dev.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import dev.redspartanlabs.ashlar.showcase.catalog.PageAnchor
+@import dev.redspartanlabs.ashlar.showcase.datatable.SampleAccountData
 
 @param String contextPath
 

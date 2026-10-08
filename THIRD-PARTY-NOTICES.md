@@ -8,7 +8,7 @@ file covers only third-party material redistributed inside the library.
 
 ## Feather Icons
 
-92 of the 100 icons in `com.redspartanlabs.ashlar.icon.Icon` are reproduced
+92 of the 100 icons in `dev.redspartanlabs.ashlar.icon.Icon` are reproduced
 verbatim from Feather Icons.
 
 - **Project:** Feather Icons — https://github.com/feathericons/feather

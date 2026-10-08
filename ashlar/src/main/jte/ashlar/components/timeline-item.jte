@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.badge.BadgeVariant
-@import com.redspartanlabs.ashlar.timeline.TimelineStyles
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.badge.BadgeVariant
+@import dev.redspartanlabs.ashlar.timeline.TimelineStyles
 
 @param String title
 @param String date = ""

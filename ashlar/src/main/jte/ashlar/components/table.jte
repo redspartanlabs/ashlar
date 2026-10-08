@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.table.TableContext
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.table.TableContext
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String caption
 @param gg.jte.Content columns

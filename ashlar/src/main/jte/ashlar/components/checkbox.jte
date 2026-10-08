@@ -1,4 +1,4 @@
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String name
 @param String label

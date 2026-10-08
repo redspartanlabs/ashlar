@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String startName
 @param String endName

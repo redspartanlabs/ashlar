@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.icon.IconSvg
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.icon.IconSvg
 
 @param Icon icon
 @param String classes = "h-5 w-5"

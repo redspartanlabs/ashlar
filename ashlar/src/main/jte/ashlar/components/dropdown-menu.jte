@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.dropdownmenu.DropdownMenuIds
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.dropdownmenu.DropdownMenuIds
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String label
 @param gg.jte.Content items

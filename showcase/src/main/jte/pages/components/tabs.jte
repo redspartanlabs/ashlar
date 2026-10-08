@@ -1,7 +1,7 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.tabs.Tab
-@import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
-@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.tabs.Tab
+@import dev.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import dev.redspartanlabs.ashlar.showcase.catalog.PageAnchor
 @import java.util.List
 
 @param String contextPath

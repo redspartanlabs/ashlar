@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.stepper.StepperStatus
-@import com.redspartanlabs.ashlar.stepper.StepperStyles
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.stepper.StepperStatus
+@import dev.redspartanlabs.ashlar.stepper.StepperStyles
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param String label
 @param String status

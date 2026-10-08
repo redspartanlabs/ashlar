@@ -1,8 +1,8 @@
 @import java.util.List
-@import com.redspartanlabs.ashlar.select.SelectOption
-@import com.redspartanlabs.ashlar.showcase.datatable.SampleAccountData
-@import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
-@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
+@import dev.redspartanlabs.ashlar.select.SelectOption
+@import dev.redspartanlabs.ashlar.showcase.datatable.SampleAccountData
+@import dev.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import dev.redspartanlabs.ashlar.showcase.catalog.PageAnchor
 
 @param String contextPath
 

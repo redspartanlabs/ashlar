@@ -1,8 +1,8 @@
 @import java.util.List
-@import com.redspartanlabs.ashlar.tabs.Tab
-@import com.redspartanlabs.ashlar.tabs.TabsSupport
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.tabs.Tab
+@import dev.redspartanlabs.ashlar.tabs.TabsSupport
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String id
 @param List<Tab> tabs

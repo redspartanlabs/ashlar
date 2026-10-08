@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.badge.BadgeVariant
-@import com.redspartanlabs.ashlar.badge.BadgeStyles
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.badge.BadgeVariant
+@import dev.redspartanlabs.ashlar.badge.BadgeStyles
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param String text
 @param String variant = "Neutral"

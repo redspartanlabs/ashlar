@@ -1,6 +1,6 @@
 @import java.util.List
-@import com.redspartanlabs.ashlar.datatable.DataTableColumn
-@import com.redspartanlabs.ashlar.datatable.DataTableRow
+@import dev.redspartanlabs.ashlar.datatable.DataTableColumn
+@import dev.redspartanlabs.ashlar.datatable.DataTableRow
 
 @param String caption
 @param List<DataTableColumn> columns
@@ -114,7 +114,7 @@ rows = @`
                     align = column.align().token(),
                     mono = column.isMono(),
                     header = isRowHeader,
-                    nowrap = column.sort() != com.redspartanlabs.ashlar.datatable.Sort.TEXT || column.isMono()
+                    nowrap = column.sort() != dev.redspartanlabs.ashlar.datatable.Sort.TEXT || column.isMono()
                     )
                 @endif
             @endfor

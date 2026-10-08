@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.toast.ToastStyles
-@import com.redspartanlabs.ashlar.toast.ToastVariant
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.toast.ToastStyles
+@import dev.redspartanlabs.ashlar.toast.ToastVariant
 
 @param String id = ""
 @param String variant = "Info"

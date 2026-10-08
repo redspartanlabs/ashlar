@@ -58,7 +58,7 @@ tasks.named("generateJte") { dependsOn(assembleJteSources) }
 Then call components under the `ashlar` namespace:
 
 ```jte
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @template.ashlar.components.button(text = "Save", type = "Primary", icon = Icon.CHECK)
 ```

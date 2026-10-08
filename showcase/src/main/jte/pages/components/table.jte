@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.showcase.table.SampleJobHeader
-@import com.redspartanlabs.ashlar.showcase.catalog.ApiParam
-@import com.redspartanlabs.ashlar.showcase.catalog.PageAnchor
+@import dev.redspartanlabs.ashlar.showcase.table.SampleJobHeader
+@import dev.redspartanlabs.ashlar.showcase.catalog.ApiParam
+@import dev.redspartanlabs.ashlar.showcase.catalog.PageAnchor
 @import java.util.List
 
 @param String contextPath

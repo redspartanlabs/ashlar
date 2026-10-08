@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.progress.ProgressSize
-@import com.redspartanlabs.ashlar.progress.ProgressStyles
+@import dev.redspartanlabs.ashlar.progress.ProgressSize
+@import dev.redspartanlabs.ashlar.progress.ProgressStyles
 
 @param int value
 @param String label = ""

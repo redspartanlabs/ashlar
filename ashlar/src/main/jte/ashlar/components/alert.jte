@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.alert.AlertVariant
-@import com.redspartanlabs.ashlar.alert.AlertStyles
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.alert.AlertVariant
+@import dev.redspartanlabs.ashlar.alert.AlertStyles
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param String variant = "Info"
 @param String title = ""

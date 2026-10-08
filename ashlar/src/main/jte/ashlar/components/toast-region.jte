@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.toast.ToastVariant
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.toast.ToastVariant
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param gg.jte.Content toasts = null
 

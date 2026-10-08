@@ -155,7 +155,7 @@ mavenPublishing {
                 name = "RedSpartan Labs"
                 url = "https://github.com/redspartanlabs"
                 organization = "RedSpartan Labs"
-                organizationUrl = "https://redspartan.dev"
+                organizationUrl = "https://redspartanlabs.dev"
                 // Central asks for a contact address. It is personal data, so it is
                 // supplied at release time rather than invented or committed here.
                 email = providers.gradleProperty("ashlarDeveloperEmail")

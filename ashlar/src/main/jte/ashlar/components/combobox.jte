@@ -1,8 +1,8 @@
 @import java.util.List
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.select.SelectOption
-@import com.redspartanlabs.ashlar.select.SelectSupport
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.select.SelectOption
+@import dev.redspartanlabs.ashlar.select.SelectSupport
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String name
 @param String label

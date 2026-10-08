@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.tree.TreeContext
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.tree.TreeContext
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param gg.jte.Content items
 

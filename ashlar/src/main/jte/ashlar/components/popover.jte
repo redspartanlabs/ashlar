@@ -1,7 +1,7 @@
-@import com.redspartanlabs.ashlar.popover.PopoverIds
-@import com.redspartanlabs.ashlar.popover.PopoverPlacement
-@import com.redspartanlabs.ashlar.popover.PopoverStyles
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.popover.PopoverIds
+@import dev.redspartanlabs.ashlar.popover.PopoverPlacement
+@import dev.redspartanlabs.ashlar.popover.PopoverStyles
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param gg.jte.Content trigger
 @param gg.jte.Content content

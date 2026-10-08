@@ -1,6 +1,6 @@
-@import com.redspartanlabs.ashlar.modal.ModalSize
-@import com.redspartanlabs.ashlar.icon.Icon
-@import com.redspartanlabs.ashlar.AshlarAssets
+@import dev.redspartanlabs.ashlar.modal.ModalSize
+@import dev.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.AshlarAssets
 
 @param String id
 @param String title

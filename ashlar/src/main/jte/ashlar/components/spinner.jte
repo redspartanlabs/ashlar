@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.spinner.SpinnerSize
-@import com.redspartanlabs.ashlar.spinner.SpinnerStyles
+@import dev.redspartanlabs.ashlar.spinner.SpinnerSize
+@import dev.redspartanlabs.ashlar.spinner.SpinnerStyles
 
 @param String size = "Medium"
 @param String label = "Loading"

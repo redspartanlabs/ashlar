@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.accordion.AccordionExpansion
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.accordion.AccordionExpansion
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param String accordionId
 @param String itemId

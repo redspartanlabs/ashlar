@@ -1,5 +1,5 @@
-@import com.redspartanlabs.ashlar.navbar.NavbarIds
-@import com.redspartanlabs.ashlar.icon.Icon
+@import dev.redspartanlabs.ashlar.navbar.NavbarIds
+@import dev.redspartanlabs.ashlar.icon.Icon
 
 @param gg.jte.Content brand
 @param gg.jte.Content items
