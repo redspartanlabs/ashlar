@@ -1,13 +1,18 @@
 # Ashlar
 
-Server-side UI components for [JTE](https://jte.gg), built for Java applications
-that render HTML on the server.
+[![CI](https://github.com/redspartanlabs/ashlar/actions/workflows/ci.yml/badge.svg)](https://github.com/redspartanlabs/ashlar/actions/workflows/ci.yml)
+
+Ashlar is a server-rendered UI component system for Java and Kotlin
+applications that use [JTE](https://jte.gg). Components are JTE templates that
+render real HTML on the server; components that need behaviour load a small
+JavaScript module of their own. Styling is Tailwind CSS - Ashlar ships no
+stylesheet.
+
+It provides 61 components and 9 layout utilities, each documented with live
+examples in the showcase application (53 pages; see [Building](#building) to
+run it).
 
 A RedSpartan Labs project. Licensed under the [Apache License 2.0](LICENSE).
-
-> **Status: V1 completion.** The core JTE component migration is complete —
-> 61 components and 9 utilities, all consumable exactly as described below,
-> with 53 catalog routes documenting them in the showcase application.
 
 ## Modules
 
@@ -23,11 +28,17 @@ cannot read templates from a jar on the compile classpath. Ashlar therefore
 ships its template source inside the artifact, and a consumer's build unpacks
 it into the JTE source root.
 
-Three additions to a consumer's `build.gradle.kts`:
+Ashlar requires Java 21 or newer and declares JTE 3.2.4 as a dependency; styling
+needs Tailwind CSS v4. A Kotlin application uses the same artifact and the same
+`.jte` templates.
+
+Three additions to a consumer's `build.gradle.kts`, which assumes the
+[JTE Gradle plugin](https://jte.gg/gradle-plugin/) (`gg.jte.gradle`) is already
+applied:
 
 ```kotlin
 dependencies {
-    implementation("dev.redspartan:ashlar:<version>")
+    implementation("dev.redspartan:ashlar:0.1.0")
 }
 
 // 1. A resolvable view of the artifact, to read templates out of the jar.
@@ -35,7 +46,7 @@ val ashlarArtifact = configurations.create("ashlarArtifact") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
-dependencies { ashlarArtifact("dev.redspartan:ashlar:<version>") }
+dependencies { ashlarArtifact("dev.redspartan:ashlar:0.1.0") }
 
 // 2. Stage one JTE source root: your templates plus Ashlar's.
 val jteSourceRoot = layout.buildDirectory.dir("jte-sources")
@@ -63,6 +74,9 @@ Then call components under the `ashlar` namespace:
 @template.ashlar.components.button(text = "Save", type = "Primary", icon = Icon.CHECK)
 ```
 
+The Maven group is `dev.redspartan`; Ashlar's Java packages live under
+`dev.redspartanlabs.ashlar`.
+
 ### Assets
 
 Ashlar's JavaScript ships at `META-INF/resources/ashlar/js/`, which servlet
@@ -72,6 +86,8 @@ they appear at `/ashlar/js/…`.
 Applications mounted under a context path tell Ashlar once, at startup:
 
 ```java
+import dev.redspartanlabs.ashlar.AshlarAssets;
+
 AshlarAssets.basePath(contextPath + "/ashlar");
 ```
 

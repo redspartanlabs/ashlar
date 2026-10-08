@@ -137,7 +137,7 @@ mavenPublishing {
 
     pom {
         name = "Ashlar"
-        description = "Server-side UI components for JTE"
+        description = "A server-rendered UI component system for Java and Kotlin applications that use JTE."
         url = "https://github.com/redspartanlabs/ashlar"
         inceptionYear = "2026"
 
