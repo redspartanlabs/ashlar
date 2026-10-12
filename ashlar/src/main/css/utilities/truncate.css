@@ -1,0 +1,10 @@
+/* ash-truncate: keep text on one line and cut it off with an ellipsis.
+
+   min-inline-size: 0 is included because the usual place to truncate is a flex or
+   grid child, and without it such an item refuses to shrink below its content. */
+.ash-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-inline-size: 0;
+}

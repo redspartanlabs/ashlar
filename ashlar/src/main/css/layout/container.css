@@ -1,0 +1,48 @@
+/* ash-container: centered content with a capped width and responsive side padding.
+
+   Classes       ash-container
+                 ash-container--narrow   caps the width at 48rem
+                 ash-container--fluid    no cap
+   Properties    --ash-container-max     width cap (default 72rem)
+                 --ash-container-pad     side padding; when set it is used at EVERY
+                                         width and the responsive steps below stop
+   Padding       --ash-space-4 below 40rem, --ash-space-6 from 40rem,
+                 --ash-space-8 from 64rem. Media queries cannot read custom
+                 properties, so 40rem and 64rem are literal.
+
+   The width cap includes the padding (the base layer sets border-box).
+
+   Configuration isolation: the two properties are reset on every instance below,
+   so a value set on an ancestor is never inherited. Configure an instance by
+   setting the property ON that element (inline style, an unlayered rule, or a
+   rule in a layer above ash.layout) or with a modifier. Configuration written in a
+   layer BELOW ash.layout is overridden by the reset. */
+
+.ash-container {
+  --ash-container-max: initial;
+  --ash-container-pad: initial;
+  inline-size: 100%;
+  max-inline-size: var(--ash-container-max, 72rem);
+  margin-inline: auto;
+  padding-inline: var(--ash-container-pad, var(--ash-space-4));
+}
+
+.ash-container--narrow {
+  --ash-container-max: 48rem;
+}
+
+.ash-container--fluid {
+  --ash-container-max: none;
+}
+
+@media (min-width: 40rem) {
+  .ash-container {
+    padding-inline: var(--ash-container-pad, var(--ash-space-6));
+  }
+}
+
+@media (min-width: 64rem) {
+  .ash-container {
+    padding-inline: var(--ash-container-pad, var(--ash-space-8));
+  }
+}

@@ -1,0 +1,72 @@
+/* ash-grid: a responsive grid.
+
+   Classes       ash-grid                  auto-fit columns (below)
+                 ash-grid--cols-2 | --cols-3 | --cols-4
+                                           a fixed number of equal columns
+                 ash-grid--sm | --lg | --xl  gap 0.5rem | 1.5rem | 2.5rem
+                                           (default 1rem). Use at most one.
+   Properties    --ash-grid-min            minimum column width for auto-fit
+                                           (default 16rem); ignored by --cols-N
+                 --ash-grid-gap            the gap
+
+   Plain ash-grid has no breakpoint. Columns are as many as fit at --ash-grid-min
+   (repeat(auto-fit, minmax(min(100%, min), 1fr))): items wrap, and when there are
+   fewer items than columns the items grow to fill the row. One column when the
+   container is narrower than twice the minimum plus the gap.
+
+   --cols-N is one column below 40rem and N equal columns from 40rem. The
+   breakpoint is the viewport width and is literal: media queries cannot read
+   custom properties.
+
+   Direct children get min-inline-size: 0 through :where(), so long content cannot
+   push a column wider than its track and the rule adds no specificity.
+
+   Configuration isolation: both properties are reset on every instance, so a value
+   set on an ancestor is never inherited. Configure an instance by setting the
+   property ON that element (inline style, an unlayered rule, or a rule in a layer
+   above ash.layout) or with a modifier. Configuration written in a layer BELOW
+   ash.layout is overridden by the reset. */
+
+.ash-grid {
+  --ash-grid-min: initial;
+  --ash-grid-gap: initial;
+  display: grid;
+  gap: var(--ash-grid-gap, var(--ash-space-4));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--ash-grid-min, 16rem)), 1fr));
+}
+
+.ash-grid > :where(*) {
+  min-inline-size: 0;
+}
+
+.ash-grid--sm {
+  --ash-grid-gap: var(--ash-space-2);
+}
+
+.ash-grid--lg {
+  --ash-grid-gap: var(--ash-space-6);
+}
+
+.ash-grid--xl {
+  --ash-grid-gap: var(--ash-space-10);
+}
+
+.ash-grid--cols-2,
+.ash-grid--cols-3,
+.ash-grid--cols-4 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 40rem) {
+  .ash-grid--cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ash-grid--cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ash-grid--cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
