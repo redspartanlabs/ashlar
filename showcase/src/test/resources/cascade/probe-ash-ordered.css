@@ -1,0 +1,31 @@
+/* TEST-ONLY probe standing in for an Ashlar stylesheet that ORDERS ITSELF with a
+   leading layer statement. Used only in scenarios that test that capability.
+
+   The blocks below are deliberately written in REVERSED order, so only the
+   statement - never block order - can produce the intended ranking.
+
+   Rung N sets --winner: N and a background colour rgb(N, 10, 10). */
+@layer theme, base, ash.tokens, ash.base, ash.layout, ash.components, ash.skin, components, utilities;
+
+@layer ash {
+  .hazard { --hazard: direct; }
+}
+@layer ash.skin {
+  .rung-6 { --winner: 6; background-color: rgb(6, 10, 10); }
+}
+@layer ash.components {
+  .rung-5 { --winner: 5; background-color: rgb(5, 10, 10); }
+  .hazard { --hazard: sub; }
+}
+@layer ash.layout {
+  .rung-4 { --winner: 4; background-color: rgb(4, 10, 10); }
+}
+@layer ash.base {
+  .rung-3 { --winner: 3; background-color: rgb(3, 10, 10); }
+  .trap { --trap: base-class; }
+}
+@layer ash.tokens {
+  #trap { --trap: tokens-id; }
+  :root { --font-sans: probe-ash-tokens; }
+  .rung-2 { --winner: 2; background-color: rgb(2, 10, 10); }
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- TEST-ONLY fixture for the Phase D layout tests. AshlarLayoutBrowserTest fills in
+     the iframes; each is a same-origin srcdoc document of an exact width, so media
+     queries evaluate against that width (headless Chrome will not go below a 512px
+     window). Every element that has an id is measured after load. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>layout fixture</title></head>
+<body style="margin:0">
+<!--FRAMES-->
+<pre id="ash-layout-results"></pre>
+<script>
+(function () {
+  var PROPS = ["display", "flexDirection", "flexWrap", "justifyContent", "alignItems", "rowGap", "columnGap",
+    "width", "maxWidth", "paddingLeft", "paddingRight", "marginLeft", "marginRight", "boxSizing",
+    "gridTemplateColumns", "overflow", "textOverflow", "whiteSpace", "minWidth"];
+  var US = "\u001f";
+  function r1(n) { return Math.round(n * 10) / 10; }
+  function measure(win, el) {
+    var cs = win.getComputedStyle(el), rect = el.getBoundingClientRect(), pairs = [];
+    PROPS.forEach(function (p) { pairs.push(p + "=" + cs[p]); });
+    pairs.push("left=" + r1(rect.left), "top=" + r1(rect.top), "w=" + r1(rect.width), "h=" + r1(rect.height));
+    pairs.push("clipped=" + (el.scrollWidth > el.clientWidth), "clientWidth=" + el.clientWidth);
+    pairs.push("kids=" + [].map.call(el.children, function (c) {
+      var q = c.getBoundingClientRect();
+      return [r1(q.left), r1(q.top), r1(q.width), r1(q.height)].join(":");
+    }).join(","));
+    return pairs.join(US);
+  }
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      var out = [];
+      [].forEach.call(document.querySelectorAll("iframe"), function (f) {
+        var win = f.contentWindow, doc = f.contentDocument, id = f.getAttribute("data-id");
+        var sheets = [].map.call(doc.styleSheets, function (s) { return (s.href || "inline").split("/").pop(); }).join(",");
+        out.push([id, "#frame", "sheets=" + sheets + US + "innerWidth=" + win.innerWidth].join("\t"));
+        [].forEach.call(doc.querySelectorAll("[id]"), function (el) { out.push([id, el.id, measure(win, el)].join("\t")); });
+      });
+      document.getElementById("ash-layout-results").textContent = out.join("\n");
+    }, 150);
+  });
+})();
+</script>
+</body>
+</html>

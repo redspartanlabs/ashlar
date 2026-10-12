@@ -1,0 +1,6 @@
+/* TEST-ONLY (Phase A4). A consumer's override written inside its OWN named
+   layer, `app`. Whether it wins depends entirely on where `app` ends up in the
+   layer order, which depends on the first mention of the name. */
+@layer app {
+  .override { --winner: app-layer-override; background-color: rgb(77, 77, 77); }
+}

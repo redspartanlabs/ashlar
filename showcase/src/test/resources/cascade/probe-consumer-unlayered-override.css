@@ -1,0 +1,2 @@
+/* TEST-ONLY (Phase A4). A consumer's override written as plain, UNLAYERED CSS. */
+.override { --winner: unlayered-override; background-color: rgb(77, 77, 77); }

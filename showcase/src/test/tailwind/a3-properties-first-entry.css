@@ -1,0 +1,4 @@
+/* TEST-ONLY (Phase A3). Coordinated statement that names Tailwind's
+   `properties` layer FIRST, then the real showcase Tailwind entry. */
+@layer properties, theme, base, ash.tokens, ash.base, ash.layout, ash.components, ash.skin, components, utilities;
+@import "./phase-c-baseline-entry.css";

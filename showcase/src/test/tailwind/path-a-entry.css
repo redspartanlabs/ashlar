@@ -1,0 +1,14 @@
+/* TEST-ONLY. Path A wrapper for the V1 cascade verification.
+
+   The intended layer-order statement, placed BEFORE the real showcase Tailwind
+   entry point. Tailwind inlines the import, so compiling this file with the
+   real CLI yields the real showcase stylesheet with Path A applied, without
+   touching showcase/src/main/tailwind/app.css. (Since Phase C that production
+   entry imports Ashlar's stylesheet, so this wrapper imports
+   phase-c-baseline-entry.css instead: a verbatim copy of the entry as it was
+   before, which keeps this control meaning "Tailwind with no Ashlar".)
+
+   A passing run of this wrapper says nothing about the production entry by
+   itself; ShowcaseBuildOutputTest and ShowcaseRuntimeTest cover that. */
+@layer theme, base, ash.tokens, ash.base, ash.layout, ash.components, ash.skin, components, utilities;
+@import "./phase-c-baseline-entry.css";

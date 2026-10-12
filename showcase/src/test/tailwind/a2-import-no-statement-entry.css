@@ -1,0 +1,5 @@
+/* TEST-ONLY (Phase A2 negative control). Same imports as a2-import-entry.css
+   but WITHOUT the coordinated statement first: Tailwind's own statement is
+   the first mention, and Ashlar's self-ordering file arrives after it. */
+@import "./phase-c-baseline-entry.css";
+@import "../resources/cascade/probe-ash-ordered.css";

@@ -1,0 +1,5 @@
+/* TEST-ONLY (Phase A2 / A3 control). Ashlar's self-ordering file imported
+   BEFORE the Tailwind entry, with no coordinated statement: the bundled
+   analogue of the "linked before" configuration (V1 S5). */
+@import "../resources/cascade/probe-ash-ordered.css";
+@import "./phase-c-baseline-entry.css";

@@ -1,0 +1,165 @@
+<!doctype html>
+<!-- TEST-ONLY fixture for the V1 cascade verification. Never served by the
+     application: only CascadeFixtureServer serves it, filling in the
+     stylesheet links and the <html> attributes per scenario. -->
+<html lang="en"<!--HTML_ATTRS-->>
+<head>
+<meta charset="utf-8">
+<title>cascade ladder</title>
+<!--LINKS-->
+</head>
+<body>
+<div id="ladder-0" class="rung-0"></div>
+<div id="ladder-1" class="rung-0 rung-1"></div>
+<div id="ladder-2" class="rung-0 rung-1 rung-2"></div>
+<div id="ladder-3" class="rung-0 rung-1 rung-2 rung-3"></div>
+<div id="ladder-4" class="rung-0 rung-1 rung-2 rung-3 rung-4"></div>
+<div id="ladder-5" class="rung-0 rung-1 rung-2 rung-3 rung-4 rung-5"></div>
+<div id="ladder-6" class="rung-0 rung-1 rung-2 rung-3 rung-4 rung-5 rung-6"></div>
+<div id="ladder-7" class="rung-0 rung-1 rung-2 rung-3 rung-4 rung-5 rung-6 rung-7"></div>
+<div id="ladder-8" class="rung-0 rung-1 rung-2 rung-3 rung-4 rung-5 rung-6 rung-7 rung-8"></div>
+<div id="ladder-9" class="rung-0 rung-1 rung-2 rung-3 rung-4 rung-5 rung-6 rung-7 rung-8 rung-9"></div>
+
+<div id="trap" class="trap"></div>
+<div id="hazard" class="hazard"></div>
+
+<!-- Real Tailwind classes, present in the compiled app.css because Ashlar's
+     templates and style maps use them. -->
+<div id="real-utility" class="bg-blue-600 rung-0 rung-1 rung-2 rung-3 rung-4 rung-5 rung-6 rung-7"></div>
+<div id="real-utility-ref" class="bg-blue-600"></div>
+<div id="real-unlayered" class="bg-blue-600 rung-9"></div>
+<button id="real-base" class="rung-3"></button>
+<button id="real-base-ref"></button>
+<div id="skin-blue-ref"></div>
+<!-- Real utilities whose declarations read --tw-* variables: the same variables
+     Tailwind's `properties` fallback layer resets. -->
+<div id="override" class="rung-5 override"></div>
+<div id="override-utility" class="bg-blue-600 override"></div>
+<div id="tw-shadow" class="shadow-sm"></div>
+<div id="tw-translate" class="-translate-x-full"></div>
+
+<pre id="ash-cascade-results"></pre>
+<script>
+window.addEventListener("load", function () {
+  var html = document.documentElement;
+  var out = [];
+  function norm(s) { return String(s).replace(/\s+/g, " ").trim(); }
+  function add(key, expected, actual) {
+    expected = norm(expected);
+    actual = norm(actual);
+    out.push([key, expected, actual, expected === actual ? "PASS" : "FAIL"].join("\t"));
+  }
+  function el(id) { return document.getElementById(id); }
+  function prop(id, name) { return getComputedStyle(el(id)).getPropertyValue(name); }
+  function bg(id) { return getComputedStyle(el(id)).backgroundColor; }
+
+  add("info-user-agent", navigator.userAgent, navigator.userAgent);
+
+  var links = document.querySelectorAll('link[rel="stylesheet"]');
+  var loaded = 0;
+  for (var i = 0; i < links.length; i++) { if (links[i].sheet) { loaded++; } }
+  add("sheets-loaded", links.length, loaded);
+
+  var names = ["theme", "base", "ash.tokens", "ash.base", "ash.layout",
+               "ash.components", "ash.skin", "components", "utilities", "unlayered"];
+  for (var k = 0; k < names.length; k++) {
+    add("ladder-" + k + "-" + names[k], k, prop("ladder-" + k, "--winner"));
+  }
+  // Effective layer order as the browser's CSSOM reports it: first mention
+  // wins, dotted names register their parent first. Top-level rules of the
+  // document's own stylesheets, in document order.
+  (function () {
+    var seen = [];
+    function reg(name) {
+      var parts = name.split("."), p = "";
+      for (var a = 0; a < parts.length; a++) {
+        p = p ? p + "." + parts[a] : parts[a];
+        if (seen.indexOf(p) < 0) { seen.push(p); }
+      }
+    }
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs;
+      try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        if (rs[r] instanceof CSSLayerStatementRule) {
+          for (var n = 0; n < rs[r].nameList.length; n++) { reg(rs[r].nameList[n]); }
+        } else if (rs[r] instanceof CSSLayerBlockRule && rs[r].name) {
+          reg(rs[r].name);
+        }
+      }
+    }
+    var joined = seen.join(";");
+    add("info-cssom-layer-order", joined, joined);
+  })();
+
+  if (html.hasAttribute("data-expect-override")) {
+    add("consumer-override-beats-ash", html.getAttribute("data-expect-override"), prop("override", "--winner"));
+    // Only meaningful when a real utility exists on the page.
+    if (html.hasAttribute("data-tailwind")) {
+      add("consumer-override-beats-real-utility", "rgb(77, 77, 77)", bg("override-utility"));
+    }
+  }
+
+  add("trap-layer-beats-specificity","base-class", prop("trap", "--trap"));
+  add("info-hazard-direct-ash-rule-vs-sublayer", "direct", prop("hazard", "--hazard"));
+
+  if (html.hasAttribute("data-tailwind")) {
+    add("real-utility-beats-ash-and-components", bg("real-utility-ref"), bg("real-utility"));
+    add("real-unlayered-beats-utility", "rgb(9, 10, 10)", bg("real-unlayered"));
+    add("real-preflight-active", "rgba(0, 0, 0, 0)", bg("real-base-ref"));
+    add("real-ash-base-beats-preflight", "rgb(3, 10, 10)", bg("real-base"));
+    if (html.hasAttribute("data-skin")) {
+      add("skin-font-sans-beats-theme-and-ash", html.getAttribute("data-expect-font"),
+          getComputedStyle(html).getPropertyValue("--font-sans"));
+      el("skin-blue-ref").style.backgroundColor = html.getAttribute("data-expect-blue");
+      add("skin-blue-600-reaches-real-utility", bg("skin-blue-ref"), bg("real-utility-ref"));
+    } else {
+      add("real-ash-tokens-beats-theme", "probe-ash-tokens",
+          getComputedStyle(html).getPropertyValue("--font-sans"));
+    }
+  }
+  // Tailwind's `properties` layer: a fallback, gated by @supports, that resets
+  // the --tw-* variables. If a page orders it ABOVE `utilities` it could undo
+  // utilities in browsers where the gate is true. This Chrome may not satisfy
+  // the gate, so the real ungated rule text is read from the compiled sheet
+  // and injected into the same `properties` layer, and the utilities'
+  // computed values are compared before and after. Runs last: it mutates the page.
+  if (html.hasAttribute("data-tailwind")) {
+    var supportsRule = null, styleRule = null;
+    for (var s = 0; s < document.styleSheets.length && !styleRule; s++) {
+      var rules;
+      try { rules = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rules.length && !styleRule; r++) {
+        if (rules[r] instanceof CSSLayerBlockRule && rules[r].name === "properties") {
+          for (var q = 0; q < rules[r].cssRules.length && !styleRule; q++) {
+            if (rules[r].cssRules[q] instanceof CSSSupportsRule) {
+              supportsRule = rules[r].cssRules[q];
+              styleRule = supportsRule.cssRules[0];
+            }
+          }
+        }
+      }
+    }
+    add("properties-layer-found-in-compiled-css", "true", String(styleRule !== null));
+    if (styleRule) {
+      var shadowBefore = getComputedStyle(el("tw-shadow")).boxShadow;
+      var translateBefore = getComputedStyle(el("tw-translate")).translate;
+      var gate = String(CSS.supports(supportsRule.conditionText));
+      add("info-properties-supports-gate-true-in-this-browser", gate, gate);
+      add("properties-sanity-shadow-utility-active", "not-none", shadowBefore === "none" ? "none" : "not-none");
+      add("properties-sanity-translate-utility-active", "not-none", translateBefore === "none" ? "none" : "not-none");
+
+      var injected = new CSSStyleSheet();
+      injected.replaceSync("@layer properties{" + styleRule.cssText + " .rung-8{--winner:properties-layer-wins}}");
+      document.adoptedStyleSheets = document.adoptedStyleSheets.concat([injected]);
+
+      add("info-properties-outranks-utilities-probe", "8", prop("ladder-8", "--winner"));
+      add("properties-fallback-leaves-shadow-utility-intact", shadowBefore, getComputedStyle(el("tw-shadow")).boxShadow);
+      add("properties-fallback-leaves-translate-utility-intact", translateBefore, getComputedStyle(el("tw-translate")).translate);
+    }
+  }
+  document.getElementById("ash-cascade-results").textContent = out.join("\n");
+});
+</script>
+</body>
+</html>

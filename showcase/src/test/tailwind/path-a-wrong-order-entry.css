@@ -1,0 +1,8 @@
+/* TEST-ONLY. Negative control for the V1 cascade verification.
+
+   Identical to path-a-entry.css except that ash.skin is declared BEFORE
+   ash.components, i.e. the Ashlar sublayers are internally mis-ordered. The
+   browser must observe this as a failure; what exactly fails is measured, not
+   assumed. */
+@layer theme, base, ash.tokens, ash.base, ash.layout, ash.skin, ash.components, components, utilities;
+@import "./phase-c-baseline-entry.css";

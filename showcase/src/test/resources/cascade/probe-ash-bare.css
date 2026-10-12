@@ -1,0 +1,32 @@
+/* TEST-ONLY probe standing in for an Ashlar stylesheet WITHOUT its own
+   layer-order statement. Layer order therefore comes entirely from whatever
+   else is on the page (Path A, Tailwind's own statement, or nothing).
+
+   The blocks are written in the intended order (tokens -> skin) so that the
+   only thing under test is the position of `ash` relative to the other layers,
+   not ash's internal order.
+
+   Rung N sets --winner: N and a background colour rgb(N, 10, 10). */
+@layer ash.tokens {
+  .rung-2 { --winner: 2; background-color: rgb(2, 10, 10); }
+  :root { --font-sans: probe-ash-tokens; }
+  #trap { --trap: tokens-id; }
+}
+@layer ash.base {
+  .rung-3 { --winner: 3; background-color: rgb(3, 10, 10); }
+  .trap { --trap: base-class; }
+}
+@layer ash.layout {
+  .rung-4 { --winner: 4; background-color: rgb(4, 10, 10); }
+}
+@layer ash.components {
+  .rung-5 { --winner: 5; background-color: rgb(5, 10, 10); }
+  .hazard { --hazard: sub; }
+}
+@layer ash.skin {
+  .rung-6 { --winner: 6; background-color: rgb(6, 10, 10); }
+}
+/* Hazard: a rule directly in `ash`, outside any sublayer. */
+@layer ash {
+  .hazard { --hazard: direct; }
+}

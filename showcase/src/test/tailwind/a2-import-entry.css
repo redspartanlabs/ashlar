@@ -1,0 +1,6 @@
+/* TEST-ONLY (Phase A2). Coordinated statement first, then the real showcase
+   Tailwind entry, then Ashlar's self-ordering stylesheet IMPORTED into the
+   Tailwind build (the proposed "bundled" consumer configuration). */
+@layer theme, base, ash.tokens, ash.base, ash.layout, ash.components, ash.skin, components, utilities;
+@import "./phase-c-baseline-entry.css";
+@import "../resources/cascade/probe-ash-ordered.css";
