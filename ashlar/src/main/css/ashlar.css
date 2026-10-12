@@ -1,0 +1,31 @@
+@layer properties, theme, base, ash.tokens, ash.base, ash.layout, ash.components, ash.skin, ash.utilities, components, utilities;
+
+/* Ashlar's stylesheet entry point.
+
+   The statement above MUST stay the very first thing in this file. A layer
+   takes its place in the cascade at its first mention, so this statement is
+   what makes the stylesheet self-ordering: wherever it is linked, the layers
+   rank in the order written here. It names `properties` first and the
+   surrounding Tailwind layer names (theme, base, components, utilities) so
+   Ashlar's sublayers sit between Tailwind's base and components layers. Layer
+   names Ashlar does not own are reserved here only for ordering; no Ashlar rule
+   is ever written in them.
+
+   Layer membership is assigned HERE, per file, and never inside a module: moving
+   or renaming a file cannot change cascade order. Every Ashlar rule lives in
+   a named ash.* sublayer; nothing is written directly in the parent `ash` layer.
+
+   The build assembles this file by replacing each import line below with a
+   layer block holding that module's contents, in the order the lines appear.
+   Only the exact form  import "path" layer(name);  is supported. */
+
+@import "tokens/tokens.css" layer(ash.tokens);
+@import "base/base.css" layer(ash.base);
+@import "layout/container.css" layer(ash.layout);
+@import "layout/stack.css" layer(ash.layout);
+@import "layout/grid.css" layer(ash.layout);
+@import "layout/split.css" layer(ash.layout);
+@import "layout/cluster.css" layer(ash.layout);
+@import "components/badge.css" layer(ash.components);
+@import "utilities/sr-only.css" layer(ash.utilities);
+@import "utilities/truncate.css" layer(ash.utilities);

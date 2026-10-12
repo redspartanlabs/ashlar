@@ -1,0 +1,34 @@
+/* ash-stack: children laid out in a column with a consistent gap.
+
+   Classes       ash-stack
+                 ash-stack--sm | --lg | --xl   gap 0.5rem | 1.5rem | 2.5rem
+                                               (default 1rem). Use at most one.
+   Property      --ash-stack-gap               the gap; reset on every instance
+
+   The stack sets no margins on its children.
+
+   Configuration isolation: --ash-stack-gap is reset on every instance, so an
+   outer stack's value is never inherited by a nested one, and a value set on a
+   plain wrapper configures nothing. Precedence on one element, highest first:
+   inline style or unlayered rule or a layer above ash.layout; then a modifier;
+   then the default. Configuration written in a layer BELOW ash.layout is
+   overridden by the reset. */
+
+.ash-stack {
+  --ash-stack-gap: initial;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-stack-gap, var(--ash-space-4));
+}
+
+.ash-stack--sm {
+  --ash-stack-gap: var(--ash-space-2);
+}
+
+.ash-stack--lg {
+  --ash-stack-gap: var(--ash-space-6);
+}
+
+.ash-stack--xl {
+  --ash-stack-gap: var(--ash-space-10);
+}

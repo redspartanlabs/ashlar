@@ -1,0 +1,15 @@
+/* Scoped base. There is deliberately NO global reset here: nothing below
+   selects a bare element, the root, or the universal selector, so unrelated
+   application content, Tailwind Preflight and an application's own base styles
+   are unaffected. Every selector is anchored to an ash-* class and uses :where()
+   so it adds no specificity and any component or consumer rule overrides it. */
+
+:where([class^="ash-"], [class*=" ash-"]) {
+  box-sizing: border-box;
+}
+
+/* Opt-in focus indication built from the focus tokens. */
+:where(.ash-focus-ring):focus-visible {
+  outline: var(--ash-focus-ring-width) solid var(--ash-color-focus);
+  outline-offset: var(--ash-focus-ring-offset);
+}

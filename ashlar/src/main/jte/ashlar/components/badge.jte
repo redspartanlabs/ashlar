@@ -19,7 +19,7 @@
 
 <span class="${BadgeStyles.container(resolvedVariant)}" data-badge data-badge-variant="${resolvedVariant.name().toLowerCase()}">
     @if (icon != null)
-        @template.ashlar.components.icon(icon = icon, classes = "h-3 w-3")
+        @template.ashlar.components.icon(icon = icon, classes = "ash-badge__icon")
     @endif
     ${text}
 </span>

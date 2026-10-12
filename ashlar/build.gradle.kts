@@ -111,6 +111,94 @@ tasks.processResources {
     from(generateTailwindVocabulary)
 }
 
+// Assembles Ashlar's modular CSS (src/main/css) into the single published
+// stylesheet META-INF/resources/ashlar/css/ashlar.css.
+//
+// Plain CSS and plain Gradle: no Node, no CSS framework. The entry file
+// src/main/css/ashlar.css is the only source of ordering. Its first line is the
+// layer-order statement, which is copied through unchanged and must stay first
+// (a layer takes its cascade position at its first mention). Each line of the
+// exact form  @import "path" layer(name);  is replaced by "@layer name { <file> }".
+// Ordering never depends on directory enumeration, and layer membership is
+// decided here, never inside a module.
+//
+// The assembler is intentionally strict and small. It fails the build rather
+// than guess when it meets anything it does not support: any other @import form,
+// an import outside the source directory, a layer that is not an ash.* sublayer
+// or is missing from the leading statement, or a module that itself contains
+// @import, @layer or @charset. Output is UTF-8, LF only, with no timestamps.
+val cssSourceDir = layout.projectDirectory.dir("src/main/css")
+val generatedCssDir = layout.buildDirectory.dir("generated/css")
+val cssOutputPath = "META-INF/resources/ashlar/css/ashlar.css"
+
+val generateAshlarCss = tasks.register("generateAshlarCss") {
+    description = "Assembles src/main/css into META-INF/resources/ashlar/css/ashlar.css."
+    group = "build"
+
+    inputs.dir(cssSourceDir).withPropertyName("cssSources").withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir(generatedCssDir)
+
+    doLast {
+        val sourceRoot = cssSourceDir.asFile.canonicalFile
+        fun normalized(file: File): String = file.readText(Charsets.UTF_8)
+            .removePrefix("﻿")
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+            .trimEnd()
+        fun withoutComments(css: String): String = css.replace(Regex("/\\*[\\s\\S]*?\\*/"), "")
+
+        val entryLines = normalized(sourceRoot.resolve("ashlar.css")).split("\n")
+        val statement = Regex("^@layer ([^;{}]+);$").matchEntire(entryLines.first())
+            ?: throw GradleException("ashlar.css must begin, on its first line, with the layer-order statement")
+        val declared = statement.groupValues[1].split(",").map { it.trim() }
+        val importLine = Regex("^@import \"([^\"]+)\" layer\\(([A-Za-z][A-Za-z0-9.-]*)\\);$")
+
+        val out = StringBuilder()
+        for (line in entryLines) {
+            if (!line.startsWith("@import")) {
+                out.append(line).append('\n')
+                continue
+            }
+            val match = importLine.matchEntire(line)
+                ?: throw GradleException("Unsupported import (expected: @import \"path\" layer(name);): $line")
+            val layerName = match.groupValues[2]
+            if (!layerName.startsWith("ash.") || layerName.removePrefix("ash.").contains('.')) {
+                throw GradleException("Layer '$layerName' must be a direct ash.* sublayer")
+            }
+            if (layerName !in declared) {
+                throw GradleException("Layer '$layerName' is not named in the leading layer-order statement")
+            }
+            val module = sourceRoot.resolve(match.groupValues[1]).canonicalFile
+            if (!module.toPath().startsWith(sourceRoot.toPath()) || !module.isFile) {
+                throw GradleException("Import '${match.groupValues[1]}' is not a file inside src/main/css")
+            }
+            val body = normalized(module)
+            if (Regex("@(import|layer|charset)\\b").containsMatchIn(withoutComments(body))) {
+                throw GradleException("${match.groupValues[1]} must not contain @import, @layer or @charset; the entry file assigns layers")
+            }
+            out.append("@layer ").append(layerName).append(" {\n").append(body).append("\n}\n")
+        }
+
+        val output = generatedCssDir.get().file(cssOutputPath).asFile
+        output.parentFile.mkdirs()
+        output.writeText(out.toString().trimEnd() + "\n", Charsets.UTF_8)
+    }
+}
+
+tasks.processResources {
+    from(generateAshlarCss)
+}
+
+// The CSS tests inspect the real built jar and the generated file. `test`
+// depends on `jar`; `jar` depends on processResources; nothing depends on
+// `test`, so there is no cycle.
+tasks.test {
+    dependsOn(tasks.jar)
+    inputs.files(tasks.jar)
+    systemProperty("ashlar.jar", tasks.jar.get().archiveFile.get().asFile.absolutePath)
+    systemProperty("ashlar.css.generated", generatedCssDir.get().file(cssOutputPath).asFile.absolutePath)
+}
+
 /**
  * Publishing to Maven Central through the Central Portal.
  *

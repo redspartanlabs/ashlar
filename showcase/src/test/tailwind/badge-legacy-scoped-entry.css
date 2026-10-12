@@ -1,0 +1,35 @@
+/* TEST-ONLY (Badge migration oracle, scoped). The legacy Badge's own Tailwind utilities and nothing else:
+   no preflight, no utilities for any other element on the page.
+
+   The full oracle (badge-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page
+   also restyles everything AROUND the Badge (a parent becomes flex, a popover surface gets `.hidden`). That is
+   right for "Tailwind present", where the surrounding page really is styled. For "Tailwind removed" the
+   surroundings must be the same unstyled page on both sides, so the legacy Badge is rendered here with only
+   what it itself used.
+
+   Only the two preflight rules the Badge depended on are kept, and only for the Badge:
+   border-box sizing with no default border, and block-level, middle-aligned svg. BadgeParityTest proves this
+   scoped rendering equals the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/badge/badge-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-badge],
+    [data-badge] *,
+    [data-badge]::before,
+    [data-badge]::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    [data-badge] svg {
+        display: block;
+        vertical-align: middle;
+    }
+}

@@ -1,3 +1,10 @@
+/* Ashlar's own stylesheet, extracted from the Ashlar artifact by the
+   `stageAshlarCss` Gradle task and bundled into this build. It is imported
+   FIRST on purpose: its leading @layer statement then becomes the first mention
+   of every layer, which fixes the cascade order (including Tailwind's
+   `properties` layer, which stays below `utilities`). Imported after Tailwind
+   with no statement ahead of it, Ashlar's layers would land above utilities. */
+@import "../../../build/ashlar-css/ashlar.css";
 @import "tailwindcss";
 
 /* The only Tailwind line specific to consuming Ashlar.

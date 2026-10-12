@@ -1,0 +1,5 @@
+/* TEST-ONLY (Phase A4). Coordinated statement that also places a CONSUMER
+   layer, `app`, above utilities. The consumer's own stylesheet is the Tailwind
+   entry, so it can own the statement. */
+@layer theme, base, ash.tokens, ash.base, ash.layout, ash.components, ash.skin, components, utilities, app;
+@import "./phase-c-baseline-entry.css";

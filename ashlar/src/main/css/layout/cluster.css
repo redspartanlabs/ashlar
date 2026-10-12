@@ -1,0 +1,45 @@
+/* ash-cluster: a wrapping row of items, centered on the cross axis.
+
+   Classes       ash-cluster
+                 ash-cluster--end                items packed toward the inline end
+                 ash-cluster--between            space between the items
+                 ash-cluster--sm | --lg | --xl   gap 0.5rem | 1.5rem | 2.5rem
+                                                 (default 1rem). Use at most one.
+   Property      --ash-cluster-gap               the gap; reset on every instance
+
+   Items wrap onto new rows when they do not fit; there is no breakpoint. "End" is
+   the inline end, so in a right-to-left context --end packs items to the left.
+
+   Configuration isolation: --ash-cluster-gap is reset on every instance, so a value
+   set on an ancestor is never inherited. Configure an instance by setting the
+   property ON that element (inline style, an unlayered rule, or a rule in a layer
+   above ash.layout) or with a modifier. Configuration written in a layer BELOW
+   ash.layout is overridden by the reset. */
+
+.ash-cluster {
+  --ash-cluster-gap: initial;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ash-cluster-gap, var(--ash-space-4));
+}
+
+.ash-cluster--sm {
+  --ash-cluster-gap: var(--ash-space-2);
+}
+
+.ash-cluster--lg {
+  --ash-cluster-gap: var(--ash-space-6);
+}
+
+.ash-cluster--xl {
+  --ash-cluster-gap: var(--ash-space-10);
+}
+
+.ash-cluster--end {
+  justify-content: flex-end;
+}
+
+.ash-cluster--between {
+  justify-content: space-between;
+}

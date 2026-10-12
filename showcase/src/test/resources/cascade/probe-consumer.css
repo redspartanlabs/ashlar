@@ -1,0 +1,2 @@
+/* TEST-ONLY. Unlayered consumer CSS: the top rung of the intended cascade. */
+.rung-9 { --winner: 9; background-color: rgb(9, 10, 10); }

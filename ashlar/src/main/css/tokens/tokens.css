@@ -1,0 +1,59 @@
+/* Design tokens: the initial, deliberately small foundation set.
+
+   Every value has a standalone default. Where an existing Tailwind v4 theme
+   variable (for example --color-blue-600) is present, the token reads it, so a
+   consumer's Tailwind theme, and Ashlar's own showcase skins, which override
+   those variables, flow through. Where it is absent, the literal fallback
+   applies, so Tailwind is never required. Tailwind only emits the theme
+   variables its utilities use, so in a Tailwind build some of these fallbacks
+   will apply even though Tailwind is present. */
+
+:root {
+  /* Surfaces and text */
+  --ash-color-bg: var(--color-white, #ffffff);
+  --ash-color-fg: var(--color-slate-900, #0f172a);
+  --ash-color-bg-muted: var(--color-slate-50, #f8fafc);
+  --ash-color-fg-muted: var(--color-slate-500, #64748b);
+
+  /* Borders */
+  --ash-color-border: var(--color-slate-300, #cbd5e1);
+
+  /* Accent */
+  --ash-color-accent: var(--color-blue-600, #2563eb);
+  --ash-color-accent-fg: var(--color-white, #ffffff);
+
+  /* Focus indication */
+  --ash-color-focus: var(--color-blue-500, #3b82f6);
+  --ash-focus-ring-width: 2px;
+  --ash-focus-ring-offset: 2px;
+
+  /* Corner radius */
+  --ash-radius-sm: var(--radius-sm, 0.25rem);
+  --ash-radius-md: var(--radius-md, 0.375rem);
+  --ash-radius-lg: var(--radius-lg, 0.5rem);
+
+  /* Spacing scale for the layout primitives. Standalone on purpose: no skin or
+     Tailwind theme overrides spacing, so there is nothing to bridge. The
+     numbers follow Tailwind's rem steps (4 = 1rem) so a later migration maps
+     one to one. */
+  --ash-space-2: 0.5rem;
+  --ash-space-3: 0.75rem;
+  --ash-space-4: 1rem;
+  --ash-space-6: 1.5rem;
+  --ash-space-8: 2rem;
+  --ash-space-10: 2.5rem;
+}
+
+/* Dark mode follows the existing data-theme="dark" convention on the root
+   element. Only values that differ from light are listed; the set of names
+   must stay identical to the light set. */
+:root[data-theme="dark"] {
+  --ash-color-bg: var(--color-slate-950, #020617);
+  --ash-color-fg: var(--color-slate-100, #f1f5f9);
+  --ash-color-bg-muted: var(--color-slate-900, #0f172a);
+  --ash-color-fg-muted: var(--color-slate-400, #94a3b8);
+  --ash-color-border: var(--color-slate-700, #334155);
+  --ash-color-accent: var(--color-blue-400, #60a5fa);
+  --ash-color-accent-fg: var(--color-slate-950, #020617);
+  --ash-color-focus: var(--color-blue-400, #60a5fa);
+}
