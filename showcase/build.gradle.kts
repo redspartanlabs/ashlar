@@ -139,6 +139,7 @@ fun registerCascadeCss(taskName: String, entry: String, outputName: String) = ta
     inputs.file(entry)
     inputs.dir("src/test/tailwind")
     inputs.dir("src/test/resources/cascade")
+    inputs.dir("src/test/resources/parity")
     inputs.dir("src/main/tailwind")
     inputs.dir(jteSourceRoot)
     outputs.file(output)
@@ -164,7 +165,9 @@ val phaseACascadeEntries = listOf(
     Triple("buildCascadeA2ImportAshFirst", "src/test/tailwind/a2-import-ash-first-entry.css", "a2-import-ash-first.css"),
     Triple("buildCascadeA3PropertiesFirst", "src/test/tailwind/a3-properties-first-entry.css", "a3-properties-first.css"),
     Triple("buildCascadeA4AppLayerLast", "src/test/tailwind/a4-app-layer-last-entry.css", "a4-app-layer-last.css"),
-    Triple("buildCascadePhaseCBaseline", "src/test/tailwind/phase-c-baseline-entry.css", "phase-c-baseline.css")
+    Triple("buildCascadePhaseCBaseline", "src/test/tailwind/phase-c-baseline-entry.css", "phase-c-baseline.css"),
+    Triple("buildCascadeBadgeOracle", "src/test/tailwind/badge-oracle-entry.css", "badge-oracle.css"),
+    Triple("buildCascadeBadgeLegacyScoped", "src/test/tailwind/badge-legacy-scoped-entry.css", "badge-legacy-scoped.css")
 ).map { (taskName, entry, outputName) -> registerCascadeCss(taskName, entry, outputName) }
 
 val buildCascadeCss = tasks.register("buildCascadeCss") {

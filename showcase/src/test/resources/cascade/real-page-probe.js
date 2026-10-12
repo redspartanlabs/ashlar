@@ -22,7 +22,9 @@
   function meta(key, value) { emit("meta", key, String(value).replace(/\s+/g, " ")); }
   function descr(el) {
     var cls = (el.getAttribute("class") || "").trim().split(/\s+/).slice(0, 3).join(".");
-    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "");
+    // "~badge" marks a Badge and anything inside one, so a comparison can apply the parity normalizations
+    // to exactly the migrated component's elements and to nothing else.
+    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "") + (el.closest("[data-badge]") ? "~badge" : "");
   }
 
   function layerOrder() {
@@ -63,17 +65,73 @@
     return found;
   }
 
+  // A Badge (or anything inside one) that has no layout box where it is found - inside a [hidden] table row on a
+  // paged table, a closed popover - has no geometry, so its radius cannot be compared. For exactly those elements
+  // the ancestors that remove them from rendering are revealed for the length of ONE measurement and put back
+  // before the next element is measured, so no other element is ever measured in a modified state. Both the
+  // baseline and the integrated load run this same procedure on the same page state. Restoration is verified.
+  var restoreMismatch = 0;
+  var FALLBACK_DISPLAY = { tr: "table-row", td: "table-cell", th: "table-cell", tbody: "table-row-group", thead: "table-header-group",
+    tfoot: "table-footer-group", li: "list-item", table: "table", span: "inline", a: "inline" };
+
+  function describeHidden(el) {
+    return el.tagName.toLowerCase() + (el.hasAttribute("hidden") ? "[hidden]" : "");
+  }
+
+  function reveal(el, how) {
+    var touched = [];
+    for (var p = el; p; p = p.parentElement) {
+      if (getComputedStyle(p).display !== "none") { continue; }
+      var t = { el: p, hidden: p.getAttribute("hidden"), style: p.getAttribute("style") };
+      touched.push(t);
+      var by = "";
+      if (p.hasAttribute("hidden")) { p.removeAttribute("hidden"); by = "attr"; }
+      if (getComputedStyle(p).display === "none") {
+        p.style.setProperty("display", FALLBACK_DISPLAY[p.tagName.toLowerCase()] || "block", "important");
+        by += (by ? "+" : "") + "style";
+      }
+      how.push(describeHidden(t.el) + ":" + by);
+    }
+    return touched;
+  }
+
+  function restore(touched) {
+    touched.forEach(function (t) {
+      if (t.hidden !== null) { t.el.setAttribute("hidden", t.hidden); } else { t.el.removeAttribute("hidden"); }
+      if (t.style !== null) { t.el.setAttribute("style", t.style); } else { t.el.removeAttribute("style"); }
+      if (t.el.getAttribute("hidden") !== t.hidden || t.el.getAttribute("style") !== t.style) { restoreMismatch++; }
+    });
+  }
+
   function snapshot() {
     var rows = [];
     var all = document.body.querySelectorAll("*");
     for (var i = 0; i < all.length; i++) {
       if (SKIP[all[i].tagName] || all[i].id === "ash-real-results") { continue; }
+      var touched = [];
+      if (all[i].closest("[data-badge]") && all[i].getClientRects().length === 0) { touched = reveal(all[i], []); }
       var cs = getComputedStyle(all[i]);
       var vals = [];
       for (var p = 0; p < PROPS.length; p++) { vals.push(cs.getPropertyValue(PROPS[p])); }
       rows.push({ d: descr(all[i]), v: vals.join("\u001f") });
+      restore(touched);
     }
     return rows;
+  }
+
+  // Per Badge, as found: rendered normally, or needing a reveal (and by which ancestors). Counted once per load.
+  function badgeRendering() {
+    var normal = 0, revealed = 0, by = {};
+    [].forEach.call(document.querySelectorAll("[data-badge]"), function (badge) {
+      if (badge.getClientRects().length > 0) { normal++; return; }
+      revealed++;
+      var touched = reveal(badge, []);
+      touched.forEach(function (t) { var k = describeHidden(t.el); by[k] = (by[k] || 0) + 1; });
+      var ok = badge.getClientRects().length > 0;
+      restore(touched);
+      if (!ok) { by["STILL-NOT-RENDERED"] = (by["STILL-NOT-RENDERED"] || 0) + 1; }
+    });
+    return { normal: normal, revealed: revealed, by: by };
   }
 
   function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
@@ -81,6 +139,14 @@
   function run() {
     var html = document.documentElement;
     meta("props", PROPS.join(","));
+    // How many Badges the page has, and how many still carry the pre-migration Tailwind ring classes.
+    var badges = document.querySelectorAll("[data-badge]");
+    meta("badge-count", badges.length);
+    var rendering = badgeRendering();
+    meta("badge-normal", rendering.normal);
+    meta("badge-revealed", rendering.revealed);
+    meta("badge-revealed-by", Object.keys(rendering.by).sort().map(function (k) { return k + "=" + rendering.by[k]; }).join(","));
+    meta("badge-legacy-count", [].filter.call(badges, function (b) { return (b.getAttribute("class") || "").indexOf("ring-inset") >= 0; }).length);
     meta("data-theme", html.getAttribute("data-theme"));
     meta("data-skin", html.getAttribute("data-skin") || "");
     meta("layer-order", layerOrder());
@@ -159,6 +225,7 @@
         meta("skin-cleared-data-skin", html.getAttribute("data-skin") || "");
       }
     }
+    meta("reveal-restore-mismatch", restoreMismatch);
     var pre = document.createElement("pre");
     pre.id = "ash-real-results";
     pre.textContent = out.join("\n");

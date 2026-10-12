@@ -1,0 +1,10 @@
+/* TEST-ONLY (Badge migration oracle). The Tailwind-only stylesheet the showcase had
+   before Ashlar's stylesheet was imported - phase-c-baseline-entry.css, imported
+   unchanged - PLUS the Tailwind classes the Badge used before it moved to ash-badge.
+
+   Those classes are no longer emitted by any template, so Tailwind would purge them.
+   Pointing it at the legacy markup keeps them compiled, which keeps the legacy
+   rendering executable: the parity tests render the same Badge with these classes and
+   with ash-badge, in the same browser, and compare. */
+@import "./phase-c-baseline-entry.css";
+@source "../resources/parity/badge/badge-legacy.html";
