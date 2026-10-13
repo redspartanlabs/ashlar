@@ -1,0 +1,146 @@
+/* ash-alert: a persistent, in-flow contextual message (a tinted banner).
+
+   Classes       ash-alert                     the banner itself
+                 ash-alert--info | --success | --warning | --error
+                                               exactly one variant per alert
+                 ash-alert__icon               the leading severity icon, sized and coloured here
+                 ash-alert__content            the column holding the label, title and body
+                 ash-alert__title              the optional heading
+                 ash-alert__body               the optional message
+   Properties    --ash-alert-bg                background colour
+                 --ash-alert-border            border colour (all four sides)
+                 --ash-alert-icon              icon colour
+                 --ash-alert-title             title colour
+                 --ash-alert-body              body colour
+                 These are an intentional customisation surface. Every variant sets all
+                 five, so an alert never inherits one from an ancestor. To change one on an
+                 instance, set it on that element (inline style, an unlayered rule, or a rule
+                 in a layer above ash.components); that wins over the variant.
+
+   Palette: colours read Tailwind's palette variables with the exact Tailwind v4 value as the
+   fallback, so a skin that overrides --color-* recolours the alert, and with no Tailwind and no
+   skin the alert looks the same. The fallbacks are checked against Tailwind's own theme by a
+   test. The dark background is the same colour-mix Tailwind emits for a 50% alpha colour, so it
+   follows the palette too. The radius reads --radius-lg the same way, because every showcase
+   skin re-points it.
+
+   Borders: the border is one physical shorthand with a single colour. Skins widen or recolour
+   only the left edge (border-left-width, border-left-color), and they can only do that if the
+   alert does not set per-side or logical borders itself.
+
+   Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind
+   dark: variant used, so an unlayered skin rule outranks it exactly as before.
+
+   The component sets no margin on itself and adds no global rule. The data-alert and
+   data-alert-variant attributes are the stable hooks skins target, and the icon must stay the
+   first direct svg child of the alert (a skin styles it that way). Visually hidden severity
+   text uses ash-sr-only. */
+
+.ash-alert {
+  /* The ratio lives in a custom property on purpose: a CSS minifier folds calc(1.25 / 0.875) in a
+     normal declaration into a rounded number, which layout then rounds differently (see badge.css).
+     Custom property values are left exactly as written. */
+  --ash-alert-leading: calc(1.25 / 0.875);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid var(--ash-alert-border);
+  border-radius: var(--radius-lg, 0.5rem);
+  padding: 1rem;
+  background-color: var(--ash-alert-bg);
+}
+
+.ash-alert__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+  color: var(--ash-alert-icon);
+}
+
+.ash-alert__content {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
+.ash-alert__title {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-alert-leading);
+  font-weight: 600;
+  color: var(--ash-alert-title);
+}
+
+.ash-alert__body {
+  font-size: 0.875rem;
+  line-height: var(--ash-alert-leading);
+  color: var(--ash-alert-body);
+}
+
+.ash-alert__title + .ash-alert__body {
+  margin-top: 0.25rem;
+}
+
+.ash-alert--info {
+  --ash-alert-bg: var(--color-sky-50, oklch(97.7% 0.013 236.62));
+  --ash-alert-border: var(--color-sky-200, oklch(90.1% 0.058 230.902));
+  --ash-alert-icon: var(--color-sky-600, oklch(58.8% 0.158 241.966));
+  --ash-alert-title: var(--color-sky-800, oklch(44.3% 0.11 240.79));
+  --ash-alert-body: var(--color-sky-700, oklch(50% 0.134 242.749));
+}
+
+.ash-alert--info:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-alert-bg: color-mix(in oklab, var(--color-sky-950, oklch(29.3% 0.066 243.157)) 50%, transparent);
+  --ash-alert-border: var(--color-sky-900, oklch(39.1% 0.09 240.876));
+  --ash-alert-icon: var(--color-sky-400, oklch(74.6% 0.16 232.661));
+  --ash-alert-title: var(--color-sky-200, oklch(90.1% 0.058 230.902));
+  --ash-alert-body: var(--color-sky-300, oklch(82.8% 0.111 230.318));
+}
+
+.ash-alert--success {
+  --ash-alert-bg: var(--color-green-50, oklch(98.2% 0.018 155.826));
+  --ash-alert-border: var(--color-green-200, oklch(92.5% 0.084 155.995));
+  --ash-alert-icon: var(--color-green-600, oklch(62.7% 0.194 149.214));
+  --ash-alert-title: var(--color-green-800, oklch(44.8% 0.119 151.328));
+  --ash-alert-body: var(--color-green-700, oklch(52.7% 0.154 150.069));
+}
+
+.ash-alert--success:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-alert-bg: color-mix(in oklab, var(--color-green-950, oklch(26.6% 0.065 152.934)) 50%, transparent);
+  --ash-alert-border: var(--color-green-900, oklch(39.3% 0.095 152.535));
+  --ash-alert-icon: var(--color-green-400, oklch(79.2% 0.209 151.711));
+  --ash-alert-title: var(--color-green-200, oklch(92.5% 0.084 155.995));
+  --ash-alert-body: var(--color-green-300, oklch(87.1% 0.15 154.449));
+}
+
+.ash-alert--warning {
+  --ash-alert-bg: var(--color-amber-50, oklch(98.7% 0.022 95.277));
+  --ash-alert-border: var(--color-amber-200, oklch(92.4% 0.12 95.746));
+  --ash-alert-icon: var(--color-amber-600, oklch(66.6% 0.179 58.318));
+  --ash-alert-title: var(--color-amber-800, oklch(47.3% 0.137 46.201));
+  --ash-alert-body: var(--color-amber-700, oklch(55.5% 0.163 48.998));
+}
+
+.ash-alert--warning:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-alert-bg: color-mix(in oklab, var(--color-amber-950, oklch(27.9% 0.077 45.635)) 50%, transparent);
+  --ash-alert-border: var(--color-amber-900, oklch(41.4% 0.112 45.904));
+  --ash-alert-icon: var(--color-amber-400, oklch(82.8% 0.189 84.429));
+  --ash-alert-title: var(--color-amber-200, oklch(92.4% 0.12 95.746));
+  --ash-alert-body: var(--color-amber-300, oklch(87.9% 0.169 91.605));
+}
+
+.ash-alert--error {
+  --ash-alert-bg: var(--color-red-50, oklch(97.1% 0.013 17.38));
+  --ash-alert-border: var(--color-red-200, oklch(88.5% 0.062 18.334));
+  --ash-alert-icon: var(--color-red-600, oklch(57.7% 0.245 27.325));
+  --ash-alert-title: var(--color-red-800, oklch(44.4% 0.177 26.899));
+  --ash-alert-body: var(--color-red-700, oklch(50.5% 0.213 27.518));
+}
+
+.ash-alert--error:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-alert-bg: color-mix(in oklab, var(--color-red-950, oklch(25.8% 0.092 26.042)) 50%, transparent);
+  --ash-alert-border: var(--color-red-900, oklch(39.6% 0.141 25.723));
+  --ash-alert-icon: var(--color-red-400, oklch(70.4% 0.191 22.216));
+  --ash-alert-title: var(--color-red-200, oklch(88.5% 0.062 18.334));
+  --ash-alert-body: var(--color-red-300, oklch(80.8% 0.114 19.571));
+}
