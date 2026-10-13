@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- TEST-ONLY. The Alert's PRE-MIGRATION markup: the exact Tailwind class strings the component rendered
+     before it moved to ash-alert. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see alert-oracle-entry.css and
+     alert-legacy-scoped-entry.css), so the legacy rendering stays reproducible after the component's own
+     templates stop emitting these classes. And the tests read the class strings back out of it, so there is
+     one source of truth for what "legacy" means.
+
+     The icon's own `inline-block shrink-0` comes from icon.jte, which this migration does not change, so
+     only the classes alert.jte passed to the icon are listed here. -->
+<div data-legacy-role="content" class="min-w-0 flex-1"></div>
+<span data-legacy-role="label" class="sr-only"></span>
+<div data-legacy-role="container" data-legacy-variant="info" class="flex items-start gap-3 rounded-lg border p-4 border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/50"></div>
+<svg data-legacy-role="icon" data-legacy-variant="info" class="mt-0.5 h-5 w-5 text-sky-600 dark:text-sky-400"></svg>
+<h3 data-legacy-role="title" data-legacy-variant="info" class="text-sm font-semibold text-sky-800 dark:text-sky-200"></h3>
+<div data-legacy-role="body-titled" data-legacy-variant="info" class="mt-1 text-sm text-sky-700 dark:text-sky-300"></div>
+<div data-legacy-role="body-plain" data-legacy-variant="info" class="text-sm text-sky-700 dark:text-sky-300"></div>
+<div data-legacy-role="container" data-legacy-variant="success" class="flex items-start gap-3 rounded-lg border p-4 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/50"></div>
+<svg data-legacy-role="icon" data-legacy-variant="success" class="mt-0.5 h-5 w-5 text-green-600 dark:text-green-400"></svg>
+<h3 data-legacy-role="title" data-legacy-variant="success" class="text-sm font-semibold text-green-800 dark:text-green-200"></h3>
+<div data-legacy-role="body-titled" data-legacy-variant="success" class="mt-1 text-sm text-green-700 dark:text-green-300"></div>
+<div data-legacy-role="body-plain" data-legacy-variant="success" class="text-sm text-green-700 dark:text-green-300"></div>
+<div data-legacy-role="container" data-legacy-variant="warning" class="flex items-start gap-3 rounded-lg border p-4 border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/50"></div>
+<svg data-legacy-role="icon" data-legacy-variant="warning" class="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400"></svg>
+<h3 data-legacy-role="title" data-legacy-variant="warning" class="text-sm font-semibold text-amber-800 dark:text-amber-200"></h3>
+<div data-legacy-role="body-titled" data-legacy-variant="warning" class="mt-1 text-sm text-amber-700 dark:text-amber-300"></div>
+<div data-legacy-role="body-plain" data-legacy-variant="warning" class="text-sm text-amber-700 dark:text-amber-300"></div>
+<div data-legacy-role="container" data-legacy-variant="error" class="flex items-start gap-3 rounded-lg border p-4 border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/50"></div>
+<svg data-legacy-role="icon" data-legacy-variant="error" class="mt-0.5 h-5 w-5 text-red-600 dark:text-red-400"></svg>
+<h3 data-legacy-role="title" data-legacy-variant="error" class="text-sm font-semibold text-red-800 dark:text-red-200"></h3>
+<div data-legacy-role="body-titled" data-legacy-variant="error" class="mt-1 text-sm text-red-700 dark:text-red-300"></div>
+<div data-legacy-role="body-plain" data-legacy-variant="error" class="text-sm text-red-700 dark:text-red-300"></div>

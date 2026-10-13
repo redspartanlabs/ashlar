@@ -30,18 +30,17 @@
      same way. --%>
 !{AlertVariant resolvedVariant = AlertVariant.from(variant);}
 !{boolean hasTitle = !title.isEmpty();}
-!{String bodySpacing = hasTitle ? "mt-1 " : "";}
 
 <div class="${AlertStyles.container(resolvedVariant)}" data-alert data-alert-variant="${resolvedVariant.name().toLowerCase()}">
-    @template.ashlar.components.icon(icon = resolvedVariant.defaultIcon(), classes = "mt-0.5 h-5 w-5 " + AlertStyles.icon(resolvedVariant))
+    @template.ashlar.components.icon(icon = resolvedVariant.defaultIcon(), classes = AlertStyles.icon(resolvedVariant))
 
-    <div class="min-w-0 flex-1">
-        <span class="sr-only">${resolvedVariant.label()}:</span>
+    <div class="ash-alert__content">
+        <span class="ash-sr-only">${resolvedVariant.label()}:</span>
         @if (hasTitle)
-            <h3 class="text-sm font-semibold ${AlertStyles.title(resolvedVariant)}">${title}</h3>
+            <h3 class="${AlertStyles.title(resolvedVariant)}">${title}</h3>
         @endif
         @if (body != null)
-            <div class="${bodySpacing}text-sm ${AlertStyles.body(resolvedVariant)}">
+            <div class="${AlertStyles.body(resolvedVariant)}">
                 ${body}
             </div>
         @endif

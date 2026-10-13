@@ -1,0 +1,43 @@
+/* TEST-ONLY (Alert migration oracle, scoped). The legacy Alert's own Tailwind utilities and nothing else:
+   no preflight, no utilities for any other element on the page.
+
+   The full oracle (alert-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a
+   page also restyles everything AROUND the Alert (a paragraph in the body loses its margin, a parent
+   changes display). That is right for "Tailwind present", where the surrounding page really is styled.
+   For "Tailwind removed" the surroundings must be the same unstyled page on both sides, so the legacy Alert
+   is rendered here with only what it itself used.
+
+   Only the preflight rules the Alert depended on are kept, and only for the Alert's own elements - never
+   for whatever a caller puts in the body: border-box sizing with no default border or margin, heading
+   font inheritance, and block-level, middle-aligned svg. AlertParityTest proves this scoped rendering
+   equals the full legacy rendering for alerts whose body is plain text, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/alert/alert-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-alert],
+    [data-alert] > svg,
+    [data-alert] > div,
+    [data-alert] > div > span,
+    [data-alert] > div > h3,
+    [data-alert] > div > div {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    [data-alert] > div > h3 {
+        font-size: inherit;
+        font-weight: inherit;
+    }
+
+    [data-alert] > svg {
+        display: block;
+        vertical-align: middle;
+    }
+}
