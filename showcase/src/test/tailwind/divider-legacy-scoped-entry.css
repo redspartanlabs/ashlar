@@ -1,0 +1,33 @@
+/* TEST-ONLY (Divider migration oracle, scoped). The legacy Divider's own Tailwind utilities and nothing else:
+   no preflight, no utilities for any other element on the page.
+
+   The full oracle (divider-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page
+   also restyles everything AROUND the Divider. That is right for "Tailwind present". For "Tailwind removed" the
+   surroundings must be the same unstyled page on both sides, so the legacy Divider is rendered here with only what
+   it itself used.
+
+   Only the preflight rules the Divider depended on are kept, and only for the Divider's own element: border-box
+   sizing with no default margin, padding or border width (a 0 solid border), and for the <hr> the preflight
+   `hr` rule (zero height, inherited colour, a 1px top border). DividerParityTest proves this scoped rendering equals
+   the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/divider/divider-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-divider] {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    hr[data-divider] {
+        height: 0;
+        color: inherit;
+        border-top-width: 1px;
+    }
+}

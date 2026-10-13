@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * entry compiled by the same CLI but without Ashlar's stylesheet. Loading Ashlar's
  * stylesheet must not change any computed style.
  *
- * <p>Components that have migrated to Ashlar's CSS (today: Badge and Alert) are the one thing
+ * <p>Components that have migrated to Ashlar's CSS (today: Badge, Alert and Divider) are the one thing
  * the Tailwind-only stylesheet cannot render, so the baseline is their SAME-RUN LEGACY
  * RENDERING: the oracle stylesheet (Tailwind-only plus the classes they used to use)
  * with their markup rewritten back to those classes. Their elements, and only theirs,
@@ -101,12 +101,13 @@ class ShowcaseRuntimeTest {
         // migrated components used to use (so those classes still exist), with the migrated components' markup
         // rewritten back to those classes. Pages that render a migrated component are therefore still compared
         // against how that component looked before it moved to Ashlar's CSS, in the same browser run.
-        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "alert-oracle.css"));
+        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "divider-oracle.css"));
         byte[] mutatedCss = (new String(baselineCss, StandardCharsets.UTF_8) + "\nbutton{padding-left:7px !important}\n").getBytes(StandardCharsets.UTF_8);
-        // The oracle is cumulative (the Badge oracle plus the Alert's legacy classes), so the rewrite is too.
+        // The oracle is cumulative (Badge, then Alert, then Divider legacy classes), so the rewrite is too.
         BadgeLegacyMarkup badgeLegacy = new BadgeLegacyMarkup();
         AlertLegacyMarkup alertLegacy = new AlertLegacyMarkup();
-        Function<String, String> legacyComponents = html -> alertLegacy.rewrite(badgeLegacy.rewrite(html));
+        DividerLegacyMarkup dividerLegacy = new DividerLegacyMarkup();
+        Function<String, String> legacyComponents = html -> dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html)));
 
         try (RunningShowcase app = RunningShowcase.start(Path.of(bootJar)); RealPageProxy proxy = new RealPageProxy(app.port())) {
             for (String slug : pageSlugs()) {
