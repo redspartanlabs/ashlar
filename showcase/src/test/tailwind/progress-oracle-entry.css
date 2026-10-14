@@ -1,0 +1,10 @@
+/* TEST-ONLY (Progress migration oracle). Cumulative: the Divider oracle, imported unchanged (which is the Alert
+   oracle, which is the Badge oracle, which is the Tailwind-only stylesheet the showcase had before Ashlar's
+   stylesheet was imported, plus the Badge's, the Alert's and the Divider's legacy classes), PLUS the Tailwind
+   classes the Progress used before it moved to ash-progress.
+
+   Those classes are no longer emitted by any template, so Tailwind would purge them. Pointing it at the legacy
+   markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same
+   Progress with these classes and with ash-progress, in the same browser, and compare. */
+@import "./divider-oracle-entry.css";
+@source "../resources/parity/progress/progress-legacy.html";
