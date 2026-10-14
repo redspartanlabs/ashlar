@@ -1,0 +1,108 @@
+/* ash-progress: a determinate, static progress bar with an optional label and percentage above it.
+
+   Classes       ash-progress                  the wrapper; it fills its container
+                 ash-progress__header          the optional row holding the label and percentage
+                 ash-progress__header--between a label is present: label left, percentage right
+                 ash-progress__header--end     no label: the percentage alone sits at the right
+                 ash-progress__label           the label text
+                 ash-progress__value           the percentage text
+                 ash-progress__track           the bar's groove, with role="progressbar"
+                 ash-progress__track--small | --medium | --large
+                                               exactly one size per track
+                 ash-progress__fill            the filled part; its width is set inline by the template
+   Properties    --ash-progress-track          the track's colour
+                 --ash-progress-fill           the fill's colour
+                 These are an intentional customisation surface. To change one for a single bar, set it on that
+                 bar's ash-progress element (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components); that wins over the value set here.
+
+   Palette: colours read Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that
+   overrides --color-slate-* or --color-blue-* recolours the bar, and with no Tailwind and no skin it looks the same.
+   The fallbacks are checked against Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the
+   same zero-specificity :where() form the Tailwind dark: variant used, so an unlayered skin rule outranks it exactly
+   as before. The label and percentage colours are read straight from the palette (they are not properties).
+
+   Shape: the track and the fill are both fully rounded (the same calc(infinity * 1px) Tailwind's rounded-full is),
+   and the track clips its fill (overflow hidden). That radius is not a theme variable, so a skin that squares the
+   bar does it with its own rule on the track and its direct child, which is why the fill must stay the track's
+   direct child and the track must keep role="progressbar". The fill's width is the clamped percentage, written
+   inline by the template because it is a per-instance value.
+
+   The component sets no margin on itself and adds no global rule. The data-progress and data-progress-size
+   attributes and the role and aria-* attributes are the stable hooks. */
+
+.ash-progress {
+  /* The ratio lives in a custom property on purpose: a CSS minifier folds calc(1.25 / 0.875) in a normal
+     declaration into a rounded number, which layout then rounds differently (see badge.css). Custom property
+     values are left exactly as written. */
+  --ash-progress-leading: calc(1.25 / 0.875);
+  --ash-progress-track: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-progress-fill: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  width: 100%;
+}
+
+.ash-progress:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-progress-track: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-progress-fill: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+}
+
+.ash-progress__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  line-height: var(--ash-progress-leading);
+}
+
+.ash-progress__header--between {
+  justify-content: space-between;
+}
+
+.ash-progress__header--end {
+  justify-content: flex-end;
+}
+
+.ash-progress__label {
+  font-weight: 500;
+  color: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-progress__label:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+.ash-progress__value {
+  color: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+.ash-progress__value:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-progress__track {
+  width: 100%;
+  overflow: hidden;
+  border-radius: calc(infinity * 1px);
+  background-color: var(--ash-progress-track);
+}
+
+.ash-progress__track--small {
+  height: 0.375rem;
+}
+
+.ash-progress__track--medium {
+  height: 0.5rem;
+}
+
+.ash-progress__track--large {
+  height: 0.75rem;
+}
+
+.ash-progress__fill {
+  height: 100%;
+  border-radius: calc(infinity * 1px);
+  background-color: var(--ash-progress-fill);
+}

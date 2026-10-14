@@ -1,0 +1,28 @@
+/* TEST-ONLY (Progress migration oracle, scoped). The legacy Progress's own Tailwind utilities and nothing else:
+   no preflight, no utilities for any other element on the page.
+
+   The full oracle (progress-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page
+   also restyles everything AROUND the Progress. That is right for "Tailwind present". For "Tailwind removed" the
+   surroundings must be the same unstyled page on both sides, so the legacy Progress is rendered here with only
+   what it itself used.
+
+   Only the preflight rules the Progress depended on are kept, and only for the Progress's own elements, never for
+   whatever a caller puts around it: border-box sizing with no default margin, padding or border width (a 0 solid
+   border). ProgressParityTest proves this scoped rendering equals the full legacy rendering, so it is a faithful
+   stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/progress/progress-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-progress],
+    [data-progress] * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+}

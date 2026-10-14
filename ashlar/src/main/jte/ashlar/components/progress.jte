@@ -33,16 +33,16 @@
 !{boolean hasLabel = !label.isEmpty();}
 !{boolean hasHeader = hasLabel || showPercentage;}
 !{String ariaLabelAttr = hasLabel ? label : null;}
-!{String headerJustify = hasLabel ? "justify-between" : "justify-end";}
+!{String headerClass = hasLabel ? "ash-progress__header ash-progress__header--between" : "ash-progress__header ash-progress__header--end";}
 
-<div class="w-full" data-progress data-progress-size="${resolvedSize.name().toLowerCase()}">
+<div class="ash-progress" data-progress data-progress-size="${resolvedSize.name().toLowerCase()}">
     @if (hasHeader)
-        <div class="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm ${headerJustify}">
+        <div class="${headerClass}">
             @if (hasLabel)
-                <span class="font-medium text-slate-700 dark:text-slate-300">${label}</span>
+                <span class="ash-progress__label">${label}</span>
             @endif
             @if (showPercentage)
-                <span class="text-slate-500 dark:text-slate-400">${clampedValue}%</span>
+                <span class="ash-progress__value">${clampedValue}%</span>
             @endif
         </div>
     @endif
