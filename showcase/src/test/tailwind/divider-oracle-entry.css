@@ -1,0 +1,9 @@
+/* TEST-ONLY (Divider migration oracle). Cumulative: the Alert oracle, imported unchanged (which is the Badge oracle,
+   which is the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported, plus the Badge's
+   and the Alert's legacy classes), PLUS the Tailwind classes the Divider used before it moved to ash-divider.
+
+   Those classes are no longer emitted by any template, so Tailwind would purge them. Pointing it at the legacy
+   markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same
+   Divider with these classes and with ash-divider, in the same browser, and compare. */
+@import "./alert-oracle-entry.css";
+@source "../resources/parity/divider/divider-legacy.html";

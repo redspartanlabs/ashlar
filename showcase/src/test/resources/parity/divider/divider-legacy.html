@@ -1,0 +1,9 @@
+<!doctype html>
+<!-- TEST-ONLY. The Divider's PRE-MIGRATION markup: the exact Tailwind class strings DividerStyles returned before the
+     component moved to ash-divider. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see divider-oracle-entry.css and divider-legacy-scoped-entry.css),
+     so the legacy rendering stays reproducible after the component's own templates stop emitting these classes. And
+     the tests read the class strings back out of it, so there is one source of truth for what "legacy" means. -->
+<hr data-legacy-role="horizontal" class="m-0 w-full border-0 border-t border-slate-200 dark:border-slate-700">
+<div data-legacy-role="vertical" class="inline-block w-0 self-stretch border-l border-slate-200 dark:border-slate-700"></div>

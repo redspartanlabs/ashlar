@@ -1,0 +1,57 @@
+/* ash-divider: a visual separator. It draws one hairline and has no opinion about the space around it.
+
+   Classes       ash-divider                   on every divider
+                 ash-divider--horizontal       the native <hr>
+                 ash-divider--vertical         the <div role="separator" aria-orientation="vertical">
+   Properties    --ash-divider-color           the line's colour
+                 This is an intentional customisation surface. To change it for one divider, set it on that
+                 element (inline style, an unlayered rule, or a rule in a layer above ash.components); that
+                 wins over the value set here.
+
+   Colour: read from Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so
+   a skin that overrides --color-slate-200 / --color-slate-700 recolours the line, and with no Tailwind and
+   no skin it looks the same. The fallbacks are checked against Tailwind's own theme by a test. Dark mode
+   follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The browser's own <hr> is a grey, inset,
+   8px-margin, content-box element that stretches in a flex row unless it has an explicit height, so every
+   one of those is set below (margin, width, height, border, colour) rather than inherited from a reset.
+   overflow is left as the browser has it. Measured in Chrome, the native <hr> is: margin 8px 0 (auto inline),
+   border 1px inset grey on all four sides, overflow hidden, and in a row flex container it stretches to the
+   container's height.
+
+   The line is a border, never a background box: a 1px border is drawn crisply at any zoom or fractional
+   device pixel ratio, where a 1px wide background can anti-alias away. The vertical divider is therefore
+   width 0 with a 1px left border, and it takes its height from the flex row it stretches in (align-self:
+   stretch); it deliberately has no minimum height, so outside such a row it draws nothing.
+
+   The border is declared once, as a zero-width solid border in the line colour on all four sides, and the
+   orientation then gives one side its 1px width. That is exactly what Tailwind's border-color plus border-t /
+   border-l produced, so the three sides that draw nothing still carry the line colour in their computed style.
+
+   The component sets no margin and adds no global rule. The data-divider and data-divider-orientation
+   attributes are the stable hooks. */
+
+.ash-divider {
+  --ash-divider-color: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  border: 0 solid var(--ash-divider-color);
+}
+
+.ash-divider:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-divider-color: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-divider--horizontal {
+  margin: 0;
+  width: 100%;
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+.ash-divider--vertical {
+  display: inline-block;
+  width: 0;
+  align-self: stretch;
+  border-left-width: 1px;
+}

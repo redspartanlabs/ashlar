@@ -28,5 +28,6 @@
 @import "layout/cluster.css" layer(ash.layout);
 @import "components/alert.css" layer(ash.components);
 @import "components/badge.css" layer(ash.components);
+@import "components/divider.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
 @import "utilities/truncate.css" layer(ash.utilities);
