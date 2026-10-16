@@ -1,0 +1,14 @@
+<!doctype html>
+<!-- TEST-ONLY. The Empty State's PRE-MIGRATION markup: the exact Tailwind class strings empty-state.jte rendered before it
+     moved to ash-empty-state (the Icon component's own inline-block and shrink-0 were and are rendered by icon.jte and
+     are part of the glyph's class value). It is never served.
+
+     It has two jobs. Tailwind compiles this file (see empty-state-oracle-entry.css and empty-state-legacy-scoped-entry.css),
+     so the legacy rendering stays reproducible after the component's own template stops emitting these classes. And the
+     tests read the class strings back out of it, so there is one source of truth for what "legacy" means. -->
+<div data-legacy-role="wrapper" class="flex flex-col items-center px-6 py-12 text-center"></div>
+<div data-legacy-role="icon" class="mb-3 text-slate-400 dark:text-slate-500"></div>
+<svg data-legacy-role="glyph" class="inline-block shrink-0 h-10 w-10"></svg>
+<h3 data-legacy-role="title" class="text-base font-semibold text-slate-900 dark:text-slate-100"></h3>
+<div data-legacy-role="body" class="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400"></div>
+<div data-legacy-role="action" class="mt-4 flex flex-wrap items-center justify-center gap-3"></div>

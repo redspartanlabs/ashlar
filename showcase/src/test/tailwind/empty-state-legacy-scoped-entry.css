@@ -1,0 +1,39 @@
+/* TEST-ONLY (Empty State migration oracle, scoped). The legacy Empty State's own Tailwind utilities and nothing else:
+   no page-wide preflight, no utilities for any other element on the page.
+
+   The full oracle (empty-state-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page
+   also restyles everything AROUND the Empty State. That is right for "Tailwind present". For "Tailwind removed" the
+   surroundings must be the same unstyled page on both sides, so the legacy Empty State is rendered here with only
+   what it itself used.
+
+   Only the preflight rules the Empty State depended on are kept, and only inside it: border-box sizing with no default
+   margin, padding or border width (a 0 solid border) on everything in it, headings that inherit their size and weight,
+   and an svg that is display: block with vertical-align: middle. They are scoped to [data-empty-state] and its
+   descendants, which is where the former page-wide preflight reached the component and the paragraph it is given.
+   EmptyStateParityTest proves this scoped rendering equals the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/empty-state/empty-state-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-empty-state],
+    [data-empty-state] * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    [data-empty-state] :is(h1, h2, h3, h4, h5, h6) {
+        font-size: inherit;
+        font-weight: inherit;
+    }
+
+    [data-empty-state] svg {
+        display: block;
+        vertical-align: middle;
+    }
+}

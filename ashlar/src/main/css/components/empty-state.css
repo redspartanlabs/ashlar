@@ -1,0 +1,92 @@
+/* ash-empty-state: a centred "there is nothing here" message with an optional icon, body and action.
+
+   Classes       ash-empty-state               the component; a centred column
+                 ash-empty-state__icon         the optional decorative icon's box; it sets the icon colour
+                 ash-empty-state__glyph        the icon's svg, passed to the Icon component as its class
+                 ash-empty-state__title        the heading (an h3)
+                 ash-empty-state__body         the optional supporting content
+                 ash-empty-state__action       the optional row holding composed buttons or links
+   Properties    --ash-empty-state-icon        icon colour
+                 --ash-empty-state-title       title colour
+                 --ash-empty-state-body        body colour
+                 These are an intentional customisation surface. To change one for a single empty state, set it on that
+                 element (inline style, an unlayered rule, or a rule in a layer above ash.components); that wins over the
+                 value set here.
+
+   Palette: colours read Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that
+   overrides --color-slate-* recolours the component, and with no Tailwind and no skin it looks the same. The fallbacks
+   are checked against Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the same
+   zero-specificity :where() form the Tailwind dark: variant used, so an unlayered skin rule outranks it exactly as before.
+
+   Preflight: the Icon component still renders its own Tailwind classes (inline-block shrink-0) and Tailwind's preflight
+   used to give every svg vertical-align: middle. Without Tailwind those classes do nothing, so the glyph states
+   display, flex-shrink and vertical-align itself. The title zeroes its own margin, and a paragraph that is a direct
+   child of the body gets no margin, which is what preflight gave a paragraph before; nothing else in the caller's
+   content is touched and there is no global rule.
+
+   The component sets no margin on itself. The data-empty-state attribute is the stable hook skins target (Foundry's
+   shadow, Harbor's paragraph line height), and the title must stay an h3. */
+
+.ash-empty-state {
+  /* The ratios live in custom properties on purpose: a CSS minifier folds calc(1.25 / 0.875) in a normal declaration
+     into a rounded number, which layout then rounds differently (see badge.css). Custom property values are left
+     exactly as written. */
+  --ash-empty-state-title-leading: calc(1.5 / 1);
+  --ash-empty-state-body-leading: calc(1.25 / 0.875);
+  --ash-empty-state-icon: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-empty-state-title: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-empty-state-body: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.ash-empty-state:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-empty-state-icon: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-empty-state-title: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-empty-state-body: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-empty-state__icon {
+  margin-bottom: 0.75rem;
+  color: var(--ash-empty-state-icon);
+}
+
+.ash-empty-state__glyph {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  vertical-align: middle;
+}
+
+.ash-empty-state__title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: var(--ash-empty-state-title-leading);
+  font-weight: 600;
+  color: var(--ash-empty-state-title);
+}
+
+.ash-empty-state__body {
+  margin-top: 0.25rem;
+  max-width: 24rem;
+  font-size: 0.875rem;
+  line-height: var(--ash-empty-state-body-leading);
+  color: var(--ash-empty-state-body);
+}
+
+.ash-empty-state__body > p {
+  margin: 0;
+}
+
+.ash-empty-state__action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}

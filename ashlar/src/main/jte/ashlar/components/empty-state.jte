@@ -33,23 +33,23 @@
      `label` is passed here) because the title is already real text that
      says the same thing; an icon-only accessible name here would be
      redundant with, not additional to, the heading right below it. --%>
-<div class="flex flex-col items-center px-6 py-12 text-center" data-empty-state>
+<div class="ash-empty-state" data-empty-state>
     @if (icon != null)
-        <div class="mb-3 text-slate-400 dark:text-slate-500">
-            @template.ashlar.components.icon(icon = icon, classes = "h-10 w-10")
+        <div class="ash-empty-state__icon">
+            @template.ashlar.components.icon(icon = icon, classes = "ash-empty-state__glyph")
         </div>
     @endif
 
-    <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">${title}</h3>
+    <h3 class="ash-empty-state__title">${title}</h3>
 
     @if (body != null)
-        <div class="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
+        <div class="ash-empty-state__body">
             ${body}
         </div>
     @endif
 
     @if (action != null)
-        <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <div class="ash-empty-state__action">
             ${action}
         </div>
     @endif

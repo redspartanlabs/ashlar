@@ -1,0 +1,10 @@
+/* TEST-ONLY (Empty State migration oracle). Cumulative: the Progress oracle, imported unchanged (which is the Divider
+   oracle, which is the Alert oracle, which is the Badge oracle, which is the Tailwind-only stylesheet the showcase had
+   before Ashlar's stylesheet was imported, plus the Badge's, the Alert's, the Divider's and the Progress's legacy
+   classes), PLUS the Tailwind classes the Empty State used before it moved to ash-empty-state.
+
+   Those classes are no longer emitted by the component's template, so Tailwind would purge any of them nothing else
+   uses. Pointing it at the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity
+   tests render the same Empty State with these classes and with ash-empty-state, in the same browser, and compare. */
+@import "./progress-oracle-entry.css";
+@source "../resources/parity/empty-state/empty-state-legacy.html";
