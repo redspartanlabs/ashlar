@@ -53,7 +53,7 @@ class ShowcaseBuildOutputTest {
     void theBootJarCarriesTheAshlarJarWhichCarriesTheGeneratedStylesheet() throws IOException {
         byte[] generated = Files.readAllBytes(property("ashlar.css.generated"));
         try (ZipFile boot = new ZipFile(property("ashlar.showcase.jar").toFile())) {
-            ZipEntry nested = boot.getEntry("BOOT-INF/lib/ashlar-0.1.0.jar");
+            ZipEntry nested = boot.getEntry("BOOT-INF/lib/ashlar-0.2.0.jar");
             assertNotNull(nested, "the Ashlar jar must be nested in the boot jar");
             byte[] found = null;
             try (ZipInputStream inner = new ZipInputStream(new ByteArrayInputStream(boot.getInputStream(nested).readAllBytes()))) {

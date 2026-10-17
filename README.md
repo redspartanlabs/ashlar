@@ -41,7 +41,7 @@ applied:
 
 ```kotlin
 dependencies {
-    implementation("dev.redspartan:ashlar:0.1.0")
+    implementation("dev.redspartan:ashlar:0.2.0")
 }
 
 // 1. A resolvable view of the artifact, to read templates out of the jar.
@@ -49,7 +49,7 @@ val ashlarArtifact = configurations.create("ashlarArtifact") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
-dependencies { ashlarArtifact("dev.redspartan:ashlar:0.1.0") }
+dependencies { ashlarArtifact("dev.redspartan:ashlar:0.2.0") }
 
 // 2. Stage one JTE source root: your templates plus Ashlar's.
 val jteSourceRoot = layout.buildDirectory.dir("jte-sources")
