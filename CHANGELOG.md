@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0 - 2026-10-17
 
 The first release with Ashlar's own CSS. Ashlar now ships a stylesheet, and five
 components are styled by it instead of by Tailwind utility classes. The other 56
