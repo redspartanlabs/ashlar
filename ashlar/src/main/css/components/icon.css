@@ -1,0 +1,62 @@
+/* ash-icon: the stroke-only SVG the Icon component renders. It owns the icon's default size and its inline behaviour.
+
+   Classes       ash-icon                      on every icon; the default size is 1.25rem
+                 ash-icon--xs                  0.75rem
+                 ash-icon--sm                  1rem
+                 ash-icon--md                  1.25rem (the default, stated for symmetry)
+                 ash-icon--lg                  1.5rem
+                 ash-icon--xl                  2rem
+   Properties    --ash-icon-size               the icon's width and height
+                 This is an intentional customisation surface and the way to any size the modifiers do not cover.
+                 To change it for one icon, set it on that icon (inline style, an unlayered rule, or a rule in a
+                 layer above ash.components); that wins over the value set here. The icon sets the property on
+                 itself, so a value set on an ancestor is never inherited by it.
+
+   Colour: the icon draws with stroke="currentColor" and states no colour of its own; it takes the colour of the
+   text around it, so it needs no colour token.
+
+   Cascade: the base rule is wrapped in :where(), so it has no specificity. Any rule that sets the icon's size or
+   display wins over it whatever the source order: a component's own element class (ash-alert__icon,
+   ash-badge__icon, ash-empty-state__glyph), a size modifier, a Tailwind utility (h-4 w-4, hidden) and a
+   consumer's unlayered rule. This file is listed first in ash.components so the components that compose an
+   icon come after it.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The Icon component used to rely on the
+   inline-block and shrink-0 utilities and on preflight's vertical-align: middle for every svg; all three are
+   stated here. The hidden attribute is kept working, because display here would otherwise override the
+   browser's own [hidden] rule.
+
+   The component adds no margin and no global rule. */
+
+:where(.ash-icon) {
+  --ash-icon-size: 1.25rem;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--ash-icon-size);
+  height: var(--ash-icon-size);
+  vertical-align: middle;
+}
+
+:where(.ash-icon[hidden]) {
+  display: none;
+}
+
+.ash-icon--xs {
+  --ash-icon-size: 0.75rem;
+}
+
+.ash-icon--sm {
+  --ash-icon-size: 1rem;
+}
+
+.ash-icon--md {
+  --ash-icon-size: 1.25rem;
+}
+
+.ash-icon--lg {
+  --ash-icon-size: 1.5rem;
+}
+
+.ash-icon--xl {
+  --ash-icon-size: 2rem;
+}

@@ -8,20 +8,26 @@
 !{String quickStartCode = """
     @template.ashlar.components.icon(icon = Icon.SETTINGS)""";}
 !{String sizingCode = """
-    @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-3 w-3")
-    @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-5 w-5")
-    @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-8 w-8")
-    @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-12 w-12")""";}
+    @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--xs")
+    @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--sm")
+    @template.ashlar.components.icon(icon = Icon.STAR)
+    @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--lg")
+    @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--xl")""";}
+!{String customSizeCode = """
+    /* In your own stylesheet */
+    .hero-icon { --ash-icon-size: 3rem; }
+
+    @template.ashlar.components.icon(icon = Icon.STAR, classes = "hero-icon")""";}
 !{String colorCode = """
-    <span class="text-slate-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
-    <span class="text-blue-600 dark:text-blue-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
-    <span class="text-green-600 dark:text-green-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
-    <span class="text-red-600 dark:text-red-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>""";}
+    <span class="text-slate-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
+    <span class="text-blue-600 dark:text-blue-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
+    <span class="text-green-600 dark:text-green-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
+    <span class="text-red-600 dark:text-red-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>""";}
 !{String labelCode = """
-    @template.ashlar.components.icon(icon = Icon.CHECK_CIRCLE, classes = "h-6 w-6 text-green-600 dark:text-green-400", label = "Verified")""";}
+    @template.ashlar.components.icon(icon = Icon.CHECK_CIRCLE, classes = "ash-icon--lg text-green-600 dark:text-green-400", label = "Verified")""";}
 !{List<ApiParam> iconApi = List.of(
     ApiParam.required("icon", "Icon", "Which icon to render - see the full list below."),
-    ApiParam.optional("classes", "String", "\"h-5 w-5\"", "Tailwind size classes. Button and other composing components override this to match their own size."),
+    ApiParam.optional("classes", "String", "\"\"", "Extra classes, added after Ashlar's own ash-icon class (they no longer replace a default size). ash-icon sizes the icon 1.25rem; add a size modifier (ash-icon--xs, --sm, --md, --lg, --xl) or set --ash-icon-size to change it. Tailwind size utilities such as h-4 w-4 still win while Tailwind is present. Button and other composing components pass the size that matches their own."),
     ApiParam.optional("label", "String", "\"\"", "Only pass this when the icon conveys meaning on its own, with no adjacent visible text or aria-label. See Accessibility.")
 );}
 !{List<PageAnchor> sections = List.of(
@@ -71,16 +77,31 @@ content = @`
             content = @`
                 <div class="flex flex-col gap-8">
                     <div>
-                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Sizing via classes</p>
-                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">There is no size param - size is just the Tailwind height/width classes you pass.</p>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Sizing</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">There is no size param. An icon is <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">1.25rem</code> by default. Add one of the size modifiers through <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">classes</code>: <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">ash-icon--xs</code> (0.75rem), <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">--sm</code> (1rem), <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">--md</code> (1.25rem, the default), <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">--lg</code> (1.5rem) or <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">--xl</code> (2rem).</p>
                         @template.layout.example(
                         code = sizingCode,
                         content = @`
                             <div class="mt-3 flex flex-wrap items-center gap-4">
-                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-3 w-3")
-                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-5 w-5")
-                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-8 w-8")
-                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "h-12 w-12")
+                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--xs")
+                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--sm")
+                                @template.ashlar.components.icon(icon = Icon.STAR)
+                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--lg")
+                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "ash-icon--xl")
+                            </div>
+                        `
+                        )
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Any other size</p>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">The size is one custom property, <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">--ash-icon-size</code>, set on the icon itself. For any size the modifiers do not cover, set it from a class of your own, as below; a value set on a wrapper is not inherited. Your own unlayered rules, a component's own icon class and Tailwind size utilities (<code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">h-12 w-12</code>, while Tailwind is present) win over the default size. A rule in a CSS layer ranked below <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">ash.components</code> does not.</p>
+                        @template.layout.example(
+                        code = customSizeCode,
+                        content = @`
+                            <style>.hero-icon { --ash-icon-size: 3rem; }</style>
+                            <div class="mt-3 flex flex-wrap items-center gap-4">
+                                @template.ashlar.components.icon(icon = Icon.STAR, classes = "hero-icon")
                             </div>
                         `
                         )
@@ -93,10 +114,10 @@ content = @`
                         code = colorCode,
                         content = @`
                             <div class="mt-3 flex flex-wrap items-center gap-4">
-                                <span class="text-slate-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
-                                <span class="text-blue-600 dark:text-blue-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
-                                <span class="text-green-600 dark:text-green-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
-                                <span class="text-red-600 dark:text-red-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "h-6 w-6")</span>
+                                <span class="text-slate-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
+                                <span class="text-blue-600 dark:text-blue-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
+                                <span class="text-green-600 dark:text-green-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
+                                <span class="text-red-600 dark:text-red-400">@template.ashlar.components.icon(icon = Icon.BELL, classes = "ash-icon--lg")</span>
                             </div>
                         `
                         )
@@ -109,7 +130,7 @@ content = @`
                         code = labelCode,
                         content = @`
                             <div class="mt-3">
-                                @template.ashlar.components.icon(icon = Icon.CHECK_CIRCLE, classes = "h-6 w-6 text-green-600 dark:text-green-400", label = "Verified")
+                                @template.ashlar.components.icon(icon = Icon.CHECK_CIRCLE, classes = "ash-icon--lg text-green-600 dark:text-green-400", label = "Verified")
                             </div>
                         `
                         )
@@ -121,7 +142,7 @@ content = @`
                         <div class="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
                             @for (Icon value : Icon.values())
                                 <div class="flex flex-col items-center gap-1 rounded-md border border-slate-200 p-3 text-center dark:border-slate-700">
-                                    @template.ashlar.components.icon(icon = value, classes = "h-5 w-5 text-slate-600 dark:text-slate-300")
+                                    @template.ashlar.components.icon(icon = value, classes = "ash-icon--md text-slate-600 dark:text-slate-300")
                                     <span class="font-mono text-[10px] leading-tight text-slate-500 dark:text-slate-400">${value.name()}</span>
                                 </div>
                             @endfor

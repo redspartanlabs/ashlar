@@ -273,7 +273,7 @@ class EmptyStateParityTest {
     private static String emptyState(Case c) {
         StringBuilder sb = new StringBuilder("<div class=\"ash-empty-state\" data-empty-state>\n");
         if (c.icon() != null) {
-            sb.append("    <div class=\"ash-empty-state__icon\">\n        <svg class=\"inline-block shrink-0 ash-empty-state__glyph\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\""
+            sb.append("    <div class=\"ash-empty-state__icon\">\n        <svg class=\"ash-icon ash-empty-state__glyph\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\""
                     + " stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">")
                     .append(IconSvg.bodyFor(Icon.valueOf(c.icon()))).append("</svg>\n    </div>\n");
         }
@@ -827,7 +827,7 @@ class EmptyStateParityTest {
 
     private static final Set<String> ICON_ATTRIBUTES = Set.of("aria-hidden", "class", "fill", "stroke", "stroke-linecap", "stroke-linejoin", "stroke-width", "viewBox");
     private static final Set<String> ALLOWED_CLASS_TOKENS = Set.of("ash-empty-state", "ash-empty-state__icon", "ash-empty-state__glyph", "ash-empty-state__title",
-            "ash-empty-state__body", "ash-empty-state__action", "inline-block", "shrink-0");
+            "ash-empty-state__body", "ash-empty-state__action", "ash-icon");
 
     /** One Empty State's DOM, from its shape line. {@code inert} is true when its action content was replaced (the probe's own change). */
     private static void shapeProblems(String path, String[] s) {

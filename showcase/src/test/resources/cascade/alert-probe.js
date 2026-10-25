@@ -119,7 +119,7 @@
       var v = alert.getAttribute("data-alert-variant");
       var p = parts(alert);
       alert.setAttribute("class", roles.container[v]);
-      p.svg.setAttribute("class", p.svg.getAttribute("class").replace(/\bash-alert__icon\b/g, roles.icon[v]));
+      p.svg.setAttribute("class", p.svg.getAttribute("class").replace(/\bash-icon ash-alert__icon\b/g, "inline-block shrink-0 " + roles.icon[v]));
       p.content.setAttribute("class", roles.content[""]);
       p.label.setAttribute("class", roles.label[""]);
       if (p.title) { p.title.setAttribute("class", roles.title[v]); }

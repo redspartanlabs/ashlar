@@ -69,6 +69,6 @@ final class BadgeLegacyMarkup {
             return Matcher.quoteReplacement(m.group(1) + "class=\"" + legacy + "\"");
         });
         return CLASS_ATTRIBUTE.matcher(spans).replaceAll(m -> Matcher.quoteReplacement(
-                "class=\"" + m.group(1).replaceAll("\\bash-badge__icon\\b", iconSizing) + "\""));
+                "class=\"" + m.group(1).replaceAll("\\bash-icon ash-badge__icon\\b", Matcher.quoteReplacement("inline-block shrink-0 " + iconSizing)) + "\""));
     }
 }

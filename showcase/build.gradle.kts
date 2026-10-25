@@ -175,7 +175,9 @@ val phaseACascadeEntries = listOf(
     Triple("buildCascadeProgressOracle", "src/test/tailwind/progress-oracle-entry.css", "progress-oracle.css"),
     Triple("buildCascadeProgressLegacyScoped", "src/test/tailwind/progress-legacy-scoped-entry.css", "progress-legacy-scoped.css"),
     Triple("buildCascadeEmptyStateOracle", "src/test/tailwind/empty-state-oracle-entry.css", "empty-state-oracle.css"),
-    Triple("buildCascadeEmptyStateLegacyScoped", "src/test/tailwind/empty-state-legacy-scoped-entry.css", "empty-state-legacy-scoped.css")
+    Triple("buildCascadeEmptyStateLegacyScoped", "src/test/tailwind/empty-state-legacy-scoped-entry.css", "empty-state-legacy-scoped.css"),
+    Triple("buildCascadeIconOracle", "src/test/tailwind/icon-oracle-entry.css", "icon-oracle.css"),
+    Triple("buildCascadeIconLegacyScoped", "src/test/tailwind/icon-legacy-scoped-entry.css", "icon-legacy-scoped.css")
 ).map { (taskName, entry, outputName) -> registerCascadeCss(taskName, entry, outputName) }
 
 val buildCascadeCss = tasks.register("buildCascadeCss") {

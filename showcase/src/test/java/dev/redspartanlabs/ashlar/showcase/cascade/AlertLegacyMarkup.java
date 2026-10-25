@@ -128,7 +128,7 @@ final class AlertLegacyMarkup {
 
     private String rewriteInside(String inner, String variant) {
         String s = inner;
-        s = replaceOnce(s, "ash-alert__icon", classes("icon", variant));
+        s = replaceOnce(s, "ash-icon ash-alert__icon", "inline-block shrink-0 " + classes("icon", variant));
         s = replaceOnce(s, "<div class=\"ash-alert__content\">", "<div class=\"" + classes("content", variant) + "\">");
         s = replaceOnce(s, "<span class=\"ash-sr-only\">", "<span class=\"" + classes("label", variant) + "\">");
         if (s.contains("<h3 class=\"ash-alert__title\">")) {

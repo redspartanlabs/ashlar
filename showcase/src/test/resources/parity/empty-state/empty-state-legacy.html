@@ -1,7 +1,8 @@
 <!doctype html>
 <!-- TEST-ONLY. The Empty State's PRE-MIGRATION markup: the exact Tailwind class strings empty-state.jte rendered before it
-     moved to ash-empty-state (the Icon component's own inline-block and shrink-0 were and are rendered by icon.jte and
-     are part of the glyph's class value). It is never served.
+     moved to ash-empty-state (before the Icon migration, icon.jte itself wrote inline-block and shrink-0 in front of the
+     classes it was given, so they are part of the glyph's legacy class value; the Icon migration replaced them with
+     ash-icon). It is never served.
 
      It has two jobs. Tailwind compiles this file (see empty-state-oracle-entry.css and empty-state-legacy-scoped-entry.css),
      so the legacy rendering stays reproducible after the component's own template stops emitting these classes. And the

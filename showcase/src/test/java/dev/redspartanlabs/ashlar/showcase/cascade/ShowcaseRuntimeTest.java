@@ -101,15 +101,17 @@ class ShowcaseRuntimeTest {
         // migrated components used to use (so those classes still exist), with the migrated components' markup
         // rewritten back to those classes. Pages that render a migrated component are therefore still compared
         // against how that component looked before it moved to Ashlar's CSS, in the same browser run.
-        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "empty-state-oracle.css"));
+        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "icon-oracle.css"));
         byte[] mutatedCss = (new String(baselineCss, StandardCharsets.UTF_8) + "\nbutton{padding-left:7px !important}\n").getBytes(StandardCharsets.UTF_8);
-        // The oracle is cumulative (Badge, then Alert, then Divider, then Progress, then Empty State legacy classes), so the rewrite is too.
+        // The oracle is cumulative (Badge, then Alert, then Divider, then Progress, then Empty State, then Icon legacy classes), so the rewrite is too.
+        // The Icon rewrite is LAST: the components that compose an Icon hand it a class value that still carries ash-icon.
         BadgeLegacyMarkup badgeLegacy = new BadgeLegacyMarkup();
         AlertLegacyMarkup alertLegacy = new AlertLegacyMarkup();
         DividerLegacyMarkup dividerLegacy = new DividerLegacyMarkup();
         ProgressLegacyMarkup progressLegacy = new ProgressLegacyMarkup();
         EmptyStateLegacyMarkup emptyStateLegacy = new EmptyStateLegacyMarkup();
-        Function<String, String> legacyComponents = html -> emptyStateLegacy.rewrite(progressLegacy.rewrite(dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html)))));
+        IconLegacyMarkup iconLegacy = new IconLegacyMarkup();
+        Function<String, String> legacyComponents = html -> iconLegacy.rewrite(emptyStateLegacy.rewrite(progressLegacy.rewrite(dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html))))));
 
         try (RunningShowcase app = RunningShowcase.start(Path.of(bootJar)); RealPageProxy proxy = new RealPageProxy(app.port())) {
             for (String slug : pageSlugs()) {

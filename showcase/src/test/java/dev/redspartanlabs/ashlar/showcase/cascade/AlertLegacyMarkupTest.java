@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AlertLegacyMarkupTest {
 
     private static final String TITLED = "<div class=\"ash-alert ash-alert--warning\" data-alert data-alert-variant=\"warning\">\n"
-            + "<svg\n class=\"inline-block shrink-0 ash-alert__icon\" viewBox=\"0 0 24 24\"></svg>\n"
+            + "<svg\n class=\"ash-icon ash-alert__icon\" viewBox=\"0 0 24 24\"></svg>\n"
             + "<div class=\"ash-alert__content\">\n<span class=\"ash-sr-only\">Warning:</span>\n"
             + "<h3 class=\"ash-alert__title\">T</h3>\n\n<div class=\"ash-alert__body\">\n<p>B</p>\n<div>nested</div>\n</div>\n</div>\n</div>";
     private static final String PLAIN = "<div class=\"ash-alert ash-alert--error\" data-alert data-alert-variant=\"error\">"
-            + "<svg class=\"inline-block shrink-0 ash-alert__icon\"></svg><div class=\"ash-alert__content\">"
+            + "<svg class=\"ash-icon ash-alert__icon\"></svg><div class=\"ash-alert__content\">"
             + "<span class=\"ash-sr-only\">Error:</span><div class=\"ash-alert__body\">B</div></div></div>";
 
     @Test
@@ -62,7 +62,7 @@ class AlertLegacyMarkupTest {
     @Test
     void anAlertMissingAPartFailsLoudlyInsteadOfBeingHalfRewritten() throws IOException {
         AlertLegacyMarkup legacy = new AlertLegacyMarkup();
-        String noIcon = PLAIN.replace("<svg class=\"inline-block shrink-0 ash-alert__icon\"></svg>", "");
+        String noIcon = PLAIN.replace("<svg class=\"ash-icon ash-alert__icon\"></svg>", "");
         assertThrows(IllegalStateException.class, () -> legacy.rewrite(noIcon));
         String unknownPart = PLAIN.replace("</div></div>", "<i class=\"ash-alert__extra\"></i></div></div>");
         assertThrows(IllegalStateException.class, () -> legacy.rewrite(unknownPart));

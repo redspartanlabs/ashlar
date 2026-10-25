@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- TEST-ONLY. The Icon's PRE-MIGRATION class strings: what icon.jte rendered before it moved to ash-icon. The template
+     always wrote "inline-block shrink-0" and then the caller's `classes`, whose default was "h-5 w-5" and which REPLACED
+     that default when given. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see icon-oracle-entry.css and icon-legacy-scoped-entry.css), so the
+     legacy rendering stays reproducible after the template stops emitting these classes. And the tests read the class
+     strings back out of it, so there is one source of truth for what "legacy" means.
+
+     The role names are the migrated class value (or modifier) each one stands for. The legacy Icon had no size modifiers;
+     xs to xl are the Tailwind size utilities the same sizes were written with. size-10 stands for an arbitrary size:
+     ash-icon with --ash-icon-size: 2.5rem, which the legacy Icon wrote as h-10 w-10. -->
+<svg data-legacy-role="base" class="inline-block shrink-0"></svg>
+<svg data-legacy-role="default" class="inline-block shrink-0 h-5 w-5"></svg>
+<svg data-legacy-role="xs" class="inline-block shrink-0 h-3 w-3"></svg>
+<svg data-legacy-role="sm" class="inline-block shrink-0 h-4 w-4"></svg>
+<svg data-legacy-role="md" class="inline-block shrink-0 h-5 w-5"></svg>
+<svg data-legacy-role="lg" class="inline-block shrink-0 h-6 w-6"></svg>
+<svg data-legacy-role="xl" class="inline-block shrink-0 h-8 w-8"></svg>
+<svg data-legacy-role="size-10" class="inline-block shrink-0 h-10 w-10"></svg>
+<svg data-legacy-role="size-12" class="inline-block shrink-0 h-12 w-12"></svg>
+<svg data-legacy-role="tw-colour" class="inline-block shrink-0 h-6 w-6 text-green-600 dark:text-green-400"></svg>

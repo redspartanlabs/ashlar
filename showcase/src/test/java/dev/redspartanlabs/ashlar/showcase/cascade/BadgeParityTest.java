@@ -137,7 +137,7 @@ class BadgeParityTest {
 
     private static BadgeLegacyMarkup legacy;
 
-    private static final String ICON_SVG = "<svg class=\"inline-block shrink-0 %s\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" "
+    private static final String ICON_SVG = "<svg class=\"%s\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" "
             + "stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 12l5 5L20 6\"></path></svg>";
 
     private static String markup(boolean legacyClasses) {
@@ -147,7 +147,7 @@ class BadgeParityTest {
             sb.append("<p style=\"margin:8px\"><span class=\"").append(classes).append("\" data-badge data-badge-variant=\"").append(v).append("\">").append(v).append("</span></p>");
         }
         String classes = legacyClasses ? legacy.variantClasses("info") : BadgeStyles.container(BadgeVariant.INFO);
-        String svg = ICON_SVG.formatted(legacyClasses ? legacy.iconSizing() : "ash-badge__icon");
+        String svg = ICON_SVG.formatted(legacyClasses ? "inline-block shrink-0 " + legacy.iconSizing() : "ash-icon ash-badge__icon");
         sb.append("<p style=\"margin:8px\"><span class=\"").append(classes).append("\" data-badge data-badge-variant=\"info\">").append(svg).append("with icon</span></p>");
         return sb.toString();
     }
@@ -553,7 +553,10 @@ class BadgeParityTest {
             assertTrue(applied.getOrDefault("H4", 0) > 0, "the radius should have needed H4: " + applied);
         }
         assertTrue(APPLIED_REAL_REMOVED.getOrDefault("H2", 0) > 0, "Tailwind removed should have needed H2 (preflight's border style): " + APPLIED_REAL_REMOVED);
-        assertTrue(APPLIED_REAL_REMOVED.getOrDefault("H3", 0) > 0, "Tailwind removed should have needed H3 (the icon's vertical-align): " + APPLIED_REAL_REMOVED);
+        // Until the Icon moved to Ashlar's CSS, the Badge's icon had no vertical-align without Tailwind (preflight gave every svg
+        // "middle"), so this comparison needed H3 for it. The Icon's own ash-icon rule now states vertical-align: middle, so the icon
+        // matches its legacy rendering without H3 and the rule is no longer exercised here.
+        assertEquals(0, APPLIED_REAL_REMOVED.getOrDefault("H3", 0), "the Icon now sets vertical-align itself, so Tailwind removed no longer needs H3: " + APPLIED_REAL_REMOVED);
     }
 
     @AfterAll
