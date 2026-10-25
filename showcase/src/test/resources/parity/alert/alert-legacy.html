@@ -7,8 +7,9 @@
      templates stop emitting these classes. And the tests read the class strings back out of it, so there is
      one source of truth for what "legacy" means.
 
-     The icon's own `inline-block shrink-0` comes from icon.jte, which this migration does not change, so
-     only the classes alert.jte passed to the icon are listed here. -->
+     Before the Icon migration, icon.jte itself wrote `inline-block shrink-0` in front of the classes the caller passed.
+     The Icon migration replaced that with the single class `ash-icon`, so those two are no longer written by the template
+     and are added back by the tests' legacy rewrite. Only the classes alert.jte passed to the icon are listed here. -->
 <div data-legacy-role="content" class="min-w-0 flex-1"></div>
 <span data-legacy-role="label" class="sr-only"></span>
 <div data-legacy-role="container" data-legacy-variant="info" class="flex items-start gap-3 rounded-lg border p-4 border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/50"></div>

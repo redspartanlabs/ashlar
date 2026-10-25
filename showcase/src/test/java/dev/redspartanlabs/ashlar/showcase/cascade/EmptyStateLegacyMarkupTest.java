@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class EmptyStateLegacyMarkupTest {
 
     private static final String FULL = "<div class=\"ash-empty-state\" data-empty-state>\n"
-            + "    <div class=\"ash-empty-state__icon\">\n        <svg class=\"inline-block shrink-0 ash-empty-state__glyph\" aria-hidden=\"true\"></svg>\n    </div>\n"
+            + "    <div class=\"ash-empty-state__icon\">\n        <svg class=\"ash-icon ash-empty-state__glyph\" aria-hidden=\"true\"></svg>\n    </div>\n"
             + "    <h3 class=\"ash-empty-state__title\">No messages</h3>\n"
             + "    <div class=\"ash-empty-state__body\">\n        <p class=\"keep-me\">Body</p>\n    </div>\n"
             + "    <div class=\"ash-empty-state__action\">\n        <a class=\"mt-4 flex\" href=\"#\">Go</a>\n    </div>\n</div>";
@@ -26,7 +26,7 @@ class EmptyStateLegacyMarkupTest {
         String expected = migrated
                 .replace("class=\"ash-empty-state\"", "class=\"" + legacy.classes("wrapper") + "\"")
                 .replace("class=\"ash-empty-state__icon\"", "class=\"" + legacy.classes("icon") + "\"")
-                .replace("class=\"inline-block shrink-0 ash-empty-state__glyph\"", "class=\"" + legacy.classes("glyph") + "\"")
+                .replace("class=\"ash-icon ash-empty-state__glyph\"", "class=\"" + legacy.classes("glyph") + "\"")
                 .replace("class=\"ash-empty-state__title\"", "class=\"" + legacy.classes("title") + "\"")
                 .replace("class=\"ash-empty-state__body\"", "class=\"" + legacy.classes("body") + "\"")
                 .replace("class=\"ash-empty-state__action\"", "class=\"" + legacy.classes("action") + "\"");
@@ -67,7 +67,7 @@ class EmptyStateLegacyMarkupTest {
         EmptyStateLegacyMarkup legacy = new EmptyStateLegacyMarkup();
         assertThrows(IllegalStateException.class, () -> legacy.rewrite(FULL.replace("ash-empty-state__title", "ash-empty-state__title ash-empty-state__title--big")));
         assertThrows(IllegalStateException.class, () -> legacy.rewrite(FULL.replace("ash-empty-state__body", "ash-empty-state__extra")));
-        assertThrows(IllegalStateException.class, () -> legacy.rewrite(FULL.replace("inline-block shrink-0 ash-empty-state__glyph", "ash-empty-state__glyph")));
+        assertThrows(IllegalStateException.class, () -> legacy.rewrite(FULL.replace("ash-icon ash-empty-state__glyph", "ash-empty-state__glyph")));
         assertThrows(IllegalStateException.class, () -> legacy.rewrite(FULL.replace("class=\"ash-empty-state\"", "class=\"ash-empty-state mt-4\"")));
     }
 

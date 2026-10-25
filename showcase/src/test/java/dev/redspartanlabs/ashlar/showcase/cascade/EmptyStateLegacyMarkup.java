@@ -31,7 +31,7 @@ final class EmptyStateLegacyMarkup {
     static final Map<String, String> MIGRATED = Map.of(
             "wrapper", "ash-empty-state",
             "icon", "ash-empty-state__icon",
-            "glyph", "inline-block shrink-0 ash-empty-state__glyph",
+            "glyph", "ash-icon ash-empty-state__glyph",
             "title", "ash-empty-state__title",
             "body", "ash-empty-state__body",
             "action", "ash-empty-state__action");

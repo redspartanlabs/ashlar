@@ -26,6 +26,7 @@
 @import "layout/grid.css" layer(ash.layout);
 @import "layout/split.css" layer(ash.layout);
 @import "layout/cluster.css" layer(ash.layout);
+@import "components/icon.css" layer(ash.components);
 @import "components/alert.css" layer(ash.components);
 @import "components/badge.css" layer(ash.components);
 @import "components/divider.css" layer(ash.components);

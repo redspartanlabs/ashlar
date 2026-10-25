@@ -175,7 +175,7 @@
     [].forEach.call(doc.querySelectorAll("[data-badge]"), function (badge) {
       badge.setAttribute("class", legacy.variants[badge.getAttribute("data-badge-variant")]);
       [].forEach.call(badge.querySelectorAll("svg"), function (svg) {
-        svg.setAttribute("class", svg.getAttribute("class").replace(/\bash-badge__icon\b/g, legacy.icon));
+        svg.setAttribute("class", svg.getAttribute("class").replace(/\bash-icon ash-badge__icon\b/g, "inline-block shrink-0 " + legacy.icon));
       });
     });
   }

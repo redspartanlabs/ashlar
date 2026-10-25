@@ -1,0 +1,11 @@
+/* TEST-ONLY (Icon migration oracle). Cumulative: the Empty State oracle, imported unchanged (which is the Progress oracle,
+   which is the Divider oracle, which is the Alert oracle, which is the Badge oracle, which is the Tailwind-only stylesheet
+   the showcase had before Ashlar's stylesheet was imported, plus the Badge's, the Alert's, the Divider's, the Progress's
+   and the Empty State's legacy classes), PLUS the Tailwind classes the Icon component used to write itself
+   (inline-block, shrink-0) and the size utilities its default and its callers used.
+
+   Those classes are no longer emitted by the Icon template, so Tailwind would purge any of them nothing else uses.
+   Pointing it at the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests
+   render the same Icon with these classes and with ash-icon, in the same browser, and compare. */
+@import "./empty-state-oracle-entry.css";
+@source "../resources/parity/icon/icon-legacy.html";

@@ -146,7 +146,7 @@ class AlertParityTest {
 
     private static AlertLegacyMarkup legacy;
 
-    private static final String ICON_SVG = "<svg class=\"inline-block shrink-0 %s\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" "
+    private static final String ICON_SVG = "<svg class=\"ash-icon %s\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" "
             + "stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 12l5 5L20 6\"></path></svg>";
 
     /** One Alert exactly as alert.jte renders it (the template itself is measured on the real page). */
@@ -535,7 +535,7 @@ class AlertParityTest {
         }
     }
 
-    private static final Set<String> ALLOWED_TOKEN_PATTERNS = Set.of("inline-block", "shrink-0");
+    private static final Set<String> ALLOWED_TOKEN_PATTERNS = Set.of();
 
     private static void shapeProblems(String[] s) {
         String where = "alert #" + s[1];
