@@ -1,0 +1,62 @@
+/* ash-skeleton: one placeholder shape that stands in for content that has not arrived yet.
+
+   Classes       ash-skeleton                  on every skeleton; a slightly rounded rectangle
+                 ash-skeleton--rounded         fully rounded: a circle when the width and height are equal, a pill otherwise
+   Properties    --ash-skeleton-bg             the placeholder's colour
+                 This is an intentional customisation surface. To change it for one skeleton, set it on that element
+                 (inline style, an unlayered rule, or a rule in a layer above ash.components); that wins over the value
+                 set here.
+
+   Size: the width and height are per-instance values the caller passes in, so the template writes them as an inline
+   style (width and height), exactly as before. They are not classes and not custom properties, and this file gives the
+   skeleton no size of its own.
+
+   Colour: read from Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so a skin that
+   overrides --color-slate-200 / --color-slate-700 recolours the placeholder, and with no Tailwind and no skin it looks
+   the same. The fallbacks are checked against Tailwind's own theme by a test. Dark mode follows data-theme="dark"
+   with the same zero-specificity :where() form the Tailwind dark: variant used.
+
+   Radius: the rectangle's 0.25rem is a literal, on purpose. Tailwind's plain rounded class was a literal 0.25rem, not a
+   theme variable, so no skin ever changed it. --ash-radius-sm is a skin-driven token (some skins set it to 2px), and
+   using it here would change the placeholder across skins. The fully rounded shape is calc(infinity * 1px), the same
+   value Tailwind's rounded-full is; it is not a theme variable either.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The element states its own display and its own
+   flex-shrink, and its box-sizing comes from Ashlar's base layer.
+
+   Motion: the placeholder pulses its opacity down to half and back every two seconds, easing in and out. Its keyframes
+   are Ashlar's own and are named so they can never collide with Tailwind's "pulse". For people who asked for reduced
+   motion the animation is removed, leaving a still placeholder.
+
+   Accessibility is the template's job and is unchanged: aria-hidden is always set, because whether a group of
+   skeletons is announced as loading is a decision for the surrounding composition. The component sets no margin on
+   itself and adds no global rule. The data-skeleton and data-skeleton-shape attributes are the stable hooks. */
+
+.ash-skeleton {
+  --ash-skeleton-bg: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  display: block;
+  flex-shrink: 0;
+  background-color: var(--ash-skeleton-bg);
+  border-radius: 0.25rem;
+  animation: ash-skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.ash-skeleton:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-skeleton-bg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-skeleton--rounded {
+  border-radius: calc(infinity * 1px);
+}
+
+@keyframes ash-skeleton-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-skeleton {
+    animation: none;
+  }
+}

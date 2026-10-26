@@ -1,0 +1,9 @@
+/* TEST-ONLY (Spinner migration oracle). Cumulative: the Icon oracle, imported unchanged (which is the Empty State oracle, which is
+   the Progress oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported, plus
+   every earlier migrated component's legacy classes), PLUS the Tailwind classes the Spinner used before it moved to ash-spinner.
+
+   Those classes are no longer emitted by the component's template or by SpinnerStyles, so Tailwind would purge any of them nothing
+   else uses. Pointing it at the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests
+   render the same Spinner with these classes and with ash-spinner, in the same browser, and compare. */
+@import "./icon-oracle-entry.css";
+@source "../resources/parity/spinner/spinner-legacy.html";

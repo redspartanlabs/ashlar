@@ -1,0 +1,93 @@
+/* ash-spinner: an indeterminate loading indicator, a two-tone ring with one coloured arc that turns forever.
+
+   Classes       ash-spinner                   the wrapper (an inline-flex box holding the ring and, optionally, its label)
+                 ash-spinner__ring             the ring itself
+                 ash-spinner__ring--small      1rem, 2px ring
+                 ash-spinner__ring--medium     1.5rem, 2px ring (also the default for a ring with no modifier)
+                 ash-spinner__ring--large      2rem, 3px ring
+                 ash-spinner__ring--xlarge     3rem, 4px ring
+   Properties    --ash-spinner-track           the ring's colour on three sides
+                 --ash-spinner-accent          the turning arc's colour (the top side)
+                 --ash-spinner-size            the ring's width and height
+                 --ash-spinner-width           the ring's thickness
+                 These are an intentional customisation surface. The two colours are set on the wrapper, so setting one
+                 on a spinner (inline style, an unlayered rule, or a rule in a layer above ash.components) wins over
+                 the value here. The size and thickness are set on the ring itself by the size modifiers, so a ring
+                 has its own pair whatever surrounds it.
+
+   Colour: the track and the arc read Tailwind's palette variables with the exact Tailwind v4 value as the fallback,
+   so a skin that overrides --color-slate-* or --color-blue-* recolours the spinner, and with no Tailwind and no skin it
+   looks the same. The fallbacks are checked against Tailwind's own theme by a test. Dark mode follows
+   data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. Preflight used to give every element a border box and
+   a solid border style, so the ring states border-style: solid itself (a border is not drawn without one). Its
+   box-sizing comes from Ashlar's own base layer, which gives every ash- class a border box, so the 2 to 4px ring
+   sits inside the stated size.
+
+   Motion: the ring turns once a second, linearly, forever. Its keyframes are Ashlar's own and are named so they can
+   never collide with Tailwind's "spin" (which Button's own spinner still uses). For people who asked for reduced
+   motion the animation is removed outright, not slowed: a spinner is an animation that plays for as long as the page
+   waits, so it has to actually stop. The ring stays visible as a still ring, and the loading state is still
+   announced to assistive technology by the template's status region, which does not depend on the animation.
+
+   The label is the Ashlar screen-reader-only utility, ash-sr-only, written by the template. The component sets no
+   margin on itself and adds no global rule. The data-spinner and data-spinner-size attributes and the role and
+   aria-* attributes are the stable hooks. */
+
+.ash-spinner {
+  --ash-spinner-track: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-spinner-accent: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  display: inline-flex;
+  align-items: center;
+}
+
+.ash-spinner:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-spinner-track: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-spinner-accent: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+}
+
+.ash-spinner__ring {
+  --ash-spinner-size: 1.5rem;
+  --ash-spinner-width: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--ash-spinner-size);
+  height: var(--ash-spinner-size);
+  border: var(--ash-spinner-width) solid var(--ash-spinner-track);
+  border-top-color: var(--ash-spinner-accent);
+  border-radius: calc(infinity * 1px);
+  animation: ash-spinner-rotate 1s linear infinite;
+}
+
+.ash-spinner__ring--small {
+  --ash-spinner-size: 1rem;
+  --ash-spinner-width: 2px;
+}
+
+.ash-spinner__ring--medium {
+  --ash-spinner-size: 1.5rem;
+  --ash-spinner-width: 2px;
+}
+
+.ash-spinner__ring--large {
+  --ash-spinner-size: 2rem;
+  --ash-spinner-width: 3px;
+}
+
+.ash-spinner__ring--xlarge {
+  --ash-spinner-size: 3rem;
+  --ash-spinner-width: 4px;
+}
+
+@keyframes ash-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-spinner__ring {
+    animation: none;
+  }
+}
