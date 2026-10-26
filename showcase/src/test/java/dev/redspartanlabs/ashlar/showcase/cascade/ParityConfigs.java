@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * The page configurations a parity suite measures in: a theme (light or dark) with no skin or one of the ten
- * showcase skins (22 in all, which is what the per-component suites measure). {@link #reduced()} is the four that
+ * showcase skins. {@link #all()} is all 22, which is what a component with colours of its own is measured in. {@link #reduced()} is the four that
  * matter for a component with no colour of its own: both themes, with no skin and with Foundry (the only skin
  * whose rules reach an svg). A suite states which set it uses and why.
  */
@@ -33,6 +33,11 @@ final class ParityConfigs {
             }
         }
         return List.copyOf(all);
+    }
+
+    /** All 22 configurations: the set a component with colours of its own is measured in. */
+    static List<Config> all() {
+        return ALL;
     }
 
     static List<Config> reduced() {

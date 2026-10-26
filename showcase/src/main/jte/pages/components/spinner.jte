@@ -166,7 +166,7 @@ content = @`
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
                             <li>A <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">role="status"</code>/<code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">aria-live="polite"</code> region whenever <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">label</code> is non-empty, with the spinning visual itself hidden from assistive tech.</li>
-                            <li><code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">motion-reduce:animate-none</code>, stopping the animation outright (not just skipping a transition) for anyone who asked for less motion.</li>
+                            <li>A reduced-motion rule (<code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">prefers-reduced-motion: reduce</code>) that stops the animation outright (not just skipping a transition) for anyone who asked for less motion. The ring stays visible as a still ring, and a labelled spinner is still announced.</li>
                         </ul>
                     </div>
                     <div>

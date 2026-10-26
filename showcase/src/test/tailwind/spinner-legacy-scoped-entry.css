@@ -1,0 +1,25 @@
+/* TEST-ONLY (Spinner migration oracle, scoped). The legacy Spinner's own Tailwind utilities and nothing else: no page-wide
+   preflight, no utilities for any other element on the page.
+
+   The full oracle (spinner-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page also restyles
+   everything AROUND the Spinner. That is right for "Tailwind present". For "Tailwind removed" the surroundings must be the same
+   unstyled page on both sides, so the legacy Spinner is rendered here with only what it itself used.
+
+   Only the preflight rules a Spinner depended on are kept, and only for the fixture's spinner elements: border-box sizing
+   with no default margin, padding or border width (a 0 solid border). SpinnerParityTest proves this scoped rendering equals
+   the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/spinner/spinner-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity] {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+}

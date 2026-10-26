@@ -30,7 +30,7 @@
     @template.ashlar.components.skeleton(width = "8rem", height = "1rem")
     @template.ashlar.components.skeleton(width = "5rem", height = "5rem")""";}
 !{List<ApiParam> skeletonApi = List.of(
-    ApiParam.optional("width", "String", "\"100%\"", "Any CSS width value. Rendered through an inline style attribute, HTML-escaped - not a Tailwind class."),
+    ApiParam.optional("width", "String", "\"100%\"", "Any CSS width value. Rendered through an inline style attribute, HTML-escaped - not a class."),
     ApiParam.optional("height", "String", "\"1rem\"", "Any CSS height value, same mechanism as width."),
     ApiParam.optional("shape", "String", "\"Rectangle\"", "Rectangle or Rounded. Unrecognized values silently fall back to Rectangle. There is no separate avatar/circle shape - see Variants & States.")
 );}
@@ -167,7 +167,7 @@ content = @`
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Ashlar provides</p>
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
                             <li><code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">aria-hidden="true"</code> unconditionally - a skeleton is never itself announced to assistive tech.</li>
-                            <li><code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">motion-reduce:animate-none</code>, freezing the pulse for anyone who asked for less motion.</li>
+                            <li>A reduced-motion rule (<code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">prefers-reduced-motion: reduce</code>) that removes the pulse for anyone who asked for less motion, leaving a still placeholder.</li>
                         </ul>
                     </div>
                     <div>

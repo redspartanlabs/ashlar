@@ -110,6 +110,7 @@ class AshlarCssFoundationTest {
         assertEquals(List.of("ash.tokens", "ash.base",
                 "ash.layout", "ash.layout", "ash.layout", "ash.layout", "ash.layout",
                 "ash.components", "ash.components", "ash.components", "ash.components", "ash.components", "ash.components",
+                "ash.components", "ash.components",
                 "ash.utilities", "ash.utilities"), layerBlockSequence);
     }
 

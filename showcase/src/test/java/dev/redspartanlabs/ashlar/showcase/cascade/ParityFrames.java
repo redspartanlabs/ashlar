@@ -66,6 +66,14 @@ final class ParityFrames {
 
     /** Measures every {@code data-parity} element of every frame in {@code frames} (each frame's data-id is its phase name). */
     static ParityProbe.Probe measure(ParitySession session, String frames, List<String> extraProps, String what) throws Exception {
+        return measure(session, frames, extraProps, List.of(), what);
+    }
+
+    /**
+     * As {@link #measure(ParitySession, String, List, String)}, with extra Chrome command-line flags: for example
+     * {@code --force-prefers-reduced-motion}, which makes the whole run behave as if the user asked for reduced motion.
+     */
+    static ParityProbe.Probe measure(ParitySession session, String frames, List<String> extraProps, List<String> chromeFlags, String what) throws Exception {
         String probeJs;
         try (InputStream in = ParityFrames.class.getResourceAsStream("/cascade/parity-probe.js")) {
             if (in == null) {
@@ -82,7 +90,9 @@ final class ParityFrames {
                 + "var pre=document.createElement('pre');pre.id='ash-parity-frames';pre.textContent=out.join('\\n');document.body.appendChild(pre)},300)})"
                 + "</script></body></html>";
         try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
-            String dom = session.chrome().dumpDom(server.registerRaw(page), List.of("--hide-scrollbars"));
+            List<String> flags = new ArrayList<>(List.of("--hide-scrollbars"));
+            flags.addAll(chromeFlags);
+            String dom = session.chrome().dumpDom(server.registerRaw(page), flags);
             return ParityProbe.parse(ParityProbe.lines(dom, "ash-parity-frames"), what);
         }
     }

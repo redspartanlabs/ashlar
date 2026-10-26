@@ -1,0 +1,15 @@
+<!doctype html>
+<!-- TEST-ONLY. The Spinner's PRE-MIGRATION markup: the exact Tailwind class strings spinner.jte and SpinnerStyles rendered before the
+     Spinner moved to ash-spinner. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see spinner-oracle-entry.css and spinner-legacy-scoped-entry.css), so the
+     legacy rendering stays reproducible after the component stops emitting these classes. And the tests read the class
+     strings back out of it, so there is one source of truth for what "legacy" means.
+
+     Each ring is the same base string followed by its size. The label was Tailwind's sr-only utility. -->
+<span data-legacy-role="wrapper" class="inline-flex items-center"></span>
+<span data-legacy-role="ring-small" class="inline-block shrink-0 animate-spin rounded-full border-slate-200 border-t-blue-600 motion-reduce:animate-none dark:border-slate-700 dark:border-t-blue-500 h-4 w-4 border-2"></span>
+<span data-legacy-role="ring-medium" class="inline-block shrink-0 animate-spin rounded-full border-slate-200 border-t-blue-600 motion-reduce:animate-none dark:border-slate-700 dark:border-t-blue-500 h-6 w-6 border-2"></span>
+<span data-legacy-role="ring-large" class="inline-block shrink-0 animate-spin rounded-full border-slate-200 border-t-blue-600 motion-reduce:animate-none dark:border-slate-700 dark:border-t-blue-500 h-8 w-8 border-[3px]"></span>
+<span data-legacy-role="ring-xlarge" class="inline-block shrink-0 animate-spin rounded-full border-slate-200 border-t-blue-600 motion-reduce:animate-none dark:border-slate-700 dark:border-t-blue-500 h-12 w-12 border-4"></span>
+<span data-legacy-role="label" class="sr-only"></span>

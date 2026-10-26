@@ -4,13 +4,12 @@
 @param String size = "Medium"
 @param String label = "Loading"
 
-<%-- Pure CSS: a border-radius circle with one edge colored and
-     `animate-spin` rotating it - no SVG, no JavaScript, no timers.
-     `motion-reduce:animate-none` freezes it for users who asked for less
-     motion; unlike a transition, a spinner is an animation that plays
+<%-- Pure CSS: a border-radius circle with one edge colored and rotating
+     (components/spinner.css) - no SVG, no JavaScript, no timers. For users
+     who asked for less motion that stylesheet removes the animation
+     outright; unlike a transition, a spinner is an animation that plays
      forever, so it needs to actually stop rather than just skip its
-     transition, which is why this uses `animate-none` where the rest of the
-     library's motion-reduce guards use `transition-none`.
+     transition.
 
      `label` follows icon.jte's own convention: non-empty (the default,
      "Loading") makes this an announced `role="status"` region with the
@@ -25,9 +24,9 @@
 !{String roleAttr = hasLabel ? "status" : null;}
 !{String ariaLiveAttr = hasLabel ? "polite" : null;}
 
-<span class="inline-flex items-center" role="${roleAttr}" aria-live="${ariaLiveAttr}" data-spinner data-spinner-size="${resolvedSize.name().toLowerCase()}">
+<span class="ash-spinner" role="${roleAttr}" aria-live="${ariaLiveAttr}" data-spinner data-spinner-size="${resolvedSize.name().toLowerCase()}">
     <span aria-hidden="true" class="${SpinnerStyles.classes(resolvedSize)}"></span>
     @if (hasLabel)
-        <span class="sr-only">${label}</span>
+        <span class="ash-sr-only">${label}</span>
     @endif
 </span>
