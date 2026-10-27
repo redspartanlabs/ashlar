@@ -31,6 +31,8 @@
 @import "components/badge.css" layer(ash.components);
 @import "components/divider.css" layer(ash.components);
 @import "components/empty-state.css" layer(ash.components);
+@import "components/list.css" layer(ash.components);
+@import "components/list-item.css" layer(ash.components);
 @import "components/progress.css" layer(ash.components);
 @import "components/skeleton.css" layer(ash.components);
 @import "components/spinner.css" layer(ash.components);

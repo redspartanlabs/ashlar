@@ -1,0 +1,20 @@
+<!doctype html>
+<!-- TEST-ONLY. The List and List Item's PRE-MIGRATION markup: the exact Tailwind class strings list.jte and list-item.jte rendered before
+     they moved to ash-list and ash-list-item. It is never served. (The <li> itself had no class.)
+
+     It has two jobs. Tailwind compiles this file (see list-oracle-entry.css and list-legacy-scoped-entry.css), so the legacy rendering
+     stays reproducible after the templates stop emitting these classes. And the tests read the class strings back out of it, so there is
+     one source of truth for what "legacy" means.
+
+     The link row is the plain row plus the interactive classes. The hover swatch is test-only: the two background utilities the link
+     row's hover state used (the hover itself cannot be held in a measurement), so the colour a hover paints can be compared. -->
+<ul data-legacy-role="list" class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 dark:divide-slate-700 dark:border-slate-700"></ul>
+<div data-legacy-role="row" class="flex items-center gap-3 px-4 py-3 text-sm"></div>
+<a data-legacy-role="row-link" class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:hover:bg-slate-800/50"></a>
+<span data-legacy-role="icon" class="shrink-0 text-slate-400 dark:text-slate-500"></span>
+<span data-legacy-role="body" class="min-w-0 flex-1"></span>
+<span data-legacy-role="label" class="block font-medium text-slate-900 dark:text-slate-100"></span>
+<span data-legacy-role="description" class="block text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="trailing" class="shrink-0 text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="chevron" class="shrink-0 text-slate-400 dark:text-slate-500"></span>
+<span data-legacy-role="hover-swatch" class="bg-slate-50 dark:bg-slate-800/50"></span>

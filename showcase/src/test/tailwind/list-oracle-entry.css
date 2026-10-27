@@ -1,0 +1,10 @@
+/* TEST-ONLY (List and List Item migration oracle). Cumulative: the Skeleton oracle, imported unchanged (which is the Spinner oracle, the
+   Icon oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported, plus every earlier
+   migrated component's legacy classes), PLUS the Tailwind classes the List and the List Item used before they moved to ash-list and
+   ash-list-item.
+
+   Those classes are no longer emitted by the components' templates, so Tailwind would purge any of them nothing else uses. Pointing it
+   at the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same List with
+   these classes and with ash-list, in the same browser, and compare. */
+@import "./skeleton-oracle-entry.css";
+@source "../resources/parity/list/list-legacy.html";
