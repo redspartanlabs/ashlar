@@ -1,0 +1,116 @@
+/* ash-list-item: one row of a list: an optional icon, a label with an optional description, optional trailing content and,
+   for a link row, a chevron.
+
+   Classes       ash-list-item                 the <li>
+                 ash-list-item__row            the row inside it (a <div>, or an <a> for a link row)
+                 ash-list-item__row--link      added to the <a> row: hover background, focus ring, link colour reset
+                 ash-list-item__icon           the leading icon's wrapper (decorative); it sets the icon's colour
+                 ash-list-item__body           the column holding the label and the description; it may shrink
+                 ash-list-item__label          the label
+                 ash-list-item__description    the optional description under it
+                 ash-list-item__trailing       the optional trailing content's wrapper; it does not shrink
+                 ash-list-item__chevron        the automatic chevron of a link row (decorative); it sets its colour
+   Properties    --ash-list-item-label         label colour
+                 --ash-list-item-description   description colour
+                 --ash-list-item-icon          leading icon and chevron colour
+                 --ash-list-item-trailing      trailing content colour
+                 --ash-list-item-hover         a link row's hover background
+                 --ash-list-item-focus         a link row's focus ring colour
+                 These are an intentional customisation surface, set on the <li> (inline style, an unlayered rule, or a rule in a
+                 layer above ash.components). They are inherited by the row and its parts.
+
+   Colour: every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that
+   overrides --color-* recolours the row, and with no Tailwind and no skin it looks the same. The fallbacks are checked against
+   Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind
+   dark: variant used. The dark hover background is 50% of slate-800, written as the same colour-mix Tailwind's /50 means.
+   The focus ring is blue-500 in BOTH themes, as before, which is why it does not use the --ash-color-focus token (blue-400 in dark).
+
+   The icon: the Icon component owns its own size and display (ash-icon, with ash-icon--md or ash-icon--sm); this file only
+   gives its wrapper a colour and stops it shrinking.
+
+   Link rows: the row is the whole click target. It takes its colour from the text around it and has no underline (preflight used
+   to do both for every anchor, so they are stated here). The focus ring is an INSET 2px box-shadow, not an outline, because that
+   is what the row has always drawn and the list clips an outline at its rounded edge; the browser's own focus outline is turned off
+   for the row. Hover and focus use the pseudo-classes directly.
+
+   The font size and line-height are what Tailwind's text-sm is. The ratio lives in a custom property on purpose: a CSS minifier folds
+   calc(1.25 / 0.875) in a normal declaration into a rounded number, which layout then rounds differently (see badge.css).
+
+   The separators between rows are the LIST's (components/list.css). The component sets no margin on itself and adds no global
+   rule. */
+
+.ash-list-item {
+  --ash-list-item-leading: calc(1.25 / 0.875);
+  --ash-list-item-label: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-list-item-description: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-list-item-icon: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-list-item-trailing: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-list-item-hover: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-list-item-focus: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+}
+
+.ash-list-item:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-list-item-label: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-list-item-description: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-list-item-icon: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-list-item-trailing: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-list-item-hover: color-mix(in oklab, var(--color-slate-800, oklch(27.9% 0.041 260.031)) 50%, transparent);
+}
+
+.ash-list-item__row {
+  display: flex;
+  align-items: center;
+  gap: var(--ash-space-3);
+  padding-inline: var(--ash-space-4);
+  padding-block: var(--ash-space-3);
+  font-size: 0.875rem;
+  line-height: var(--ash-list-item-leading);
+}
+
+.ash-list-item__row--link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ash-list-item__row--link:hover {
+  background-color: var(--ash-list-item-hover);
+}
+
+.ash-list-item__row--link:focus {
+  outline-style: none;
+}
+
+.ash-list-item__row--link:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ash-list-item-focus);
+}
+
+.ash-list-item__icon {
+  flex-shrink: 0;
+  color: var(--ash-list-item-icon);
+}
+
+.ash-list-item__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.ash-list-item__label {
+  display: block;
+  font-weight: 500;
+  color: var(--ash-list-item-label);
+}
+
+.ash-list-item__description {
+  display: block;
+  color: var(--ash-list-item-description);
+}
+
+.ash-list-item__trailing {
+  flex-shrink: 0;
+  color: var(--ash-list-item-trailing);
+}
+
+.ash-list-item__chevron {
+  flex-shrink: 0;
+  color: var(--ash-list-item-icon);
+}

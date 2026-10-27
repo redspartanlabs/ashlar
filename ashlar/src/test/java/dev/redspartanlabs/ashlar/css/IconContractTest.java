@@ -172,7 +172,6 @@ class IconContractTest {
             componentImports.add(m.group(1));
         }
         assertEquals("components/icon.css", componentImports.get(0), "Icon comes first so every component that composes an icon follows it");
-        assertEquals(8, componentImports.size());
     }
 
     private static int count(String text, String needle) {

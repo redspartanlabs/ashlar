@@ -1,0 +1,45 @@
+/* TEST-ONLY (List and List Item migration oracle, scoped). The legacy List's and List Item's own Tailwind utilities and nothing else: no
+   page-wide preflight, no utilities for any other element on the page.
+
+   The full oracle (list-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page also restyles everything
+   AROUND the List. That is right for "Tailwind present". For "Tailwind removed" the surroundings must be the same unstyled page on both
+   sides, so the legacy List is rendered here with only what it itself used. The Icon's two legacy utilities (inline-block, shrink-0,
+   h-4/h-5 and w-4/w-5) are compiled from the Icon's own legacy file, because the legacy List Item composed them.
+
+   Only the preflight rules the List and the List Item depended on are kept, and only for the elements the components themselves
+   render: not for the caller's own content (a raw <li> or <div> projected into the list, trailing content, the hover swatch), which is
+   part of the page around them and stays unstyled on both sides of a "Tailwind removed" comparison. Border-box
+   sizing with no default margin, padding or border width (a 0 solid border), no list marker on the list, an anchor that inherits its
+   colour and decoration, and an svg that is display: block with vertical-align: middle. ListParityTest and ListItemParityTest prove
+   this scoped rendering equals the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/list/list-legacy.html";
+@source "../resources/parity/icon/icon-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="raw"], [data-parity="trailing-content"], [data-parity="hover-swatch"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    ul[data-parity],
+    ol[data-parity] {
+        list-style: none;
+    }
+
+    a[data-parity] {
+        color: inherit;
+        text-decoration: inherit;
+    }
+
+    svg[data-parity] {
+        display: block;
+        vertical-align: middle;
+    }
+}

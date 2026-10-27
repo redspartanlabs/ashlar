@@ -1,0 +1,54 @@
+/* ash-list: a bordered, divided, rounded surface that holds a vertical run of rows (List Items, or anything else).
+
+   Classes       ash-list                      on the <ul> (or the <ol> when ordered); one class for both
+   Properties    --ash-list-border             the outer border's colour
+                 --ash-list-divider            the colour of the separators between rows
+                 These are an intentional customisation surface. To change one for a single list, set it on that element
+                 (inline style, an unlayered rule, or a rule in a layer above ash.components); that wins over the value set here.
+
+   Colour: both read Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so a skin that
+   overrides --color-slate-* recolours the list, and with no Tailwind and no skin it looks the same. The fallbacks are checked
+   against Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form
+   the Tailwind dark: variant used.
+
+   Radius: --ash-radius-lg, which is var(--radius-lg, 0.5rem). That is exactly what Tailwind's rounded-lg was, so a skin that
+   sets --radius-lg rounds the list the same way it always did.
+
+   Separators belong to the list, and they apply to EVERY direct child except the last one, not only to List Items: the rows
+   are arbitrary content the caller projects in, and Tailwind's divide-y drew its line on any direct child. The rule is wrapped
+   in :where() so it has no specificity (Tailwind's was too): a row that draws its own border, or a caller's rule, wins over
+   it. It sets exactly what divide-y set (a bottom line, with the top side's width zeroed and both styles solid, and the colour on the
+   border), so it leaves a row's left and right borders alone. A list of one row has no separator; the last row never has one; a list nested inside a row is not a direct child, so
+   the outer list's separators do not reach into it.
+
+   Self-contained: nothing here relies on Tailwind's preflight. Preflight used to take the native list styling away, and the
+   list says so itself: no marker, no margin, no padding. That includes an ordered list: <ol> keeps its semantic meaning
+   (position matters to assistive technology) but shows no numerals, exactly as before. The border states its own style
+   (a border is not drawn without one), and the border box comes from Ashlar's base layer.
+
+   The overflow is hidden so the rounded corners clip the rows' own backgrounds and focus rings. The component sets no margin
+   on itself, takes no class or tag parameter and adds no global rule. */
+
+.ash-list {
+  --ash-list-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-list-divider: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 1px solid var(--ash-list-border);
+  border-radius: var(--ash-radius-lg);
+}
+
+.ash-list:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-list-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-list-divider: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+:where(.ash-list > :not(:last-child)) {
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-width: 0;
+  border-bottom-width: 1px;
+  border-color: var(--ash-list-divider);
+}

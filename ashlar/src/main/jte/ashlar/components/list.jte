@@ -1,7 +1,7 @@
 @param gg.jte.Content items
 @param boolean ordered = false
 
-<%-- The wrapper only establishes the bordered/divided surface - each row is
+<%-- The wrapper only establishes the bordered/divided surface (components/list.css) - each row is
      a separate @template.ashlar.components.list-item(...) call composed into
      `items`, the same wrapper/item split as accordion.jte, breadcrumbs.jte
      and pagination.jte. Purely static composition: nothing here opens,
@@ -26,11 +26,11 @@
      `role="region"`. A caller who needs this particular list named or
      labelled can wrap it in their own landmark. --%>
 @if (ordered)
-    <ol class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+    <ol class="ash-list">
         ${items}
     </ol>
 @else
-    <ul class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+    <ul class="ash-list">
         ${items}
     </ul>
 @endif

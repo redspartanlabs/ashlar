@@ -31,9 +31,10 @@
      instead of forking into "list item" and "metadata item" variants that
      would otherwise be identical.
 
-     `min-w-0` on the label/description column is what lets a long label or
-     description wrap inside the row instead of pushing the icon or trailing
-     content out past the list's own border - the same fix the Stepper
+     `min-width: 0` on the label/description column (components/list-item.css)
+     is what lets a long label or description wrap inside the row instead of
+     pushing the icon or trailing content out past the list's own border - the
+     same fix the Stepper
      component needed for its labels, for the same underlying flexbox
      reason (a flex child's minimum width defaults to its content's, not to
      what's actually available). --%>
@@ -42,52 +43,49 @@
 !{boolean hasIcon = icon != null;}
 !{boolean hasTrailing = trailing != null;}
 
-!{String rowClasses = "flex items-center gap-3 px-4 py-3 text-sm";}
-!{String interactiveClasses = isLink ? " hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:hover:bg-slate-800/50" : "";}
-
-<li>
+<li class="ash-list-item">
     @if (isLink)
-        <a href="${href}" class="${rowClasses}${interactiveClasses}">
+        <a href="${href}" class="ash-list-item__row ash-list-item__row--link">
             @if (hasIcon)
-                <span class="shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true">
-                    @template.ashlar.components.icon(icon = icon, classes = "h-5 w-5")
+                <span class="ash-list-item__icon" aria-hidden="true">
+                    @template.ashlar.components.icon(icon = icon, classes = "ash-icon--md")
                 </span>
             @endif
 
-            <span class="min-w-0 flex-1">
-                <span class="block font-medium text-slate-900 dark:text-slate-100">${label}</span>
+            <span class="ash-list-item__body">
+                <span class="ash-list-item__label">${label}</span>
                 @if (hasDescription)
-                    <span class="block text-slate-500 dark:text-slate-400">${description}</span>
+                    <span class="ash-list-item__description">${description}</span>
                 @endif
             </span>
 
             @if (hasTrailing)
-                <span class="shrink-0 text-slate-500 dark:text-slate-400">
+                <span class="ash-list-item__trailing">
                     ${trailing}
                 </span>
             @endif
 
-            <span class="shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true">
-                @template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "h-4 w-4")
+            <span class="ash-list-item__chevron" aria-hidden="true">
+                @template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "ash-icon--sm")
             </span>
         </a>
     @else
-        <div class="${rowClasses}">
+        <div class="ash-list-item__row">
             @if (hasIcon)
-                <span class="shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true">
-                    @template.ashlar.components.icon(icon = icon, classes = "h-5 w-5")
+                <span class="ash-list-item__icon" aria-hidden="true">
+                    @template.ashlar.components.icon(icon = icon, classes = "ash-icon--md")
                 </span>
             @endif
 
-            <span class="min-w-0 flex-1">
-                <span class="block font-medium text-slate-900 dark:text-slate-100">${label}</span>
+            <span class="ash-list-item__body">
+                <span class="ash-list-item__label">${label}</span>
                 @if (hasDescription)
-                    <span class="block text-slate-500 dark:text-slate-400">${description}</span>
+                    <span class="ash-list-item__description">${description}</span>
                 @endif
             </span>
 
             @if (hasTrailing)
-                <span class="shrink-0 text-slate-500 dark:text-slate-400">
+                <span class="ash-list-item__trailing">
                     ${trailing}
                 </span>
             @endif

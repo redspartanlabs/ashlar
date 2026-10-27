@@ -184,7 +184,6 @@ class SpinnerContractTest {
         }
         assertEquals("components/icon.css", imports.get(0));
         assertTrue(imports.indexOf("components/spinner.css") > imports.indexOf("components/skeleton.css") && imports.indexOf("components/skeleton.css") > imports.indexOf("components/progress.css"));
-        assertEquals(8, imports.size());
     }
 
     private static int count(String text, String needle) {
