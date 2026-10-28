@@ -1,0 +1,10 @@
+/* TEST-ONLY (Stepper and Stepper Item migration oracle). Cumulative: the Timeline oracle, imported unchanged (which is the List oracle, the
+   Skeleton oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported, plus every earlier
+   migrated component's legacy classes), PLUS the Tailwind classes the Stepper and the Stepper Item used before they moved to ash-stepper and
+   ash-stepper-item.
+
+   Those classes are no longer emitted by the components' templates or by StepperStyles, so Tailwind would purge any of them nothing else
+   uses. Pointing it at the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same
+   Stepper with these classes and with ash-stepper, in the same browser, and compare. */
+@import "./timeline-oracle-entry.css";
+@source "../resources/parity/stepper/stepper-legacy.html";

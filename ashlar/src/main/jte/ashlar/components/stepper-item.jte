@@ -25,6 +25,11 @@
      meaningful can depend on it actually being read - it's fine as pure
      decoration, not fine as the only source of the step's number.
 
+     The step's state is the one modifier on the `<li>` (`ash-stepper-item--completed`,
+     `--current` or `--upcoming`); every owned part reads its colours from it in
+     Ashlar's CSS (components/stepper-item.css). That is why the three
+     StepperStyles methods below return the same part class whatever the status.
+
      `aria-current="step"` on the `<li>` itself, not an inner element:
      there's no link or button here for it to attach to the way
      breadcrumb-item.jte's does, and the ARIA spec allows `aria-current` on
@@ -34,22 +39,22 @@
 !{String indicatorClasses = StepperStyles.indicator(resolvedStatus);}
 !{String connectorClasses = StepperStyles.connector(resolvedStatus);}
 !{String labelClasses = StepperStyles.label(resolvedStatus);}
-!{String numberClasses = isCompleted ? "" : "before:content-[counter(step)]";}
+!{String itemClasses = "ash-stepper-item ash-stepper-item--" + resolvedStatus.name().toLowerCase();}
 !{String ariaCurrentAttr = resolvedStatus == StepperStatus.CURRENT ? "step" : null;}
 !{String statusText = StepperStyles.statusText(resolvedStatus);}
 
-<li aria-current="${ariaCurrentAttr}" class="group relative flex min-w-0 flex-1 items-start gap-3 [counter-increment:step] @sm:flex-col @sm:items-center @sm:gap-2">
-    <div class="absolute left-0 right-0 top-4 hidden items-center @sm:flex @sm:group-last:hidden" aria-hidden="true">
-        <div class="h-0.5 w-full ${connectorClasses}"></div>
+<li aria-current="${ariaCurrentAttr}" class="${itemClasses}">
+    <div class="ash-stepper-item__connector" aria-hidden="true">
+        <div class="${connectorClasses}"></div>
     </div>
 
-    <span aria-hidden="true" class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${indicatorClasses} ${numberClasses}">
+    <span aria-hidden="true" class="${indicatorClasses}">
         @if (isCompleted)
-            @template.ashlar.components.icon(icon = Icon.CHECK, classes = "h-4 w-4")
+            @template.ashlar.components.icon(icon = Icon.CHECK, classes = "ash-icon--sm")
         @endif
     </span>
 
-    <span class="flex min-w-0 flex-col pt-1 @sm:items-center @sm:pt-0 @sm:text-center">
-        <span class="break-words text-sm ${labelClasses}">${label}<span class="sr-only">, ${statusText}</span></span>
+    <span class="ash-stepper-item__text">
+        <span class="${labelClasses}">${label}<span class="ash-sr-only">, ${statusText}</span></span>
     </span>
 </li>
