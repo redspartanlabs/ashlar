@@ -1,0 +1,38 @@
+/* TEST-ONLY (Stepper and Stepper Item migration oracle, scoped). The legacy Stepper's and Stepper Item's own Tailwind utilities and nothing
+   else: no page-wide preflight, no utilities for any other element on the page.
+
+   The full oracle (stepper-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page also restyles everything
+   AROUND the Stepper. That is right for "Tailwind present". For "Tailwind removed" the surroundings must be the same unstyled page on both
+   sides, so the legacy Stepper is rendered here with only what it itself used. The Icon's legacy utilities (inline-block, shrink-0, h-4 and
+   w-4) are compiled from the Icon's own legacy file, because the legacy Stepper Item composed them.
+
+   Only the preflight rules the Stepper and the Stepper Item depended on are kept, and only for the elements the components themselves
+   render: border-box sizing with no default margin, padding or border width (a 0 solid border, which the indicator's border-2 gives a width
+   to), no list marker or indent on the list, and an svg that is display: block with vertical-align: middle. StepperParityTest proves this
+   scoped rendering equals the full legacy rendering, so it is a faithful stand-in. The Stepper has no caller-projected markup (a label is
+   text), so nothing it renders is left out of the reset. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/stepper/stepper-legacy.html";
+@source "../resources/parity/icon/icon-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity] {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    ol[data-parity] {
+        list-style: none;
+    }
+
+    svg[data-parity] {
+        display: block;
+        vertical-align: middle;
+    }
+}

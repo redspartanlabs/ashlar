@@ -1,0 +1,180 @@
+/* ash-stepper-item: one step of a Stepper: a round indicator (the step's number, or a check once it is completed), a label, and (except on
+   the last step, and only when the Stepper runs side by side) a line trailing toward the next step.
+
+   Classes       ash-stepper-item                     the <li>
+                 ash-stepper-item--completed          the step's state, added to the <li>, exactly one of the three:
+                 ash-stepper-item--current            completed, current or upcoming
+                 ash-stepper-item--upcoming
+                 ash-stepper-item__connector          the decorative row that carries the line (aria-hidden)
+                 ash-stepper-item__line               the line itself
+                 ash-stepper-item__indicator          the round indicator (decorative, aria-hidden)
+                 ash-stepper-item__text               the label's column
+                 ash-stepper-item__label              the label
+   Properties    --ash-stepper-item-indicator-border  the indicator's border colour
+                 --ash-stepper-item-indicator-bg      the indicator's fill
+                 --ash-stepper-item-indicator-fg      the indicator's number or check colour
+                 --ash-stepper-item-line              the line's colour
+                 --ash-stepper-item-label             the label's colour
+                 These are an intentional customisation surface, set on the <li> (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components). They are inherited by the parts.
+
+   State: the one state modifier on the <li> is the single authority for how a step looks; every owned part reads the properties it sets.
+   The three states are the whole vocabulary (an unknown value is an upcoming step, decided by StepperStatus before the template runs).
+   A step's line takes its colour from the step it leads away from: a completed step's line is blue, every other step's is grey,
+   whatever state the next step is in.
+
+   Colour: every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-* recolours the step, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's own theme
+   by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used. A completed
+   indicator's number-or-check colour is white in both themes, as before.
+
+   The indicator is 2rem square with a 2px border and is exactly round whatever the skin: its radius is the same calc(infinity * 1px)
+   Tailwind's rounded-full was, never a --ash-radius-* token, because a skin's radius must not change a circle. It sits above the line
+   (z-index 10). Completed shows the Icon (ash-icon--sm; the Icon owns its size and display); the other two show the step's number as
+   generated content, so there is no markup for it: the counter is `step` and the list restarts it (components/stepper.css).
+
+   Layout follows the Stepper's container (24rem, as in stepper.css): below it the step is a row (indicator, then label) and has no line;
+   from it the step is a centred column with the label centred under the indicator, and the line runs behind the indicator across the whole
+   step at the indicator's middle (top: 1rem). Steps share the width equally. The last step has no line of its own: that rule is the step's
+   own (:last-child, through the step's own connector, a child combinator), so a Stepper that sits under some unrelated last element keeps its lines.
+
+   The font sizes and line-heights are what Tailwind's text-sm is. The ratio lives in a custom property on purpose: a CSS minifier folds
+   calc(1.25 / 0.875) in a normal declaration into a rounded number, which layout then rounds differently (see badge.css).
+
+   The status text read after the label is the shared ash-sr-only utility. The component sets no margin on itself and adds no global rule. */
+
+.ash-stepper-item {
+  --ash-stepper-item-leading: calc(1.25 / 0.875);
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--ash-space-3);
+  counter-increment: step;
+}
+
+.ash-stepper-item--completed {
+  --ash-stepper-item-indicator-border: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-stepper-item-indicator-bg: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-stepper-item-indicator-fg: var(--color-white, #fff);
+  --ash-stepper-item-line: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-stepper-item-label: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-stepper-item--completed:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-stepper-item-indicator-border: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-stepper-item-indicator-bg: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-stepper-item-line: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-stepper-item-label: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+.ash-stepper-item--current {
+  --ash-stepper-item-indicator-border: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-stepper-item-indicator-bg: var(--color-white, #fff);
+  --ash-stepper-item-indicator-fg: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-stepper-item-line: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-stepper-item-label: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+}
+
+.ash-stepper-item--current:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-stepper-item-indicator-border: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-stepper-item-indicator-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-stepper-item-indicator-fg: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+  --ash-stepper-item-line: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-stepper-item-label: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+}
+
+.ash-stepper-item--upcoming {
+  --ash-stepper-item-indicator-border: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-stepper-item-indicator-bg: var(--color-white, #fff);
+  --ash-stepper-item-indicator-fg: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-stepper-item-line: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-stepper-item-label: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-stepper-item--upcoming:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-stepper-item-indicator-border: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-stepper-item-indicator-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-stepper-item-indicator-fg: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-stepper-item-line: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-stepper-item-label: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+.ash-stepper-item__connector {
+  position: absolute;
+  top: var(--ash-space-4);
+  right: 0;
+  left: 0;
+  display: none;
+  align-items: center;
+}
+
+.ash-stepper-item__line {
+  width: 100%;
+  height: 0.125rem;
+  background-color: var(--ash-stepper-item-line);
+}
+
+.ash-stepper-item__indicator {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ash-stepper-item-indicator-border);
+  border-radius: calc(infinity * 1px);
+  background-color: var(--ash-stepper-item-indicator-bg);
+  color: var(--ash-stepper-item-indicator-fg);
+  font-size: 0.875rem;
+  line-height: var(--ash-stepper-item-leading);
+  font-weight: 600;
+}
+
+.ash-stepper-item--current > .ash-stepper-item__indicator::before,
+.ash-stepper-item--upcoming > .ash-stepper-item__indicator::before {
+  content: counter(step);
+}
+
+.ash-stepper-item__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding-top: 0.25rem;
+}
+
+.ash-stepper-item__label {
+  overflow-wrap: break-word;
+  font-size: 0.875rem;
+  line-height: var(--ash-stepper-item-leading);
+  color: var(--ash-stepper-item-label);
+}
+
+.ash-stepper-item--current .ash-stepper-item__label {
+  font-weight: 600;
+}
+
+@container (min-width: 24rem) {
+  .ash-stepper-item {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ash-space-2);
+  }
+
+  .ash-stepper-item__connector {
+    display: flex;
+  }
+
+  .ash-stepper-item__text {
+    align-items: center;
+    padding-top: 0;
+    text-align: center;
+  }
+}
+
+.ash-stepper-item:last-child > .ash-stepper-item__connector {
+  display: none;
+}

@@ -1,0 +1,41 @@
+/* ash-stepper: a sequence of numbered steps that stacks in a narrow place and runs side by side in a wide one.
+
+   Classes       ash-stepper                   the wrapping <div>: the size container the layout reacts to
+                 ash-stepper__list             the <ol> that holds the Stepper Items
+
+   Why two elements: a container cannot answer its own query (the containment that makes it a container would make "how wide am I"
+   depend on "what did I just decide to look like"), so the element that is measured (the wrapper) and the element that reacts to the
+   measurement (the list, and every item inside it) are different elements.
+
+   Responsive: the layout follows the width of the wrapper, never the window's, so a Stepper in a narrow sidebar on a wide desktop stacks
+   just as one on a narrow phone does. From a wrapper width of 24rem (Tailwind's @sm container breakpoint, and so exactly what it was) the
+   list runs in a row with no gap; below it, it is a column with a 1.5rem gap. The breakpoint is a literal because a custom property
+   cannot be used in a container condition. It is a width of the container, never a media query.
+
+   Numbering: the list starts the CSS counter `step` and every Stepper Item adds one to it and shows it (components/stepper-item.css). The
+   counter is named `step`, as it always was, and each list restarts it, so several Steppers on one page each count from 1.
+
+   Self-contained: nothing here relies on Tailwind's preflight. Preflight used to take the native ordered-list styling away, and the list
+   says so itself: no marker, no margin, no padding. The <ol> keeps its semantic meaning (position matters to assistive technology) but
+   shows no numerals, exactly as before. The component sets no margin on itself, takes no class or tag parameter and adds no global rule. */
+
+.ash-stepper {
+  container-type: inline-size;
+}
+
+.ash-stepper__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+@container (min-width: 24rem) {
+  .ash-stepper__list {
+    flex-direction: row;
+    gap: 0;
+  }
+}

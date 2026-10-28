@@ -36,6 +36,8 @@
 @import "components/progress.css" layer(ash.components);
 @import "components/skeleton.css" layer(ash.components);
 @import "components/spinner.css" layer(ash.components);
+@import "components/stepper.css" layer(ash.components);
+@import "components/stepper-item.css" layer(ash.components);
 @import "components/timeline.css" layer(ash.components);
 @import "components/timeline-item.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
