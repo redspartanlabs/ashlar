@@ -19,10 +19,15 @@
      and <ol> communicates that ordering to assistive tech for free - no
      `role="list"` or numbering is added on top of it because the native
      element already provides both. No extra role on the <nav> either: `nav`
-     is already a native landmark. --%>
+     is already a native landmark.
 
-<nav aria-label="Breadcrumb" data-breadcrumbs>
-    <ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
+     The <nav> carries `ash-breadcrumbs` and the <ol> `ash-breadcrumbs__list`
+     (components/breadcrumbs.css): the landmark owns only its place, the list
+     lays the trail out as a wrapping row and takes the native list styling
+     away. --%>
+
+<nav aria-label="Breadcrumb" data-breadcrumbs class="ash-breadcrumbs">
+    <ol class="ash-breadcrumbs__list">
         ${items}
     </ol>
 </nav>

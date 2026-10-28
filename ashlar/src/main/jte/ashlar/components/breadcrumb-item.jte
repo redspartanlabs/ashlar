@@ -20,20 +20,23 @@
      exposed `::before` text content despite it being "decorative," where an
      explicitly hidden real element leaves no ambiguity.
 
-     `group-first:hidden` hides that separator specifically when this <li> is
-     the first child of its parent <ol> - each breadcrumb-item call only
-     knows its own label/href/current, never its position among siblings, so
-     the position check has to happen in CSS against the actual rendered DOM
-     rather than in Java against a list index. --%>
+     The separator is not shown when this <li> is the first child of its
+     parent <ol> - each breadcrumb-item call only knows its own
+     label/href/current, never its position among siblings, so the position
+     check has to happen in CSS against the actual rendered DOM rather than in
+     Java against a list index. components/breadcrumb-item.css states it as
+     the crumb's own rule (`.ash-breadcrumb-item:first-child >
+     .ash-breadcrumb-item__separator`), so it cannot reach a crumb's
+     separator through some unrelated ancestor. --%>
 !{boolean isCurrent = current;}
 !{boolean isLink = !isCurrent && href != null && !href.isEmpty();}
 !{String ariaCurrentAttr = isCurrent ? "page" : null;}
 
-<li class="group flex items-center gap-1.5">
-    <span aria-hidden="true" data-breadcrumb-separator class="group-first:hidden text-slate-400 dark:text-slate-600">/</span>
+<li class="ash-breadcrumb-item">
+    <span aria-hidden="true" data-breadcrumb-separator class="ash-breadcrumb-item__separator">/</span>
     @if (isLink)
-        <a href="${href}" class="break-words text-slate-500 rounded-sm hover:text-slate-700 hover:underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-400 dark:hover:text-slate-200">${label}</a>
+        <a href="${href}" class="ash-breadcrumb-item__link">${label}</a>
     @else
-        <span aria-current="${ariaCurrentAttr}" class="${isCurrent ? "break-words font-medium text-slate-900 dark:text-slate-100" : "break-words text-slate-500 dark:text-slate-400"}">${label}</span>
+        <span aria-current="${ariaCurrentAttr}" class="${isCurrent ? "ash-breadcrumb-item__text ash-breadcrumb-item__text--current" : "ash-breadcrumb-item__text"}">${label}</span>
     @endif
 </li>

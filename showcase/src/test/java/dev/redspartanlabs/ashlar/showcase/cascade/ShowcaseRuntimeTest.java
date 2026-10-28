@@ -63,7 +63,7 @@ class ShowcaseRuntimeTest {
     private static String browser = "";
 
     private static List<String> pageSlugs() {
-        return List.of("button", "table", "select", "tabs", "timeline", "stepper");
+        return List.of("button", "table", "select", "tabs", "timeline", "stepper", "breadcrumbs");
     }
 
     private static List<Config> configsFor(String slug) {
@@ -101,9 +101,9 @@ class ShowcaseRuntimeTest {
         // migrated components used to use (so those classes still exist), with the migrated components' markup
         // rewritten back to those classes. Pages that render a migrated component are therefore still compared
         // against how that component looked before it moved to Ashlar's CSS, in the same browser run.
-        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "stepper-oracle.css"));
+        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "breadcrumbs-oracle.css"));
         byte[] mutatedCss = (new String(baselineCss, StandardCharsets.UTF_8) + "\nbutton{padding-left:7px !important}\n").getBytes(StandardCharsets.UTF_8);
-        // The oracle is cumulative (Badge, then Alert, then Divider, then Progress, then Empty State, then Icon, then Spinner, then Skeleton, then List and List Item, then Timeline and Timeline Item, then Stepper and Stepper Item legacy classes), so the rewrite is too.
+        // The oracle is cumulative (Badge, then Alert, then Divider, then Progress, then Empty State, then Icon, then Spinner, then Skeleton, then List and List Item, then Timeline and Timeline Item, then Stepper and Stepper Item, then Breadcrumbs and Breadcrumb Item legacy classes), so the rewrite is too.
         // The Icon rewrite is LAST: the components that compose an Icon hand it a class value that still carries ash-icon.
         BadgeLegacyMarkup badgeLegacy = new BadgeLegacyMarkup();
         AlertLegacyMarkup alertLegacy = new AlertLegacyMarkup();
@@ -115,9 +115,10 @@ class ShowcaseRuntimeTest {
         ListLegacyMarkup listLegacy = new ListLegacyMarkup();
         TimelineLegacyMarkup timelineLegacy = new TimelineLegacyMarkup();
         StepperLegacyMarkup stepperLegacy = new StepperLegacyMarkup();
+        BreadcrumbsLegacyMarkup breadcrumbsLegacy = new BreadcrumbsLegacyMarkup();
         IconLegacyMarkup iconLegacy = new IconLegacyMarkup();
-        Function<String, String> legacyComponents = html -> iconLegacy.rewrite(stepperLegacy.rewrite(timelineLegacy.rewrite(listLegacy.rewrite(skeletonLegacy.rewrite(spinnerLegacy.rewrite(
-                emptyStateLegacy.rewrite(progressLegacy.rewrite(dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html)))))))))));
+        Function<String, String> legacyComponents = html -> iconLegacy.rewrite(breadcrumbsLegacy.rewrite(stepperLegacy.rewrite(timelineLegacy.rewrite(listLegacy.rewrite(skeletonLegacy.rewrite(spinnerLegacy.rewrite(
+                emptyStateLegacy.rewrite(progressLegacy.rewrite(dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html))))))))))));
 
         try (RunningShowcase app = RunningShowcase.start(Path.of(bootJar)); RealPageProxy proxy = new RealPageProxy(app.port())) {
             for (String slug : pageSlugs()) {
