@@ -1,0 +1,38 @@
+/* TEST-ONLY (Timeline and Timeline Item migration oracle, scoped). The legacy Timeline's and Timeline Item's own Tailwind utilities and
+   nothing else: no page-wide preflight, no utilities for any other element on the page.
+
+   The full oracle (timeline-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page also restyles everything
+   AROUND the Timeline. That is right for "Tailwind present". For "Tailwind removed" the surroundings must be the same unstyled page on both
+   sides, so the legacy Timeline is rendered here with only what it itself used. The Icon's legacy utilities (inline-block, shrink-0,
+   h-4 and w-4) are compiled from the Icon's own legacy file, because the legacy Timeline Item composed them.
+
+   Only the preflight rules the Timeline and the Timeline Item depended on are kept, and only for the elements the components themselves
+   render: not for the caller's own content projected through `content` (a paragraph, say), which is part of the page around them and stays
+   unstyled on both sides of a "Tailwind removed" comparison. Border-box sizing with no default margin, padding or border width (a 0 solid
+   border, which the marker's border-2 gives a width to), no list marker or indent on the list, and an svg that is display: block with
+   vertical-align: middle. TimelineParityTest proves this scoped rendering equals the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/timeline/timeline-legacy.html";
+@source "../resources/parity/icon/icon-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="content-child"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    ol[data-parity] {
+        list-style: none;
+    }
+
+    svg[data-parity] {
+        display: block;
+        vertical-align: middle;
+    }
+}

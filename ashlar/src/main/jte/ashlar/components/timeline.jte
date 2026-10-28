@@ -6,7 +6,8 @@
      JavaScript, for the same reason as Stepper: nothing here ever changes
      after the server renders it once - the connector between entries is
      drawn per-item in pure CSS (see timeline-item.jte), not measured or
-     positioned by a script.
+     positioned by a script. The wrapper's own look (a flex column with the
+     native list reset) is Ashlar's CSS, components/timeline.css.
 
      `<ol>`, not `<ul>`: a timeline's entries are chronological - the first
      item genuinely happened before the second - which is exactly the
@@ -22,6 +23,6 @@
      a generic timeline to borrow, and a caller who needs this one labelled
      can supply `aria-labelledby` pointing at their own heading. --%>
 
-<ol data-timeline class="flex flex-col">
+<ol data-timeline class="ash-timeline">
     ${items}
 </ol>

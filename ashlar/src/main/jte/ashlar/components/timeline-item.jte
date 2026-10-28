@@ -33,30 +33,30 @@
 
      The marker's icon and color are both `aria-hidden` and purely
      decorative; `TimelineStyles.statusText()` supplies the one place a
-     non-neutral `variant` is actually announced, as `sr-only` text ahead of
-     the title, the same pattern stepper-item.jte's own status text uses.
+     non-neutral `variant` is actually announced, as `ash-sr-only` text ahead
+     of the title, the same pattern stepper-item.jte's own status text uses.
 
      The connector trailing this entry toward the next one reuses
-     stepper-item.jte's own technique (a marker plus a trailing line,
-     `group-last:hidden` on the last entry) rotated from horizontal to
-     vertical: the marker column is a flex sibling of the content column,
-     stretches to match whichever of the two is taller (flexbox's own
-     default `align-items: stretch`), and the connector is an absolutely
-     positioned line inside it running from the marker's own bottom edge
-     downward - so it always reaches the next entry's marker regardless of
-     how much content sits in between, with no JavaScript measuring
-     anything.
+     stepper-item.jte's own technique (a marker plus a trailing line, hidden
+     on the last entry) rotated from horizontal to vertical: the marker column
+     is a flex sibling of the content column, stretches to match whichever of
+     the two is taller (flexbox's own default `align-items: stretch`), and the
+     connector is an absolutely positioned line inside it running from the
+     marker's own bottom edge downward - so it always reaches the next entry's
+     marker regardless of how much content sits in between, with no JavaScript
+     measuring anything. It is a real element, not a pseudo-element.
 
-     The connector's own `bottom` is `-bottom-8`, not `bottom-0`: an
-     absolutely positioned child's offsets resolve against its containing
-     block's PADDING box, and the `pb-8` gap between entries lives on this
+     The connector's own `bottom` extends past the marker column by exactly
+     the gap between entries: an absolutely positioned child's offsets resolve
+     against its containing block's PADDING box, and the gap lives on this
      `<li>`, one level further out than the marker column that stretches to
-     match it - so a plain `bottom-0` stopped exactly at that column's own
-     edge, short of the gap, leaving a visible break in the line before the
-     next marker (caught live in the browser, not just in source). Extending
-     by the same 8 (2rem) the gap itself uses is what closes that break
-     without duplicating the gap value as a second number that could drift
-     out of sync with the real one. --%>
+     match it - so stopping at the column's own edge would leave a visible
+     break in the line before the next marker. Ashlar's CSS
+     (components/timeline-item.css) uses the one property
+     `--ash-timeline-item-gap` for both the gap and that extension, so they
+     cannot drift apart. The same file hides the last entry's own connector
+     (through its own rail, so a nested Timeline keeps its connectors) and
+     removes the last entry's gap. --%>
 !{BadgeVariant resolvedVariant = BadgeVariant.from(variant);}
 !{boolean hasDate = !date.isEmpty();}
 !{boolean hasContent = content != null;}
@@ -65,28 +65,28 @@
 !{String statusText = TimelineStyles.statusText(resolvedVariant);}
 !{boolean hasStatusText = !statusText.isEmpty();}
 
-<li class="group relative flex gap-4 pb-8 last:pb-0">
-    <div class="relative flex w-8 shrink-0 flex-col items-center">
-        <span aria-hidden="true" class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 ${markerClasses}">
+<li class="ash-timeline-item">
+    <div class="ash-timeline-item__rail">
+        <span aria-hidden="true" class="${markerClasses}">
             @if (hasIcon)
-                @template.ashlar.components.icon(icon = icon, classes = "h-4 w-4")
+                @template.ashlar.components.icon(icon = icon, classes = "ash-icon--sm")
             @endif
         </span>
-        <div class="absolute -bottom-8 top-8 w-0.5 bg-slate-200 group-last:hidden dark:bg-slate-700"></div>
+        <div class="ash-timeline-item__connector"></div>
     </div>
 
-    <div class="min-w-0 flex-1 pb-1 pt-1">
+    <div class="ash-timeline-item__body">
         @if (hasDate)
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">${date}</p>
+            <p class="ash-timeline-item__date">${date}</p>
         @endif
-        <p class="mt-0.5 break-words text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <p class="ash-timeline-item__title">
             @if (hasStatusText)
-                <span class="sr-only">${statusText}</span>
+                <span class="ash-sr-only">${statusText}</span>
             @endif
             ${title}
         </p>
         @if (hasContent)
-            <div class="mt-1 break-words text-sm text-slate-600 dark:text-slate-300">
+            <div class="ash-timeline-item__content">
                 ${content}
             </div>
         @endif
