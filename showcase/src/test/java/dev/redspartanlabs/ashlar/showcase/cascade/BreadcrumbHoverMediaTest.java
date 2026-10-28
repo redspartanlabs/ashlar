@@ -25,6 +25,14 @@ class BreadcrumbHoverMediaTest {
 
     private static final String ORACLE = ParityFrames.generated("breadcrumbs-oracle.css");
 
+    /**
+     * Both device types are stated to Chrome, never left to it. With no setting, Chrome reports the hover capability of the machine it runs on:
+     * a desktop with a mouse can hover, but a CI runner is a virtual machine with no pointing device and cannot, so a run with no setting is not
+     * "a device that can hover" everywhere. The values are Chrome's hover type flags: 1 is no hover, 2 is hover.
+     */
+    private static final String CAN_HOVER = "--blink-settings=primaryHoverType=2,availableHoverTypes=2";
+    private static final String CANNOT_HOVER = "--blink-settings=primaryHoverType=1,availableHoverTypes=1";
+
     /** Every page tab separated line is {@code kind<TAB>selector<TAB>conditions}, then {@code matches<TAB>true|false} for the hover query. */
     private static final String SCRIPT = "(function(){var out=[];"
             + "function walk(rules,conds,wanted){[].forEach.call(rules,function(r){"
@@ -46,8 +54,8 @@ class BreadcrumbHoverMediaTest {
                 + "\"></head><body><p>hover media</p><script>window.addEventListener('load',function(){" + SCRIPT + "});</script></body></html>";
         try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
             String url = server.registerRaw(page);
-            canHover = ParityProbe.lines(session.chrome().dumpDom(url, List.of()), "ash-hover-media");
-            touchOnly = ParityProbe.lines(session.chrome().dumpDom(url, List.of("--blink-settings=primaryHoverType=1,availableHoverTypes=1")), "ash-hover-media");
+            canHover = ParityProbe.lines(session.chrome().dumpDom(url, List.of(CAN_HOVER)), "ash-hover-media");
+            touchOnly = ParityProbe.lines(session.chrome().dumpDom(url, List.of(CANNOT_HOVER)), "ash-hover-media");
         }
     }
 
@@ -74,7 +82,7 @@ class BreadcrumbHoverMediaTest {
 
     @Test
     void theConditionMatchesADeviceThatCanHoverAndDoesNotMatchATouchScreen() {
-        assertEquals("true", rows(canHover, "matches").get(0)[1], "a device that can hover");
+        assertEquals("true", rows(canHover, "matches").get(0)[1], "a device that is told it can hover");
         assertEquals("false", rows(touchOnly, "matches").get(0)[1], "a touch screen without hover: neither the legacy rule nor the migrated one applies");
         // The same rules are found and under the same condition on the touch screen: it is the condition, not the rules, that differs.
         assertEquals(rows(canHover, "migrated").get(0)[2], rows(touchOnly, "migrated").get(0)[2]);
