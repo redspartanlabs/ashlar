@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- TEST-ONLY. The Breadcrumbs' and the Breadcrumb Item's PRE-MIGRATION markup: the exact Tailwind class strings breadcrumbs.jte and
+     breadcrumb-item.jte rendered before they moved to ash-breadcrumbs and ash-breadcrumb-item. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see breadcrumbs-oracle-entry.css and breadcrumbs-legacy-scoped-entry.css), so the legacy
+     rendering stays reproducible after the templates stop emitting these classes. And the tests read the class strings back out of it, so
+     there is one source of truth for what "legacy" means.
+
+     The <li> carried "group" so that its separator could hide itself with group-first:hidden. That variant matches ANY .group:first-child
+     ancestor, not just the <li>, which is the over-reach the migration corrected. The link's hover colour is also covered by "hover-swatch":
+     a hover cannot be held in a measurement, so the colour the link takes on hover is compared through a swatch painted with the same two
+     palette colours (slate-700, and slate-200 in the dark theme). -->
+<ol data-legacy-role="list" class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm"></ol>
+<li data-legacy-role="item" class="group flex items-center gap-1.5"></li>
+<span data-legacy-role="separator" class="group-first:hidden text-slate-400 dark:text-slate-600"></span>
+<a data-legacy-role="link" class="break-words text-slate-500 rounded-sm hover:text-slate-700 hover:underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-400 dark:hover:text-slate-200"></a>
+<span data-legacy-role="text" class="break-words text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="current" class="break-words font-medium text-slate-900 dark:text-slate-100"></span>
+<span data-legacy-role="hover-swatch" class="bg-slate-700 dark:bg-slate-200"></span>

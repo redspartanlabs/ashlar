@@ -1,0 +1,96 @@
+/* ash-breadcrumb-item: one crumb of a breadcrumb trail: a separator, then either a link (somewhere the visitor can go), the current page's
+   own text, or plain text.
+
+   Classes       ash-breadcrumb-item                    the <li>
+                 ash-breadcrumb-item__separator         the decorative "/" before the crumb (aria-hidden); not shown on the first crumb
+                 ash-breadcrumb-item__link              the <a>
+                 ash-breadcrumb-item__text              the crumb's text when it is not a link
+                 ash-breadcrumb-item__text--current     added to that text for the current page (it also carries aria-current="page")
+   Properties    --ash-breadcrumb-item-separator        the separator's colour
+                 --ash-breadcrumb-item-link             the link's colour
+                 --ash-breadcrumb-item-link-hover       the link's colour while hovered
+                 --ash-breadcrumb-item-text             plain text's colour
+                 --ash-breadcrumb-item-current          the current page's colour
+                 --ash-breadcrumb-item-focus            the link's keyboard focus ring colour
+                 These are an intentional customisation surface, set on the <li> (inline style, an unlayered rule, or a rule in a layer
+                 above ash.components). They are inherited by the parts.
+
+   Colour: every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-* recolours the crumb, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's own
+   theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+   The focus ring is blue-500 in BOTH themes, as before, which is why it does not use the --ash-color-focus token (blue-400 in dark).
+
+   The first crumb shows no separator. That rule is the crumb's own (:first-child, through the crumb's own separator, a child combinator),
+   so a trail that sits under some unrelated first element keeps its separators: the rule this replaced (group-first) matched ANY
+   .group:first-child ancestor and so hid every separator of such a trail.
+
+   Link: it takes the colour of its own property (not the text around it) and is not underlined until it is hovered (preflight used to
+   take the underline away for every anchor, so it is stated here), when it is underlined, 2px below the text. The offset applies to
+   every state, as it did. A long label wraps in the crumb instead of overflowing the page. The ring is a 2px outer box-shadow and the
+   link's rounded-sm corners (--ash-radius-sm, which is var(--radius-sm, 0.25rem): exactly what rounded-sm read) round it; the browser's
+   own focus outline is turned off. Focus uses the pseudo-classes directly. Hover is restricted to devices that can hover, inside
+   @media (hover: hover), exactly as Tailwind's hover variant was: a tap on a touch screen must not leave the link stuck in its hover state.
+
+   The crumb's row aligns its parts on the cross axis, with a 0.375rem gap. The component sets no margin on itself and adds no global
+   rule. */
+
+.ash-breadcrumb-item {
+  --ash-breadcrumb-item-separator: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-breadcrumb-item-link: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-breadcrumb-item-link-hover: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-breadcrumb-item-text: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-breadcrumb-item-current: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-breadcrumb-item-focus: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.ash-breadcrumb-item:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-breadcrumb-item-separator: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-breadcrumb-item-link: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-breadcrumb-item-link-hover: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-breadcrumb-item-text: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-breadcrumb-item-current: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+}
+
+.ash-breadcrumb-item__separator {
+  color: var(--ash-breadcrumb-item-separator);
+}
+
+.ash-breadcrumb-item:first-child > .ash-breadcrumb-item__separator {
+  display: none;
+}
+
+.ash-breadcrumb-item__link {
+  border-radius: var(--ash-radius-sm);
+  overflow-wrap: break-word;
+  color: var(--ash-breadcrumb-item-link);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ash-breadcrumb-item__link:hover {
+    color: var(--ash-breadcrumb-item-link-hover);
+    text-decoration-line: underline;
+  }
+}
+
+.ash-breadcrumb-item__link:focus {
+  outline-style: none;
+}
+
+.ash-breadcrumb-item__link:focus-visible {
+  box-shadow: 0 0 0 2px var(--ash-breadcrumb-item-focus);
+}
+
+.ash-breadcrumb-item__text {
+  overflow-wrap: break-word;
+  color: var(--ash-breadcrumb-item-text);
+}
+
+.ash-breadcrumb-item__text--current {
+  font-weight: 500;
+  color: var(--ash-breadcrumb-item-current);
+}

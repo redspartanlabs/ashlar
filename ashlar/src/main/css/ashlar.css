@@ -29,6 +29,8 @@
 @import "components/icon.css" layer(ash.components);
 @import "components/alert.css" layer(ash.components);
 @import "components/badge.css" layer(ash.components);
+@import "components/breadcrumbs.css" layer(ash.components);
+@import "components/breadcrumb-item.css" layer(ash.components);
 @import "components/divider.css" layer(ash.components);
 @import "components/empty-state.css" layer(ash.components);
 @import "components/list.css" layer(ash.components);
