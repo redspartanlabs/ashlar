@@ -1,0 +1,19 @@
+/* ash-timeline: the vertical list that holds a run of Timeline Items (or anything else the caller projects in).
+
+   Classes       ash-timeline                  on the <ol>
+
+   The wrapper owns only the list itself: a flex column with the native list reset (no margin, no padding, no marker). Preflight used
+   to take the native ordered-list styling away, and the list says so itself. The <ol> keeps its semantic meaning (a timeline's entries
+   are chronological, so position is real information) but shows no numerals, exactly as before. It does not know its children are
+   Timeline Items: whatever is projected into it is simply stacked. The rail between entries and the gap before the next one belong to
+   the entries (components/timeline-item.css).
+
+   The component sets no margin on itself, takes no class or tag parameter and adds no global rule. */
+
+.ash-timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

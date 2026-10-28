@@ -1,0 +1,10 @@
+/* TEST-ONLY (Timeline and Timeline Item migration oracle). Cumulative: the List oracle, imported unchanged (which is the Skeleton oracle,
+   the Spinner oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported, plus every earlier
+   migrated component's legacy classes), PLUS the Tailwind classes the Timeline and the Timeline Item used before they moved to
+   ash-timeline and ash-timeline-item.
+
+   Those classes are no longer emitted by the components' templates or by TimelineStyles, so Tailwind would purge any of them nothing else
+   uses. Pointing it at the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same
+   Timeline with these classes and with ash-timeline, in the same browser, and compare. */
+@import "./list-oracle-entry.css";
+@source "../resources/parity/timeline/timeline-legacy.html";
