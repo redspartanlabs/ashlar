@@ -1,0 +1,10 @@
+/* TEST-ONLY (Pagination and Pagination Item migration oracle). Cumulative: the Breadcrumbs oracle, imported unchanged (which is the Stepper
+   oracle, the Timeline oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported, plus every
+   earlier migrated component's legacy classes), PLUS the Tailwind classes the Pagination and the Pagination Item used before they moved
+   to ash-pagination and ash-pagination-item.
+
+   Those classes are no longer emitted by the components' templates, so Tailwind would purge any of them nothing else uses. Pointing it at
+   the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same bar with these
+   classes and with ash-pagination, in the same browser, and compare. */
+@import "./breadcrumbs-oracle-entry.css";
+@source "../resources/parity/pagination/pagination-legacy.html";

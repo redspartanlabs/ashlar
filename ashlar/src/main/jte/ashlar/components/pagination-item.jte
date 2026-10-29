@@ -33,16 +33,12 @@
 !{String ariaCurrentAttr = isCurrent ? "page" : null;}
 !{String ariaDisabledAttr = (!isCurrent && !isLink) ? "true" : null;}
 
-!{String linkClasses = "inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-slate-200 px-2 font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100";}
-!{String currentClasses = "inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-blue-600 bg-blue-600 px-2 font-medium text-white dark:border-blue-500 dark:bg-blue-500";}
-!{String disabledClasses = "inline-flex h-8 min-w-8 items-center justify-center px-2 font-medium text-slate-300 dark:text-slate-600";}
-
-<li>
+<li class="ash-pagination-item">
     @if (isLink)
-        <a href="${href}" class="${linkClasses}">${label}</a>
+        <a href="${href}" class="ash-pagination-item__control ash-pagination-item__control--link">${label}</a>
     @elseif (isCurrent)
-        <span aria-current="${ariaCurrentAttr}" class="${currentClasses}">${label}</span>
+        <span aria-current="${ariaCurrentAttr}" class="ash-pagination-item__control ash-pagination-item__control--current">${label}</span>
     @else
-        <span aria-disabled="${ariaDisabledAttr}" class="${disabledClasses}">${label}</span>
+        <span aria-disabled="${ariaDisabledAttr}" class="ash-pagination-item__control ash-pagination-item__control--disabled">${label}</span>
     @endif
 </li>
