@@ -21,8 +21,8 @@
      that isn't a numbered page at all. The APG's own pagination example
      uses `<ul>` for exactly this reason. --%>
 
-<nav aria-label="Pagination" data-pagination>
-    <ul class="flex flex-wrap items-center gap-1.5 text-sm">
+<nav aria-label="Pagination" data-pagination class="ash-pagination">
+    <ul class="ash-pagination__list">
         ${items}
     </ul>
 </nav>

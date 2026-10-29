@@ -1,0 +1,103 @@
+/* ash-pagination-item: one entry of a pagination bar: a link to a page the visitor can go to, the page they are on, or an entry that
+   cannot be activated (an unavailable Previous or Next, or an ellipsis).
+
+   Classes       ash-pagination-item                      the <li>
+                 ash-pagination-item__control             the entry itself: the <a>, or the <span> when it is not a link
+                 ash-pagination-item__control--link       added to the <a>
+                 ash-pagination-item__control--current    added to the <span> of the page being viewed (it also carries aria-current="page")
+                 ash-pagination-item__control--disabled   added to the <span> that cannot be activated (it also carries aria-disabled="true")
+   Properties    --ash-pagination-item-border             the link's border colour
+                 --ash-pagination-item-link               the link's text colour
+                 --ash-pagination-item-link-hover         the link's text colour while hovered
+                 --ash-pagination-item-link-hover-bg      the link's background while hovered
+                 --ash-pagination-item-current            the current page's background and border colour
+                 --ash-pagination-item-current-text       the current page's text colour
+                 --ash-pagination-item-disabled           the disabled entry's text colour
+                 --ash-pagination-item-focus              the link's keyboard focus ring colour
+                 These are an intentional customisation surface, set on the <li> (inline style, an unlayered rule, or a rule in a layer
+                 above ash.components). They are inherited by the parts.
+
+   Colour: every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-* recolours the entry, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's own
+   theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+   The current page is white on blue in BOTH themes, the focus ring is blue-500 in both, and only the blue shade of the current page
+   changes, as before (which is why the ring does not use the --ash-color-focus token, blue-400 in dark).
+
+   Every entry is the same box: an inline flex row 2rem tall and at least 2rem wide, centring its label, 0.5rem of padding either side,
+   medium weight. The link and the current page are bordered (1px) with the skin's medium radius (--ash-radius-md, which is
+   var(--radius-md, 0.375rem): exactly what rounded-md read); the disabled entry has neither border nor radius and no fill. It is not a
+   link, so it is not focusable and does not look clickable.
+
+   Link: it takes the colour of its own property (not the text around it) and is never underlined (preflight used to take the underline
+   away for every anchor, so it is stated here). On hover it takes a fill and a darker text colour; hover is restricted to devices that
+   can hover, inside @media (hover: hover), exactly as Tailwind's hover variant was: a tap on a touch screen must not leave the link
+   stuck in its hover state. Focus uses the pseudo-classes directly: the browser's own focus outline is turned off, and a keyboard focus
+   draws a 2px outer ring (a box-shadow, rounded by the link's own corners).
+
+   The <li> keeps the list-item display it always had (it is a flex item of the list, so it is blockified). The component sets no margin
+   on itself and adds no global rule. */
+
+.ash-pagination-item {
+  --ash-pagination-item-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-pagination-item-link: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-pagination-item-link-hover: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-pagination-item-link-hover-bg: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-pagination-item-current: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-pagination-item-current-text: var(--color-white, #fff);
+  --ash-pagination-item-disabled: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-pagination-item-focus: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  display: list-item;
+}
+
+.ash-pagination-item:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-pagination-item-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-pagination-item-link: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-pagination-item-link-hover: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-pagination-item-link-hover-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-pagination-item-current: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-pagination-item-disabled: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+}
+
+.ash-pagination-item__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  min-width: 2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-weight: 500;
+}
+
+.ash-pagination-item__control--link {
+  border-radius: var(--ash-radius-md);
+  border: 1px solid var(--ash-pagination-item-border);
+  color: var(--ash-pagination-item-link);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .ash-pagination-item__control--link:hover {
+    background-color: var(--ash-pagination-item-link-hover-bg);
+    color: var(--ash-pagination-item-link-hover);
+  }
+}
+
+.ash-pagination-item__control--link:focus {
+  outline-style: none;
+}
+
+.ash-pagination-item__control--link:focus-visible {
+  box-shadow: 0 0 0 2px var(--ash-pagination-item-focus);
+}
+
+.ash-pagination-item__control--current {
+  border-radius: var(--ash-radius-md);
+  border: 1px solid var(--ash-pagination-item-current);
+  background-color: var(--ash-pagination-item-current);
+  color: var(--ash-pagination-item-current-text);
+}
+
+.ash-pagination-item__control--disabled {
+  color: var(--ash-pagination-item-disabled);
+}

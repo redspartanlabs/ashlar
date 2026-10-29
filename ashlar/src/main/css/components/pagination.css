@@ -1,0 +1,37 @@
+/* ash-pagination: a pagination bar: the named navigation landmark and, inside it, the list of page entries, which wraps onto further
+   lines when the bar is longer than its place.
+
+   Classes       ash-pagination                the <nav aria-label="Pagination"> landmark
+                 ash-pagination__list          the <ul> that holds the Pagination Items
+
+   The landmark owns nothing but its place: it is a block, and states so itself (and, like every ash-* element, is border-box through
+   Ashlar's scoped base, as the whole page was under preflight). It sets no text size, so it stays the size of the text around it.
+   The list owns the layout: a wrapping row, centred on the cross axis, with the bar's text size. Its entries are the Pagination Items
+   (components/pagination-item.css); it does not know they are, and simply lays out whatever is projected into it. Entries are 0.375rem
+   apart, along the line and between wrapped lines alike.
+
+   Self-contained: nothing here relies on Tailwind's preflight. Preflight used to take the native list styling away, and the list says so
+   itself: no marker, no margin, no padding. The <ul> keeps its semantic meaning (the entries are a list, and assistive technology
+   announces its length).
+
+   The font size and line-height are what Tailwind's text-sm is. The ratio lives in a custom property on purpose: a CSS minifier folds
+   calc(1.25 / 0.875) in a normal declaration into a rounded number, which layout then rounds differently (see badge.css).
+
+   The component sets no margin on itself, takes no class or tag parameter and adds no global rule. */
+
+.ash-pagination {
+  display: block;
+}
+
+.ash-pagination__list {
+  --ash-pagination-leading: calc(1.25 / 0.875);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  line-height: var(--ash-pagination-leading);
+}

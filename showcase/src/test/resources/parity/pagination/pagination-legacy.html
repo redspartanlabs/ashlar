@@ -1,0 +1,17 @@
+<!doctype html>
+<!-- TEST-ONLY. The Pagination's and the Pagination Item's PRE-MIGRATION markup: the exact Tailwind class strings pagination.jte and
+     pagination-item.jte rendered before they moved to ash-pagination and ash-pagination-item. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see pagination-oracle-entry.css and pagination-legacy-scoped-entry.css), so the legacy
+     rendering stays reproducible after the templates stop emitting these classes. And the tests read the class strings back out of it, so
+     there is one source of truth for what "legacy" means.
+
+     The landmark and the <li> carried no class. The link's hover colours are also covered by "hover-swatch" and "hover-fill-swatch": a hover
+     cannot be held in a measurement, so the text colour and the fill the link takes on hover are compared through swatches painted with the
+     same palette colours (text slate-900, and slate-100 in the dark theme; fill slate-50, and slate-800 in the dark theme). -->
+<ul data-legacy-role="list" class="flex flex-wrap items-center gap-1.5 text-sm"></ul>
+<a data-legacy-role="link" class="inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-slate-200 px-2 font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"></a>
+<span data-legacy-role="current" class="inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-blue-600 bg-blue-600 px-2 font-medium text-white dark:border-blue-500 dark:bg-blue-500"></span>
+<span data-legacy-role="disabled" class="inline-flex h-8 min-w-8 items-center justify-center px-2 font-medium text-slate-300 dark:text-slate-600"></span>
+<span data-legacy-role="hover-swatch" class="bg-slate-900 dark:bg-slate-100"></span>
+<span data-legacy-role="hover-fill-swatch" class="bg-slate-50 dark:bg-slate-800"></span>
