@@ -1,0 +1,17 @@
+/* ash-key-value-list: a vertical run of key/value entries. Layout only: it has no border, background or shadow, and it does not lay out
+   an entry's own label and value (that is ash-key-value's).
+
+   Classes       ash-key-value-list            on the <dl>
+
+   The entries are spaced apart by --ash-space-3 (0.75rem), the spacing Tailwind's gap-3 gave. The list is a flex column, so each
+   entry stretches to the list's width.
+
+   Self-contained: a <dl> has a browser block margin, which preflight used to remove, so the margin is stated here. The component
+   adds no other margin, no colour and no font, and adds no global rule. */
+
+.ash-key-value-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-space-3);
+  margin: 0;
+}

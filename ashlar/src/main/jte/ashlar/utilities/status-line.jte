@@ -29,8 +29,8 @@
      ever needing to understand what it is - the same reasoning
      form-actions.jte and key-value.jte already give for their own slots.
 
-     Muted `text-sm text-slate-500 dark:text-slate-400` matches
+     The muted small text (components/status-line.css) matches
      page-header.jte's and page-section.jte's own description styling
      exactly, keeping a status line visually subordinate to whatever primary
      content it sits near rather than competing with it. --%>
-<p class="text-sm text-slate-500 dark:text-slate-400">${content}</p>
+<p class="ash-status-line">${content}</p>

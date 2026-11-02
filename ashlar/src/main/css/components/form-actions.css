@@ -1,0 +1,20 @@
+/* ash-form-actions: arranges a form's own action controls. Layout only: spacing, alignment and wrapping. It has no surface, creates
+   no control, and never reorders what it was given.
+
+   Classes       ash-form-actions              on the <div>
+
+   The actions sit on one row, centred on the cross axis and packed toward the inline end ("[Cancel] [Save Changes]"), and wrap
+   onto further rows at narrow widths instead of overflowing. "End" is the inline end, so in a right-to-left context the actions
+   pack to the left. The gap is --ash-space-3 (0.75rem), the spacing Tailwind's gap-3 gave.
+
+   This is the same arrangement as ash-cluster--end, kept as its own class on purpose: a layout primitive and a form's action row are
+   different contracts, and the action row must not change if the primitive is ever retuned. The component sets no margin, no colour
+   and no font, and adds no global rule. */
+
+.ash-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ash-space-3);
+}

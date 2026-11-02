@@ -15,12 +15,13 @@
      more business understanding it than list-item.jte understands its
      trailing content.
 
-     Stacked by default (`grid-cols-1`), side-by-side from `sm:` up - the
-     same mobile-first reflow page-header.jte and page-shell.jte already
+     Stacked by default, side-by-side from 40rem up (components/key-value.css) -
+     the same mobile-first reflow page-header.jte and page-shell.jte already
      use, so a long label or value always has room to wrap instead of
-     forcing the row wider. `min-w-0` on the value keeps a long word/URL
-     from pushing the row past the list's own width once wrapped inline. --%>
-<div class="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-[minmax(8rem,12rem)_minmax(0,1fr)] sm:items-baseline">
-    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">${label}</dt>
-    <dd class="min-w-0 break-words text-sm text-slate-900 dark:text-slate-100">${value}</dd>
+     forcing the row wider. The value may shrink below its content, which keeps
+     a long word/URL from pushing the row past the list's own width once
+     wrapped inline. --%>
+<div class="ash-key-value">
+    <dt class="ash-key-value__label">${label}</dt>
+    <dd class="ash-key-value__value">${value}</dd>
 </div>

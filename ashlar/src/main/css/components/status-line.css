@@ -1,0 +1,30 @@
+/* ash-status-line: one inline informational message ("Last updated...", "Showing 24 of 128 records"). It owns only the
+   typography and colour of that line.
+
+   Classes       ash-status-line               on the <p>
+   Properties    --ash-status-line-color       the text colour
+                 This is an intentional customisation surface. To change it for one line, set it on that element (inline style,
+                 an unlayered rule, or a rule in a layer above ash.components); that wins over the value set here.
+
+   Colour: reads Tailwind's slate palette variable with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-slate-* recolours the line, and with no Tailwind and no skin it looks the same. The fallbacks are checked against
+   Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the
+   Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <p> has a browser margin, which preflight used to remove, so
+   the margin is stated here. The font size and line-height are what Tailwind's text-sm is; the ratio lives in a custom property on
+   purpose, because a CSS minifier folds calc(1.25 / 0.875) in a normal declaration into a rounded number that layout then rounds
+   differently (see badge.css). The component sets no other margin and adds no global rule. */
+
+.ash-status-line {
+  --ash-status-line-leading: calc(1.25 / 0.875);
+  --ash-status-line-color: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-status-line-leading);
+  color: var(--ash-status-line-color);
+}
+
+.ash-status-line:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-status-line-color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}

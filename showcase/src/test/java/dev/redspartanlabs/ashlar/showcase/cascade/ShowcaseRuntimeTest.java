@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * entry compiled by the same CLI but without Ashlar's stylesheet. Loading Ashlar's
  * stylesheet must not change any computed style.
  *
- * <p>Components that have migrated to Ashlar's CSS (today: Badge, Alert, Divider, Progress, Empty State, Icon, Spinner, Skeleton, List and List Item) are the one thing
+ * <p>Components that have migrated to Ashlar's CSS (today: Badge, Alert, Divider, Progress, Empty State, Icon, Spinner, Skeleton, List and List Item, and the layout utilities Status Line, Form Actions, Key Value and Key Value List) are the one thing
  * the Tailwind-only stylesheet cannot render, so the baseline is their SAME-RUN LEGACY
  * RENDERING: the oracle stylesheet (Tailwind-only plus the classes they used to use)
  * with their markup rewritten back to those classes. Their elements, and only theirs,
@@ -101,9 +101,9 @@ class ShowcaseRuntimeTest {
         // migrated components used to use (so those classes still exist), with the migrated components' markup
         // rewritten back to those classes. Pages that render a migrated component are therefore still compared
         // against how that component looked before it moved to Ashlar's CSS, in the same browser run.
-        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "pagination-oracle.css"));
+        byte[] baselineCss = Files.readAllBytes(Path.of(generatedDir, "layout-utilities-oracle.css"));
         byte[] mutatedCss = (new String(baselineCss, StandardCharsets.UTF_8) + "\nbutton{padding-left:7px !important}\n").getBytes(StandardCharsets.UTF_8);
-        // The oracle is cumulative (Badge, then Alert, then Divider, then Progress, then Empty State, then Icon, then Spinner, then Skeleton, then List and List Item, then Timeline and Timeline Item, then Stepper and Stepper Item, then Breadcrumbs and Breadcrumb Item, then Pagination and Pagination Item legacy classes), so the rewrite is too.
+        // The oracle is cumulative (Badge, then Alert, then Divider, then Progress, then Empty State, then Icon, then Spinner, then Skeleton, then List and List Item, then Timeline and Timeline Item, then Stepper and Stepper Item, then Breadcrumbs and Breadcrumb Item, then Pagination and Pagination Item, then Status Line, Form Actions, Key Value and Key Value List legacy classes), so the rewrite is too.
         // The Icon rewrite is LAST: the components that compose an Icon hand it a class value that still carries ash-icon.
         BadgeLegacyMarkup badgeLegacy = new BadgeLegacyMarkup();
         AlertLegacyMarkup alertLegacy = new AlertLegacyMarkup();
@@ -117,9 +117,10 @@ class ShowcaseRuntimeTest {
         StepperLegacyMarkup stepperLegacy = new StepperLegacyMarkup();
         BreadcrumbsLegacyMarkup breadcrumbsLegacy = new BreadcrumbsLegacyMarkup();
         PaginationLegacyMarkup paginationLegacy = new PaginationLegacyMarkup();
+        LayoutUtilitiesLegacyMarkup layoutUtilitiesLegacy = new LayoutUtilitiesLegacyMarkup();
         IconLegacyMarkup iconLegacy = new IconLegacyMarkup();
-        Function<String, String> legacyComponents = html -> iconLegacy.rewrite(paginationLegacy.rewrite(breadcrumbsLegacy.rewrite(stepperLegacy.rewrite(timelineLegacy.rewrite(listLegacy.rewrite(skeletonLegacy.rewrite(spinnerLegacy.rewrite(
-                emptyStateLegacy.rewrite(progressLegacy.rewrite(dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html)))))))))))));
+        Function<String, String> legacyComponents = html -> iconLegacy.rewrite(layoutUtilitiesLegacy.rewrite(paginationLegacy.rewrite(breadcrumbsLegacy.rewrite(stepperLegacy.rewrite(timelineLegacy.rewrite(listLegacy.rewrite(skeletonLegacy.rewrite(spinnerLegacy.rewrite(
+                emptyStateLegacy.rewrite(progressLegacy.rewrite(dividerLegacy.rewrite(alertLegacy.rewrite(badgeLegacy.rewrite(html))))))))))))));
 
         try (RunningShowcase app = RunningShowcase.start(Path.of(bootJar)); RealPageProxy proxy = new RealPageProxy(app.port())) {
             for (String slug : pageSlugs()) {

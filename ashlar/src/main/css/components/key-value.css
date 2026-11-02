@@ -1,0 +1,66 @@
+/* ash-key-value: one label and value pair (<dt>/<dd> inside a <div>, valid <dl> content).
+
+   Classes       ash-key-value                 the <div> wrapping one pair
+                 ash-key-value__label          the <dt>
+                 ash-key-value__value          the <dd>
+   Properties    --ash-key-value-label         the label's colour
+                 --ash-key-value-value         the value's colour
+                 These are an intentional customisation surface, set on the wrapper (inline style, an unlayered rule, or a rule in a
+                 layer above ash.components). They are inherited by the label and the value.
+
+   Layout: below 40rem the label sits above the value (one column). From 40rem they sit side by side: the label column is
+   minmax(8rem, 12rem) and the value takes the rest (minmax(0, 1fr)), and the two align on their first text baseline. The breakpoint is
+   the viewport width and is literal (40rem, Tailwind's sm), because media queries cannot read custom properties. The column gap is
+   --ash-space-6 (1.5rem). The row gap, between a stacked label and its value, is 0.25rem; the foundation tokens have no step that
+   small, so it is written as a literal here.
+
+   The value may shrink below its content (min-width: 0) and breaks inside a long word or URL (overflow-wrap: break-word) rather than
+   widening the row.
+
+   Colour: both read Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-slate-* recolours the pair, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's
+   own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <dt> or <dd> has browser margins (a <dd> an inline-start margin of
+   40px), which preflight used to remove, so they are stated here. The font size and line-height are what Tailwind's text-sm is; the
+   ratio lives in a custom property on purpose (see status-line.css and badge.css). The component sets no margin on its wrapper and
+   adds no global rule. */
+
+.ash-key-value {
+  --ash-key-value-leading: calc(1.25 / 0.875);
+  --ash-key-value-label: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-key-value-value: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--ash-space-6);
+  row-gap: 0.25rem;
+}
+
+.ash-key-value:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-key-value-label: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-key-value-value: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+}
+
+.ash-key-value__label {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-key-value-leading);
+  font-weight: 500;
+  color: var(--ash-key-value-label);
+}
+
+.ash-key-value__value {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+  font-size: 0.875rem;
+  line-height: var(--ash-key-value-leading);
+  color: var(--ash-key-value-value);
+}
+
+@media (min-width: 40rem) {
+  .ash-key-value {
+    grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
