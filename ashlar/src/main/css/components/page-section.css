@@ -1,0 +1,55 @@
+/* ash-page-section: groups a page's own content under a subsection heading. It is a structural utility: no border, background or
+   shadow, and it never styles the content it holds.
+
+   Classes       ash-page-section              the <section>
+                 ash-page-section__title       the <h2>
+                 ash-page-section__description the optional <p> under the title
+   Properties    --ash-page-section-title      the title's colour
+                 --ash-page-section-description the description's colour
+                 These are an intentional customisation surface, set on the <section> (inline style, an unlayered rule, or a rule in a
+                 layer above ash.components). They are inherited by the parts.
+
+   The section is a flex column: the heading block (a plain <div> holding the title and the description, which has no class of its own)
+   and the caller's content are --ash-space-4 apart. The content is a direct child, so it keeps the section's full width.
+
+   Colour: both read Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-slate-* recolours them, and with no Tailwind and no skin they look the same. The fallbacks are checked against Tailwind's own
+   theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+   A skin's own heading rules (a bare h2 selector) still apply on top of this, as they did on top of the Tailwind utilities.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The heading and the paragraph have browser margins and a heading has
+   a browser size and weight, so margins, size, line-height and weight are stated. The sizes are what Tailwind's text-lg (1.125rem) and
+   text-sm (0.875rem) were; each ratio lives in a custom property on purpose (see page-header.css and badge.css). The 0.25rem between the
+   title and the description is a literal: the foundation tokens have no step that small. The component sets no margin on itself and adds
+   no global rule. */
+
+.ash-page-section {
+  --ash-page-section-title-leading: calc(1.75 / 1.125);
+  --ash-page-section-description-leading: calc(1.25 / 0.875);
+  --ash-page-section-title: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-page-section-description: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-space-4);
+}
+
+.ash-page-section:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-page-section-title: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-page-section-description: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-page-section__title {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: var(--ash-page-section-title-leading);
+  font-weight: 600;
+  color: var(--ash-page-section-title);
+}
+
+.ash-page-section__description {
+  margin: 0;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: var(--ash-page-section-description-leading);
+  color: var(--ash-page-section-description);
+}

@@ -28,11 +28,11 @@
      knowing about. --%>
 !{boolean hasDescription = !description.isEmpty();}
 
-<section class="flex flex-col gap-4">
+<section class="ash-page-section">
     <div>
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">${title}</h2>
+        <h2 class="ash-page-section__title">${title}</h2>
         @if (hasDescription)
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${description}</p>
+            <p class="ash-page-section__description">${description}</p>
         @endif
     </div>
 
