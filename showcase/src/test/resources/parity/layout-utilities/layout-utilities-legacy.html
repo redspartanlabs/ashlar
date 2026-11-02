@@ -1,0 +1,15 @@
+<!doctype html>
+<!-- TEST-ONLY. The Status Line, Form Actions, Key Value and Key Value List's PRE-MIGRATION markup: the exact Tailwind class strings
+     status-line.jte, form-actions.jte, key-value.jte and key-value-list.jte rendered before they moved to ash-status-line,
+     ash-form-actions, ash-key-value (with its label and value parts) and ash-key-value-list. It is never served.
+
+     It has two jobs. Tailwind compiles this file (see layout-utilities-oracle-entry.css and layout-utilities-legacy-scoped-entry.css), so
+     the legacy rendering stays reproducible after the templates stop emitting these classes. And the tests read the class strings back
+     out of it, so there is one source of truth for what "legacy" means. (The label and value elements are not valid outside a <dl>; this
+     file is only ever scanned for class names.) -->
+<p data-legacy-role="status-line" class="text-sm text-slate-500 dark:text-slate-400"></p>
+<div data-legacy-role="form-actions" class="flex flex-wrap items-center justify-end gap-3"></div>
+<div data-legacy-role="key-value" class="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-[minmax(8rem,12rem)_minmax(0,1fr)] sm:items-baseline"></div>
+<dt data-legacy-role="key-value-label" class="text-sm font-medium text-slate-500 dark:text-slate-400"></dt>
+<dd data-legacy-role="key-value-value" class="min-w-0 break-words text-sm text-slate-900 dark:text-slate-100"></dd>
+<dl data-legacy-role="key-value-list" class="flex flex-col gap-3"></dl>

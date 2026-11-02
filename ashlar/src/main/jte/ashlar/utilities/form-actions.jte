@@ -16,11 +16,11 @@
      satisfies that plain DOM order and each child's own native semantics
      don't already cover.
 
-     `flex flex-wrap items-center justify-end gap-3` end-aligns actions on
+     The flex row in components/form-actions.css end-aligns actions on
      a normal-width form (the common "[Cancel] [Save Changes]" case) while
      still letting them wrap onto their own line at narrow widths instead
-     of overflowing - `gap-3` matches page-header.jte's own established
+     of overflowing - its gap matches page-header.jte's own established
      spacing between multiple actions. --%>
-<div class="flex flex-wrap items-center justify-end gap-3">
+<div class="ash-form-actions">
     ${content}
 </div>

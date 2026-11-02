@@ -1,0 +1,10 @@
+/* TEST-ONLY (Status Line, Form Actions, Key Value and Key Value List migration oracle). Cumulative: the Pagination oracle, imported
+   unchanged (which is the Breadcrumbs oracle, the Stepper oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's
+   stylesheet was imported, plus every earlier migrated component's legacy classes), PLUS the Tailwind classes the four layout utilities
+   used before they moved to ash-status-line, ash-form-actions, ash-key-value and ash-key-value-list.
+
+   Those classes are no longer emitted by the utilities' templates, so Tailwind would purge any of them nothing else uses. Pointing it at
+   the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same utilities with
+   these classes and with the ash- classes, in the same browser, and compare. */
+@import "./pagination-oracle-entry.css";
+@source "../resources/parity/layout-utilities/layout-utilities-legacy.html";

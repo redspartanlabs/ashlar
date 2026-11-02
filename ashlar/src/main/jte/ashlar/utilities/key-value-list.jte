@@ -17,10 +17,10 @@
      term/description groups" natively, the same reasoning list.jte gives
      for omitting a role on `<ul>`/`<ol>`.
 
-     `flex flex-col gap-3` spaces entries apart without imposing anything on
-     an entry's own internal layout - each entry (typically a
-     `key-value.jte` div) remains free to lay out its own label/value
-     columns exactly as it defines them. --%>
-<dl class="flex flex-col gap-3">
+     The flex column in components/key-value-list.css spaces entries apart
+     without imposing anything on an entry's own internal layout - each entry
+     (typically a `key-value.jte` div) remains free to lay out its own
+     label/value columns exactly as it defines them. --%>
+<dl class="ash-key-value-list">
     ${content}
 </dl>
