@@ -1,0 +1,27 @@
+/* TEST-ONLY (Card and Stat Card migration oracle, scoped). The two legacy components' own Tailwind utilities and nothing else: no page-wide
+   preflight, no utilities for any other element on the page.
+
+   The full oracle (card-oracle-entry.css) is the whole former showcase stylesheet, so linking it into a page also restyles everything AROUND
+   the components. That is right for "Tailwind present". For "Tailwind removed" the surroundings must be the same unstyled page on both sides,
+   so the legacy components are rendered here with only what they themselves used.
+
+   Only the preflight rules the components depended on are kept, and only for the elements the components themselves render: not for the
+   caller's own content (a raw <p>, <a> or <button> projected into a Card or a Stat Card), which is part of the page around them and stays
+   unstyled on both sides of a "Tailwind removed" comparison. What is kept is border-box sizing with no default margin, padding or border
+   width (a 0 solid border): that removes the heading's, the <dl>'s and the <dd>'s browser margins (a <dd> is otherwise indented) and gives
+   the rules their solid style. CardParityTest proves this scoped rendering equals the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/card/card-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="raw"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+}

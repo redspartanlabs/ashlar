@@ -401,7 +401,7 @@
     letter-spacing: -0.018em;
 }
 
-[data-skin="fathom"] [data-card] > .border-b:first-child > h3 {
+[data-skin="fathom"] [data-card] > [data-card-header]:first-child > h3 {
     font-weight: 600;
     letter-spacing: -0.010em;
 }

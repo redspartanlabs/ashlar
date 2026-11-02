@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- TEST-ONLY. The Card and Stat Card's PRE-MIGRATION markup: the exact Tailwind class strings card.jte and stat-card.jte rendered before they
+     moved to ash-card (with its header, title, body and footer parts) and ash-stat-card (with its list, label, values, value, change and
+     description parts). It is never served. (The Stat Card's <dl> had no class, and still has no legacy classes: its role is listed in
+     CardLegacyMarkup as a part with no classes.) data-card, data-card-header, data-card-footer and data-stat-card are not here: they are
+     attributes, not classes, and the legacy rendering carries the same hooks as the migrated one, so the skins (which select the hooks) apply
+     to both.
+
+     It has two jobs. Tailwind compiles this file (see card-oracle-entry.css and card-legacy-scoped-entry.css), so the legacy rendering stays
+     reproducible after the templates stop emitting these classes. And the tests read the class strings back out of it, so there is one source
+     of truth for what "legacy" means. -->
+<div data-legacy-role="card" class="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"></div>
+<div data-legacy-role="card-header" class="border-b border-slate-200 px-6 py-4 dark:border-slate-700"></div>
+<h3 data-legacy-role="card-title" class="text-base font-semibold text-slate-900 dark:text-slate-100"></h3>
+<div data-legacy-role="card-body" class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300"></div>
+<div data-legacy-role="card-footer" class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800"></div>
+<div data-legacy-role="stat-card" class="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900"></div>
+<dt data-legacy-role="stat-card-label" class="text-sm font-medium text-slate-500 dark:text-slate-400"></dt>
+<dd data-legacy-role="stat-card-values" class="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1"></dd>
+<span data-legacy-role="stat-card-value" class="break-words text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100"></span>
+<span data-legacy-role="stat-card-change" class="shrink-0"></span>
+<dd data-legacy-role="stat-card-description" class="mt-1 break-words text-sm text-slate-500 dark:text-slate-400"></dd>

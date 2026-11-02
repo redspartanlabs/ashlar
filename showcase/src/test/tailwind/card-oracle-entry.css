@@ -1,0 +1,10 @@
+/* TEST-ONLY (Card and Stat Card migration oracle). Cumulative: the page composition oracle, imported unchanged (which is the layout
+   utilities oracle, the Pagination oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was
+   imported, plus every earlier migrated component's legacy classes), PLUS the Tailwind classes Card and Stat Card used before they moved to
+   ash-card and ash-stat-card.
+
+   Those classes are no longer emitted by the templates, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy
+   markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same components with these classes
+   and with the ash- classes, in the same browser, and compare. */
+@import "./page-composition-oracle-entry.css";
+@source "../resources/parity/card/card-legacy.html";

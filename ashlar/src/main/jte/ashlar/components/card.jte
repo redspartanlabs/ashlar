@@ -21,24 +21,27 @@
      `title` is a plain string, not richer content, and always renders as an
      <h3> when present - matching modal.jte's own title param exactly. A
      page assembling several Cards under its own h1/h2 structure gets a
-     consistent one-level-down heading without having to think about it. --%>
+     consistent one-level-down heading without having to think about it.
+
+     `data-card`, `data-card-header` and `data-card-footer` are the hooks a skin selects (a band behind the header, a stronger rule above
+     the footer). They are the contract; the ash-card classes are the styling and a skin should not depend on them. --%>
 !{boolean hasTitle = !title.isEmpty();}
 
-<div class="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900" data-card>
+<div class="ash-card" data-card>
     @if (hasTitle)
-        <div class="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">${title}</h3>
+        <div class="ash-card__header" data-card-header>
+            <h3 class="ash-card__title">${title}</h3>
         </div>
     @endif
 
     @if (body != null)
-        <div class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+        <div class="ash-card__body">
             ${body}
         </div>
     @endif
 
     @if (footer != null)
-        <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
+        <div class="ash-card__footer" data-card-footer>
             ${footer}
         </div>
     @endif

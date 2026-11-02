@@ -49,17 +49,17 @@
 !{boolean hasDescription = !description.isEmpty();}
 !{boolean hasChange = change != null;}
 
-<div class="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900" data-stat-card>
-    <dl>
-        <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">${label}</dt>
-        <dd class="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span class="break-words text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">${value}</span>
+<div class="ash-stat-card" data-stat-card>
+    <dl class="ash-stat-card__list">
+        <dt class="ash-stat-card__label">${label}</dt>
+        <dd class="ash-stat-card__values">
+            <span class="ash-stat-card__value">${value}</span>
             @if (hasChange)
-                <span class="shrink-0">${change}</span>
+                <span class="ash-stat-card__change">${change}</span>
             @endif
         </dd>
         @if (hasDescription)
-            <dd class="mt-1 break-words text-sm text-slate-500 dark:text-slate-400">${description}</dd>
+            <dd class="ash-stat-card__description">${description}</dd>
         @endif
     </dl>
 </div>
