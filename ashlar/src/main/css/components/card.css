@@ -1,0 +1,90 @@
+/* ash-card: a bordered content surface with an optional header, a body and an optional footer. It is a surface, not a layout primitive:
+   border, radius and background only. It sets no width, margin or grid placement, so the surrounding page decides where and how wide it sits.
+
+   Classes       ash-card                      the <div> (it also carries data-card)
+                 ash-card__header              the optional title bar, a <div> (it also carries data-card-header)
+                 ash-card__title               the <h3> inside the header
+                 ash-card__body                the optional body, a <div>
+                 ash-card__footer              the optional actions bar, a <div> (it also carries data-card-footer)
+   Properties    --ash-card-bg                 the card's background
+                 --ash-card-border             the card's border and the rules of the header and footer
+                 --ash-card-title              the title's colour
+                 --ash-card-text               the body's colour
+                 --ash-card-footer-bg          the footer's background
+                 These are an intentional customisation surface, set on the card (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components). They are inherited by the parts.
+
+   Hooks         data-card, data-card-header and data-card-footer are what a skin targets. They are markup, not styling: a skin that wants a
+                 band behind the header or a stronger rule above the footer selects [data-card] > [data-card-header] (or -footer), and so does
+                 not depend on any class the component happens to use.
+
+   Layout        The header and the footer exist only when the card has a title or a footer, and the header is then always the first child and the
+                 footer always the last. The footer is a wrapping row of the caller's actions at the inline end, --ash-space-3 apart. The card clips its
+                 children (overflow: hidden) so a skin's header band follows the rounded corners.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+                 --color-slate-* or --color-white recolours the card, and with no Tailwind and no skin it looks the same. The fallbacks are
+                 checked against Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form
+                 the Tailwind dark: variant used. The radius reads --radius-xl the same way (a local fallback, 0.75rem, as alert.css does for
+                 --radius-lg), so a skin that sets --radius-xl rounds the card as it always did.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The border states its own style (a border is not drawn without one), the
+   heading has a browser margin and size and weight, so its margin, size, line-height and weight are stated, and the border box comes
+   from Ashlar's base layer. The sizes are what Tailwind's text-base (1rem, line-height 1.5) and text-sm (0.875rem) were; the 1.25 / 0.875
+   ratio lives in a custom property on purpose (see badge.css). The header and footer rules are declared once as a zero-width solid border in
+   the rule colour on all four sides, and the one side that draws then gets its 1px width, which is what Tailwind's border-color plus
+   border-b / border-t produced (see divider.css). The component adds no global rule. */
+
+.ash-card {
+  --ash-card-body-leading: calc(1.25 / 0.875);
+  --ash-card-bg: var(--color-white, #fff);
+  --ash-card-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-card-title: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-card-text: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-card-footer-bg: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  overflow: hidden;
+  border: 1px solid var(--ash-card-border);
+  border-radius: var(--radius-xl, 0.75rem);
+  background-color: var(--ash-card-bg);
+}
+
+.ash-card:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-card-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-card-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-card-title: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-card-text: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-card-footer-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+}
+
+.ash-card__header {
+  border: 0 solid var(--ash-card-border);
+  border-bottom-width: 1px;
+  padding: var(--ash-space-4) var(--ash-space-6);
+}
+
+.ash-card__title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--ash-card-title);
+}
+
+.ash-card__body {
+  padding: var(--ash-space-4) var(--ash-space-6);
+  font-size: 0.875rem;
+  line-height: var(--ash-card-body-leading);
+  color: var(--ash-card-text);
+}
+
+.ash-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ash-space-3);
+  border: 0 solid var(--ash-card-border);
+  border-top-width: 1px;
+  background-color: var(--ash-card-footer-bg);
+  padding: var(--ash-space-4) var(--ash-space-6);
+}

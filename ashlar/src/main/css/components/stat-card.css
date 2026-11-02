@@ -1,0 +1,100 @@
+/* ash-stat-card: a single metric in its own small bordered surface: a quiet label, a value that dominates, an optional change indicator
+   beside the value and an optional description under it. It owns its surface (border, radius, background) and no width, margin or grid
+   placement, so a dashboard of several decides their layout.
+
+   Classes       ash-stat-card                 the <div> (it also carries data-stat-card)
+                 ash-stat-card__list           the <dl>
+                 ash-stat-card__label          the <dt>
+                 ash-stat-card__values         the first <dd>: the value and the optional change, on a wrapping row
+                 ash-stat-card__value          the <span> holding the value
+                 ash-stat-card__change         the optional <span> holding the caller's change content
+                 ash-stat-card__description    the optional second <dd>
+   Properties    --ash-stat-card-bg            the background
+                 --ash-stat-card-border        the border
+                 --ash-stat-card-label         the label's colour
+                 --ash-stat-card-value         the value's colour
+                 --ash-stat-card-description   the description's colour
+                 These are an intentional customisation surface, set on the card (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components). They are inherited by the parts.
+
+   Skins         The value is the first <span> of the first <dd>, and a skin selects it structurally ([data-stat-card] dd > span:first-child).
+                 That position and the element types are part of the component's contract and do not change here.
+
+   Layout        The value and the change sit on one row that wraps (--ash-space-2 between them across, 0.25rem between wrapped lines, the
+                 items on their text baseline). The change never shrinks; the value breaks inside a long word instead of overflowing.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+                 --color-slate-* or --color-white recolours the card, and with no Tailwind and no skin it looks the same. The fallbacks are
+                 checked against Tailwind's own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where()
+                 form the Tailwind dark: variant used. The radius reads --radius-xl with a local 0.75rem fallback (see card.css).
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <dl> and a <dd> have browser margins (a <dd> is indented 40px), so every
+   margin is stated: none on the list, the label and the two <dd>s, then the spacing the card actually has. The sizes are what Tailwind's
+   text-sm (0.875rem) and text-3xl (1.875rem) were, and tracking-tight was -0.025em; each line-height ratio lives in a custom property on
+   purpose, because a CSS minifier folds calc(2.25 / 1.875) in a normal declaration into a rounded number (see badge.css). The 0.25rem gaps are
+   literals: the foundation tokens have no step that small. The component adds no global rule. */
+
+.ash-stat-card {
+  --ash-stat-card-label-leading: calc(1.25 / 0.875);
+  --ash-stat-card-value-leading: calc(2.25 / 1.875);
+  --ash-stat-card-bg: var(--color-white, #fff);
+  --ash-stat-card-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-stat-card-label: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-stat-card-value: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-stat-card-description: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  border: 1px solid var(--ash-stat-card-border);
+  border-radius: var(--radius-xl, 0.75rem);
+  background-color: var(--ash-stat-card-bg);
+  padding: var(--ash-space-6);
+}
+
+.ash-stat-card:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-stat-card-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-stat-card-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-stat-card-label: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-stat-card-value: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-stat-card-description: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-stat-card__list {
+  margin: 0;
+}
+
+.ash-stat-card__label {
+  font-size: 0.875rem;
+  line-height: var(--ash-stat-card-label-leading);
+  font-weight: 500;
+  color: var(--ash-stat-card-label);
+}
+
+.ash-stat-card__values {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--ash-space-2);
+  row-gap: 0.25rem;
+  margin: 0;
+  margin-top: var(--ash-space-2);
+}
+
+.ash-stat-card__value {
+  overflow-wrap: break-word;
+  font-size: 1.875rem;
+  line-height: var(--ash-stat-card-value-leading);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--ash-stat-card-value);
+}
+
+.ash-stat-card__change {
+  flex-shrink: 0;
+}
+
+.ash-stat-card__description {
+  margin: 0;
+  margin-top: 0.25rem;
+  overflow-wrap: break-word;
+  font-size: 0.875rem;
+  line-height: var(--ash-stat-card-label-leading);
+  color: var(--ash-stat-card-description);
+}

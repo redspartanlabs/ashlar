@@ -325,11 +325,11 @@
    Card's own marker for that bar (its footer uses `.border-t`), so this
    reaches the header and nothing else.
    ------------------------------------------------------------------------- */
-[data-skin="foundry"] [data-card] > .border-b:first-child {
+[data-skin="foundry"] [data-card] > [data-card-header]:first-child {
     background-color: var(--foundry-band);
 }
 
-[data-skin="foundry"] [data-card] > .border-b:first-child > h3 {
+[data-skin="foundry"] [data-card] > [data-card-header]:first-child > h3 {
     letter-spacing: 0.005em;
 }
 

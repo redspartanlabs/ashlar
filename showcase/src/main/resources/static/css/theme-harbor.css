@@ -440,11 +440,11 @@
    the band and rules it, Summit draws a stronger edge, Harbor just lets the
    tone change.
    ------------------------------------------------------------------------- */
-[data-skin="harbor"] [data-card] > .border-b:first-child {
+[data-skin="harbor"] [data-card] > [data-card-header]:first-child {
     background-color: var(--harbor-band);
 }
 
-[data-skin="harbor"] [data-card] > .border-b:first-child > h3 {
+[data-skin="harbor"] [data-card] > [data-card-header]:first-child > h3 {
     font-weight: 600;
     letter-spacing: -0.006em;
 }

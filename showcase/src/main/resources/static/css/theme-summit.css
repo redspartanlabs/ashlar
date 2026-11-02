@@ -356,7 +356,7 @@
 }
 
 /* Panel and dialog titles - the second rank of "this names a region". */
-[data-skin="summit"] :is([data-card] > .border-b:first-child > h3, [data-modal-dialog] h3, [data-drawer-panel] h3) {
+[data-skin="summit"] :is([data-card] > [data-card-header]:first-child > h3, [data-modal-dialog] h3, [data-drawer-panel] h3) {
     font-weight: 700;
     letter-spacing: -0.012em;
 }
@@ -409,11 +409,11 @@
     border-bottom-color: var(--summit-group-border);
 }
 
-[data-skin="summit"] [data-card] > .border-b:first-child {
+[data-skin="summit"] [data-card] > [data-card-header]:first-child {
     border-bottom-color: var(--summit-group-border);
 }
 
-[data-skin="summit"] [data-card] > .border-t:last-child {
+[data-skin="summit"] [data-card] > [data-card-footer]:last-child {
     border-top-color: var(--summit-group-border);
 }
 
