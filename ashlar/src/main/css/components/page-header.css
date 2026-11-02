@@ -1,0 +1,79 @@
+/* ash-page-header: a page's own heading, an optional description and an optional group of actions. It is a layout utility: no border,
+   background or shadow.
+
+   Classes       ash-page-header               the <header>
+                 ash-page-header__heading      the <div> holding the title and the description; it may shrink
+                 ash-page-header__title        the <h1>
+                 ash-page-header__description  the optional <p> under the title
+                 ash-page-header__actions      the optional <div> holding the caller's actions
+   Properties    --ash-page-header-title       the title's colour
+                 --ash-page-header-description the description's colour
+                 These are an intentional customisation surface, set on the <header> (inline style, an unlayered rule, or a rule in a
+                 layer above ash.components). They are inherited by the parts.
+
+   Layout: below 40rem the heading sits above the actions (one column, --ash-space-4 apart). From 40rem they sit side by side, the
+   heading first and the actions pushed to the inline end, aligned to the top. The breakpoint is the viewport width and is literal
+   (40rem, Tailwind's sm). The heading may shrink below its content (min-width: 0), so a long title or description wraps instead of
+   forcing the row wider, and the actions wrap onto further rows rather than overflowing; they are --ash-space-3 apart and centred.
+
+   Colour: both read Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-slate-* recolours them, and with no Tailwind and no skin they look the same. The fallbacks are checked against Tailwind's own
+   theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+   A skin's own heading rules (a bare h1 selector) still apply on top of this, as they did on top of the Tailwind utilities.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The heading and the paragraph have browser margins and a heading has
+   a browser size and weight, so margins, size, line-height and weight are stated. The sizes are what Tailwind's text-xl (1.25rem) and
+   text-sm (0.875rem) were; each ratio lives in a custom property on purpose, because a CSS minifier folds calc(1.75 / 1.25) in a
+   normal declaration into a rounded number that layout then rounds differently (see badge.css). The 0.25rem between the title and the
+   description is a literal: the foundation tokens have no step that small. The component sets no margin on itself and adds no global
+   rule. */
+
+.ash-page-header {
+  --ash-page-header-title-leading: calc(1.75 / 1.25);
+  --ash-page-header-description-leading: calc(1.25 / 0.875);
+  --ash-page-header-title: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-page-header-description: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-space-4);
+}
+
+.ash-page-header:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-page-header-title: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-page-header-description: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-page-header__heading {
+  min-width: 0;
+}
+
+.ash-page-header__title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: var(--ash-page-header-title-leading);
+  font-weight: 600;
+  color: var(--ash-page-header-title);
+}
+
+.ash-page-header__description {
+  margin: 0;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: var(--ash-page-header-description-leading);
+  color: var(--ash-page-header-description);
+}
+
+.ash-page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ash-space-3);
+}
+
+@media (min-width: 40rem) {
+  .ash-page-header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}

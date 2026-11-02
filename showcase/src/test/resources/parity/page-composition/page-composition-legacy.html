@@ -1,0 +1,20 @@
+<!doctype html>
+<!-- TEST-ONLY. The Page Shell, Page Header, Page Section and Footer's PRE-MIGRATION markup: the exact Tailwind class strings
+     page-shell.jte, page-header.jte, page-section.jte and footer.jte rendered before they moved to ash-page-shell, ash-page-header (with
+     its heading, title, description and actions parts), ash-page-section (with its title and description) and ash-footer (with its inner
+     part). It is never served. (The heading block inside a Page Section had no class, and still has none.)
+
+     It has two jobs. Tailwind compiles this file (see page-composition-oracle-entry.css and page-composition-legacy-scoped-entry.css), so
+     the legacy rendering stays reproducible after the templates stop emitting these classes. And the tests read the class strings back
+     out of it, so there is one source of truth for what "legacy" means. -->
+<div data-legacy-role="page-shell" class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 sm:px-6 lg:px-8"></div>
+<header data-legacy-role="page-header" class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"></header>
+<div data-legacy-role="page-header-heading" class="min-w-0"></div>
+<h1 data-legacy-role="page-header-title" class="text-xl font-semibold text-slate-900 dark:text-slate-100"></h1>
+<p data-legacy-role="page-header-description" class="mt-1 text-sm text-slate-500 dark:text-slate-400"></p>
+<div data-legacy-role="page-header-actions" class="flex flex-wrap items-center gap-3"></div>
+<section data-legacy-role="page-section" class="flex flex-col gap-4"></section>
+<h2 data-legacy-role="page-section-title" class="text-lg font-semibold text-slate-900 dark:text-slate-100"></h2>
+<p data-legacy-role="page-section-description" class="mt-1 text-sm text-slate-500 dark:text-slate-400"></p>
+<footer data-legacy-role="footer" class="border-t border-slate-200 py-8 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400"></footer>
+<div data-legacy-role="footer-inner" class="mx-auto max-w-6xl px-4"></div>

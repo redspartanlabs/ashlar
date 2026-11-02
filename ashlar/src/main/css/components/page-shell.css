@@ -1,0 +1,37 @@
+/* ash-page-shell: the outer layout boundary of a page's own content: width, horizontal padding and the vertical spacing between its
+   top-level blocks. It has no surface of its own (no border, background or shadow).
+
+   Classes       ash-page-shell                on the <div>
+
+   The shell is a full-width flex column centred in its parent and capped at 72rem (the width of Tailwind's max-w-6xl; the file
+   states it as a literal, as container.css does). Its top-level blocks (a Page Header, each Page Section, anything else) are
+   --ash-space-10 (2.5rem) apart, and it has --ash-space-8 (2rem) of padding above and below. The side padding is --ash-space-4 below
+   40rem, --ash-space-6 from 40rem and --ash-space-8 from 64rem; media queries cannot read custom properties, so 40rem and 64rem are
+   literal. The width cap includes the padding (the base layer sets border-box).
+
+   The gap only separates the shell's own children; it does not reach into any of them. The shell is a plain <div>, not <main>: the
+   surrounding layout owns the document's one <main> landmark. The component sets no colour and no font, sets no margin other than the
+   centring, and adds no global rule. */
+
+.ash-page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-space-10);
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-block: var(--ash-space-8);
+  padding-inline: var(--ash-space-4);
+}
+
+@media (min-width: 40rem) {
+  .ash-page-shell {
+    padding-inline: var(--ash-space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .ash-page-shell {
+    padding-inline: var(--ash-space-8);
+  }
+}

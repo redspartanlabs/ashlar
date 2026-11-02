@@ -17,24 +17,24 @@
      layout only - which actions exist, how many, and what they do is the
      calling page's decision, not this utility's.
 
-     Desktop-vs-narrow reflow is `flex flex-col sm:flex-row` with no fixed
-     widths on either side: the heading column can wrap onto as many lines
-     as a long title/description need, and `flex-wrap` on the actions group
-     lets several actions wrap onto their own line rather than forcing
-     horizontal overflow. --%>
+     Desktop-vs-narrow reflow (components/page-header.css) is a column that
+     becomes a row from 40rem, with no fixed widths on either side: the
+     heading column can wrap onto as many lines as a long title/description
+     need, and the actions group wraps, so several actions wrap onto their own
+     line rather than forcing horizontal overflow. --%>
 !{boolean hasDescription = !description.isEmpty();}
 !{boolean hasActions = actions != null;}
 
-<header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div class="min-w-0">
-        <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">${title}</h1>
+<header class="ash-page-header">
+    <div class="ash-page-header__heading">
+        <h1 class="ash-page-header__title">${title}</h1>
         @if (hasDescription)
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${description}</p>
+            <p class="ash-page-header__description">${description}</p>
         @endif
     </div>
 
     @if (hasActions)
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="ash-page-header__actions">
             ${actions}
         </div>
     @endif

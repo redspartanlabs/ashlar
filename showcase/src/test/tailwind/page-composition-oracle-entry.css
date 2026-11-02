@@ -1,0 +1,10 @@
+/* TEST-ONLY (Page Shell, Page Header, Page Section and Footer migration oracle). Cumulative: the layout utilities oracle, imported
+   unchanged (which is the Pagination oracle, the Breadcrumbs oracle, ... down to the Tailwind-only stylesheet the showcase had before
+   Ashlar's stylesheet was imported, plus every earlier migrated component's legacy classes), PLUS the Tailwind classes the four page
+   composition utilities used before they moved to ash-page-shell, ash-page-header, ash-page-section and ash-footer.
+
+   Those classes are no longer emitted by the utilities' templates, so Tailwind would purge any of them nothing else uses. Pointing it at
+   the legacy markup keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same utilities with
+   these classes and with the ash- classes, in the same browser, and compare. */
+@import "./layout-utilities-oracle-entry.css";
+@source "../resources/parity/page-composition/page-composition-legacy.html";

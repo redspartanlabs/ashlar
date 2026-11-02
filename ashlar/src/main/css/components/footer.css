@@ -1,0 +1,49 @@
+/* ash-footer: a page's closing landmark: a top rule, the library's width and padding rhythm, and the quiet small text a footer
+   normally holds. It is a layout utility with no background of its own; the content is entirely the caller's.
+
+   Classes       ash-footer                    the <footer>
+                 ash-footer__inner             the <div> that holds the caller's content and sets its width
+   Properties    --ash-footer-border           the top rule's colour
+                 --ash-footer-color            the default text colour
+                 These are an intentional customisation surface, set on the <footer> (inline style, an unlayered rule, or a rule in a
+                 layer above ash.components). They are inherited by the inner element and the content.
+
+   The footer has a 1px rule above it and --ash-space-8 (2rem) of padding above and below. The inner element is centred, capped at 72rem
+   (the width of Tailwind's max-w-6xl; a literal, as in container.css and page-shell.css) and has --ash-space-4 of side padding, the same
+   rhythm as the page's header bar and main. The text is 0.875rem with the caller's own elements inheriting that size and colour; the
+   component styles no element inside the content.
+
+   The rule is declared once as a zero-width solid border in the rule colour on all four sides, and the top side then gets its 1px width.
+   That is exactly what Tailwind's border-color plus border-t produced, so the three sides that draw nothing still carry the colour in
+   their computed style (see divider.css).
+
+   Colour: both read Tailwind's slate palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+   --color-slate-* recolours the footer, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's
+   own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The border states its own style (a border is not drawn without one),
+   and the border box comes from Ashlar's base layer. The font size and line-height are what Tailwind's text-sm was; the ratio lives in
+   a custom property on purpose (see badge.css). The component sets no margin on itself and adds no global rule. */
+
+.ash-footer {
+  --ash-footer-leading: calc(1.25 / 0.875);
+  --ash-footer-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-footer-color: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  border: 0 solid var(--ash-footer-border);
+  border-top-width: 1px;
+  padding-block: var(--ash-space-8);
+  font-size: 0.875rem;
+  line-height: var(--ash-footer-leading);
+  color: var(--ash-footer-color);
+}
+
+.ash-footer:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-footer-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-footer-color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-footer__inner {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: var(--ash-space-4);
+}
