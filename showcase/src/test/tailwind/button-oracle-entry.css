@@ -1,0 +1,10 @@
+/* TEST-ONLY (Button migration oracle). Cumulative: the Card and Stat Card oracle, imported unchanged (which is the page composition oracle and
+   every earlier migrated component's legacy classes down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was
+   imported), PLUS the Tailwind classes Button used before it moved to ash-btn.
+
+   Those classes are no longer emitted by the templates, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy
+   class strings (ButtonLegacyStyles, a copy of the former ButtonStyles) and at the legacy parts keeps them compiled, which keeps the legacy
+   rendering executable: the parity tests render the same Buttons with these classes and with the ash- classes, in the same browser, and compare. */
+@import "./card-oracle-entry.css";
+@source "../java/dev/redspartanlabs/ashlar/showcase/cascade/ButtonLegacyStyles.java";
+@source "../resources/parity/button/button-legacy.html";

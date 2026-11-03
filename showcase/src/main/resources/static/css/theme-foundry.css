@@ -239,6 +239,12 @@
     --tw-shadow: 0 0 #0000;
 }
 
+/* A Button owns its drop shadow in --ash-btn-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. Foundry's own
+   box-shadow below decides a real Button; this keeps a decorative element that borrows the Button classes (File Upload's "Choose File") flat. */
+[data-skin="foundry"] .ash-btn {
+    --ash-btn-shadow: 0 0 #0000;
+}
+
 [data-skin="foundry"] :is([data-card], [data-stat-card], section.border, [data-empty-state]) {
     box-shadow: inset 0 1px 0 var(--foundry-edge-light), var(--foundry-drop);
 }
@@ -336,15 +342,15 @@
 /* -------------------------------------------------------------------------
    7. CONTROLS
    Buttons are machined parts: a defined edge, a highlight along the top,
-   and a press that actually moves. Ghost and Link variants declare
-   themselves with `bg-transparent` and are left flat, because they are not
-   surfaces.
+   and a press that actually moves. Link, and Ghost until it is pressed,
+   are left flat, because they are not surfaces; they declare themselves
+   with data-btn-variant.
    ------------------------------------------------------------------------- */
-[data-skin="foundry"] [data-btn]:not(.bg-transparent) {
+[data-skin="foundry"] [data-btn]:not([data-btn-variant="link"], [data-btn-variant="ghost"]:not([aria-pressed="true"], .ash-btn--pressed)) {
     box-shadow: inset 0 1px 0 var(--foundry-edge-light), var(--foundry-drop);
 }
 
-[data-skin="foundry"] [data-btn]:not(.bg-transparent):not(:disabled):active {
+[data-skin="foundry"] [data-btn]:not([data-btn-variant="link"], [data-btn-variant="ghost"]:not([aria-pressed="true"], .ash-btn--pressed)):not(:disabled):active {
     box-shadow: inset 0 1px 2px oklch(20% 0.02 245 / 0.25);
 }
 

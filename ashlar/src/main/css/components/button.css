@@ -1,0 +1,387 @@
+/* ash-btn: the button. Eight variants, five sizes, an icon-only form, a full-width form, and the loading, pressed and disabled states.
+
+   Classes       ash-btn                       the <button> (it also carries data-btn and data-btn-variant)
+                 ash-btn--primary | --secondary | --success | --warning | --danger | --info | --ghost | --link
+                                               exactly one variant per button
+                 ash-btn--xs | --sm | --md | --lg | --xl
+                                               exactly one size per button (24, 32, 40, 48 and 56px tall)
+                 ash-btn--icon                 icon-only: a square the size of the button's height, no horizontal padding
+                 ash-btn--block                full width
+                 ash-btn--pressed              the pressed look on a button that is NOT a rendered toggle (see State)
+                 ash-btn__spinner              the ring shown while loading
+                 ash-btn__icon                 the wrapper of the optional icon (hidden while loading)
+                 ash-btn__label                the visible text (or, for an icon-only button, the screen-reader-only name)
+                 ash-btn__status               the polite status region ("Loading")
+   Properties    --ash-btn-bg  --ash-btn-bg-hover  --ash-btn-bg-active  the background at rest, on hover and while pressed down
+                 --ash-btn-fg  --ash-btn-fg-hover  --ash-btn-fg-active  the text colour in the same three situations
+                 --ash-btn-ring                the keyboard focus ring colour
+                 --ash-btn-border              the border colour (only the Secondary variant draws a border)
+                 --ash-btn-shadow              the resting DROP shadow; a skin that wants flat buttons sets it to `0 0 #0000`
+                 --ash-btn-inset               the INSET shadow of the pressed look
+                 These are an intentional customisation surface, set on the button (inline style, an unlayered rule, or a rule in a layer
+                 above ash.components). The variant sets all of them, so a button never inherits one from an ancestor.
+
+   State         Disabled is the native :disabled. Loading is aria-busy="true" with aria-disabled="true" (the script sets both; it never sets
+                 `disabled`). Both dim the button to 60% and show the not-allowed cursor, and neither changes its colours on hover.
+                 Pressed is aria-pressed="true", which is what a rendered toggle Button carries and what its script flips. A button that is
+                 pressed but is not a toggle has no aria-pressed to carry that, so it carries ash-btn--pressed instead (ButtonStyles.pressedClasses).
+                 A rendered toggle never carries that class, so the two can never disagree. A pressed button holds its pressed colours: it does not
+                 change on hover or while pressed down.
+   Spinner       The spinner and the icon are shown and hidden by the button's own aria-busy, so no script toggles a class.
+
+   Shadow        A Tailwind shadow utility used to give the filled variants a soft drop shadow, and a skin neutralised it through that utility's
+                 class. The button now owns its shadow in --ash-btn-shadow (drop) and --ash-btn-inset (pressed), so a skin neutralises the drop
+                 shadow of a button with `[data-skin="x"] .ash-btn { --ash-btn-shadow: 0 0 #0000 }`. The pressed inset shadow is not affected by
+                 that, as it never was. The focus ring is two box-shadow rings (a 2px white offset and a 2px ring) drawn before the shadow.
+
+   Palette       Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+                 --color-* recolours the button, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's
+                 own theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant
+                 used. The radius is the foundation token --ash-radius-md, which is var(--radius-md, 0.375rem): exactly what rounded-md read, so a skin
+                 that sets --radius-md rounds every button (as in pagination-item.css).
+
+   Hover         The hover rules sit inside @media (hover: hover), as Tailwind's hover: variant did, so a touch screen has no stuck hover.
+                 The not-while-disabled rules sit inside it too, with the specificity they had, so that a hover on a disabled or loading button
+                 changes nothing. The specificities of every state rule are what the Tailwind variants had.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A button has a browser border, padding, margin, font, letter spacing and
+   background, and the heading-like defaults a preflight removed, so each is stated. The sizes are what Tailwind's text-xs, text-sm, text-base and
+   text-lg were; each line-height ratio lives in a custom property on purpose (see badge.css). The component adds no global rule. */
+
+.ash-btn {
+  --ash-btn-leading: calc(1.25 / 0.875);
+  --ash-btn-shadow: 0 0 #0000;
+  --ash-btn-inset: 0 0 #0000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ash-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+  border-radius: var(--ash-radius-md);
+  background-color: var(--ash-btn-bg);
+  box-shadow: var(--ash-btn-shadow), var(--ash-btn-inset);
+  color: var(--ash-btn-fg);
+  font: inherit;
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: inherit;
+  text-transform: none;
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* A <button> element is a native push button (the Tailwind preflight said so); the same classes on a decorative element are not. */
+button.ash-btn {
+  appearance: button;
+}
+
+/* Keyboard focus: no outline, a 2px white offset and a 2px ring in the variant's colour. */
+.ash-btn:focus {
+  outline-style: none;
+}
+
+.ash-btn:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ash-btn-ring), var(--ash-btn-shadow), var(--ash-btn-inset);
+}
+
+/* Disabled and loading. */
+.ash-btn:disabled,
+.ash-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---- sizes ---- */
+
+.ash-btn--xs {
+  --ash-btn-leading: calc(1 / 0.75);
+  --ash-btn-size: 1.5rem;
+  height: var(--ash-btn-size);
+  padding-inline: var(--ash-space-2);
+  font-size: 0.75rem;
+  line-height: var(--ash-btn-leading);
+}
+
+.ash-btn--sm {
+  --ash-btn-size: 2rem;
+  height: var(--ash-btn-size);
+  padding-inline: var(--ash-space-3);
+  font-size: 0.875rem;
+  line-height: var(--ash-btn-leading);
+}
+
+.ash-btn--md {
+  --ash-btn-size: var(--ash-space-10);
+  height: var(--ash-btn-size);
+  padding-inline: var(--ash-space-4);
+  font-size: 0.875rem;
+  line-height: var(--ash-btn-leading);
+}
+
+.ash-btn--lg {
+  --ash-btn-leading: calc(1.5 / 1);
+  --ash-btn-size: 3rem;
+  height: var(--ash-btn-size);
+  padding-inline: var(--ash-space-6);
+  font-size: 1rem;
+  line-height: var(--ash-btn-leading);
+}
+
+.ash-btn--xl {
+  --ash-btn-leading: calc(1.75 / 1.125);
+  --ash-btn-size: 3.5rem;
+  height: var(--ash-btn-size);
+  padding-inline: var(--ash-space-8);
+  font-size: 1.125rem;
+  line-height: var(--ash-btn-leading);
+}
+
+.ash-btn--icon {
+  width: var(--ash-btn-size);
+  padding-inline: 0;
+}
+
+.ash-btn--block {
+  width: 100%;
+}
+
+/* ---- variants: the filled colours (Primary, Success, Warning, Danger, Info) ---- */
+
+.ash-btn--primary {
+  --ash-btn-bg: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-btn-bg-hover: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ash-btn-bg-active: var(--color-blue-800, oklch(42.4% 0.199 265.638));
+  --ash-btn-fg: var(--color-white, #fff);
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-btn-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.ash-btn--success {
+  --ash-btn-bg: var(--color-green-600, oklch(62.7% 0.194 149.214));
+  --ash-btn-bg-hover: var(--color-green-700, oklch(52.7% 0.154 150.069));
+  --ash-btn-bg-active: var(--color-green-800, oklch(44.8% 0.119 151.328));
+  --ash-btn-fg: var(--color-white, #fff);
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-ring: var(--color-green-500, oklch(72.3% 0.219 149.579));
+  --ash-btn-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.ash-btn--warning {
+  --ash-btn-bg: var(--color-amber-500, oklch(76.9% 0.188 70.08));
+  --ash-btn-bg-hover: var(--color-amber-600, oklch(66.6% 0.179 58.318));
+  --ash-btn-bg-active: var(--color-amber-700, oklch(55.5% 0.163 48.998));
+  --ash-btn-fg: var(--color-white, #fff);
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-ring: var(--color-amber-500, oklch(76.9% 0.188 70.08));
+  --ash-btn-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.ash-btn--danger {
+  --ash-btn-bg: var(--color-red-600, oklch(57.7% 0.245 27.325));
+  --ash-btn-bg-hover: var(--color-red-700, oklch(50.5% 0.213 27.518));
+  --ash-btn-bg-active: var(--color-red-800, oklch(44.4% 0.177 26.899));
+  --ash-btn-fg: var(--color-white, #fff);
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-ring: var(--color-red-500, oklch(63.7% 0.237 25.331));
+  --ash-btn-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.ash-btn--info {
+  --ash-btn-bg: var(--color-sky-600, oklch(58.8% 0.158 241.966));
+  --ash-btn-bg-hover: var(--color-sky-700, oklch(50% 0.134 242.749));
+  --ash-btn-bg-active: var(--color-sky-800, oklch(44.3% 0.11 240.79));
+  --ash-btn-fg: var(--color-white, #fff);
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-ring: var(--color-sky-500, oklch(68.5% 0.169 237.323));
+  --ash-btn-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* ---- variants: Secondary (a bordered white button) ---- */
+
+.ash-btn--secondary {
+  --ash-btn-bg: var(--color-white, #fff);
+  --ash-btn-bg-hover: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-btn-bg-active: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-btn-fg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-border: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-btn-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-btn-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border-width: 1px;
+  border-color: var(--ash-btn-border);
+}
+
+.ash-btn--secondary:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-btn-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-btn-bg-hover: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-btn-bg-active: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-btn-fg: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-btn-border: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+}
+
+/* ---- variants: Ghost (transparent, tinted on hover) ---- */
+
+.ash-btn--ghost {
+  --ash-btn-bg: transparent;
+  --ash-btn-bg-hover: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-btn-bg-active: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-btn-fg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  --ash-btn-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+}
+
+.ash-btn--ghost:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-btn-bg-hover: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-btn-bg-active: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-btn-fg: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+/* ---- variants: Link (text only, underlined on hover) ---- */
+
+.ash-btn--link {
+  --ash-btn-bg: transparent;
+  --ash-btn-bg-hover: transparent;
+  --ash-btn-bg-active: transparent;
+  --ash-btn-fg: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-btn-fg-hover: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ash-btn-fg-active: var(--color-blue-800, oklch(42.4% 0.199 265.638));
+  --ash-btn-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  text-underline-offset: 4px;
+}
+
+.ash-btn--link:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-btn-fg: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+  --ash-btn-fg-hover: var(--color-blue-300, oklch(80.9% 0.105 251.813));
+  --ash-btn-fg-active: var(--color-blue-200, oklch(88.2% 0.059 254.128));
+}
+
+/* ---- pressed: aria-pressed="true" on a rendered toggle, or ash-btn--pressed on a button that is not one ----
+   Each pressed rule has the specificity of two classes, so it outranks its variant, and each also pins the hover and active
+   colours to the pressed colour, because a pressed button does not change on hover or while pressed down. */
+
+.ash-btn--primary:is(.ash-btn--pressed, [aria-pressed="true"]),
+.ash-btn--success:is(.ash-btn--pressed, [aria-pressed="true"]),
+.ash-btn--warning:is(.ash-btn--pressed, [aria-pressed="true"]),
+.ash-btn--danger:is(.ash-btn--pressed, [aria-pressed="true"]),
+.ash-btn--info:is(.ash-btn--pressed, [aria-pressed="true"]) {
+  --ash-btn-bg: var(--ash-btn-bg-active);
+  --ash-btn-bg-hover: var(--ash-btn-bg-active);
+  --ash-btn-shadow: 0 0 #0000;
+  --ash-btn-inset: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+}
+
+.ash-btn--secondary:is(.ash-btn--pressed, [aria-pressed="true"]) {
+  --ash-btn-bg: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-btn-bg-hover: var(--ash-btn-bg);
+  --ash-btn-bg-active: var(--ash-btn-bg);
+  --ash-btn-fg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-btn-border: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-btn-shadow: 0 0 #0000;
+  --ash-btn-inset: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+}
+
+.ash-btn--secondary:is(.ash-btn--pressed, [aria-pressed="true"]):where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-btn-bg: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-btn-fg: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-btn-border: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+.ash-btn--ghost:is(.ash-btn--pressed, [aria-pressed="true"]) {
+  --ash-btn-bg: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-btn-bg-hover: var(--ash-btn-bg);
+  --ash-btn-bg-active: var(--ash-btn-bg);
+  --ash-btn-fg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+}
+
+.ash-btn--ghost:is(.ash-btn--pressed, [aria-pressed="true"]):where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-btn-bg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-btn-bg-hover: var(--ash-btn-bg);
+  --ash-btn-bg-active: var(--ash-btn-bg);
+  --ash-btn-fg: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+}
+
+.ash-btn--link:is(.ash-btn--pressed, [aria-pressed="true"]) {
+  --ash-btn-fg: var(--color-blue-800, oklch(42.4% 0.199 265.638));
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+  text-decoration-line: underline;
+  /* The pressed Link never had the resting Link's underline offset, so its underline sits where the browser puts it. */
+  text-underline-offset: auto;
+}
+
+.ash-btn--link:is(.ash-btn--pressed, [aria-pressed="true"]):where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-btn-fg: var(--color-blue-300, oklch(80.9% 0.105 251.813));
+  --ash-btn-fg-hover: var(--ash-btn-fg);
+  --ash-btn-fg-active: var(--ash-btn-fg);
+}
+
+/* ---- hover and active ---- */
+
+@media (hover: hover) {
+  .ash-btn:hover {
+    background-color: var(--ash-btn-bg-hover);
+    color: var(--ash-btn-fg-hover);
+  }
+
+  .ash-btn--link:hover {
+    text-decoration-line: underline;
+  }
+}
+
+.ash-btn:active {
+  background-color: var(--ash-btn-bg-active);
+  color: var(--ash-btn-fg-active);
+}
+
+/* A hover on a disabled or loading button changes nothing: the colours return to the resting ones (three classes of specificity, as the
+   Tailwind disabled:hover and aria-disabled:hover variants had) and the Link variant's underline goes. A pressed button had neither. */
+@media (hover: hover) {
+  .ash-btn:disabled:hover,
+  .ash-btn[aria-disabled="true"]:hover {
+    background-color: var(--ash-btn-bg);
+  }
+
+  .ash-btn--link:where(:not(.ash-btn--pressed, [aria-pressed="true"])):disabled:hover,
+  .ash-btn--link:where(:not(.ash-btn--pressed, [aria-pressed="true"]))[aria-disabled="true"]:hover {
+    text-decoration-line: none;
+  }
+}
+
+/* ---- parts ---- */
+
+.ash-btn__spinner {
+  display: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: ash-btn-spin 1s linear infinite;
+}
+
+.ash-btn[aria-busy="true"] .ash-btn__spinner {
+  display: inline-block;
+}
+
+.ash-btn[aria-busy="true"] .ash-btn__icon {
+  display: none;
+}
+
+@keyframes ash-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

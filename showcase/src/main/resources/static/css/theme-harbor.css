@@ -347,6 +347,11 @@
     --tw-shadow: 0 0 #0000;
 }
 
+/* A Button owns its drop shadow in --ash-btn-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. */
+[data-skin="harbor"] .ash-btn {
+    --ash-btn-shadow: 0 0 #0000;
+}
+
 [data-skin="harbor"] :is([data-card], [data-stat-card], [data-table], section.border) {
     box-shadow: var(--harbor-lift);
 }

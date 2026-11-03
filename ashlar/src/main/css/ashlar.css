@@ -31,6 +31,7 @@
 @import "components/badge.css" layer(ash.components);
 @import "components/breadcrumbs.css" layer(ash.components);
 @import "components/breadcrumb-item.css" layer(ash.components);
+@import "components/button.css" layer(ash.components);
 @import "components/card.css" layer(ash.components);
 @import "components/divider.css" layer(ash.components);
 @import "components/empty-state.css" layer(ash.components);

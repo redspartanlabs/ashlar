@@ -191,7 +191,7 @@ content = @`
                     label = "Toggle button",
                     code = toggleCode,
                     content = @`
-                        <p class="mb-3 text-sm text-slate-500 dark:text-slate-400">A self-contained two-state button - aria-pressed and its own classes/label flip on click, no page JavaScript required. For a value that submits with a form, use <a href="${contextPath}/components/toggle" class="text-blue-700 hover:underline dark:text-blue-400">Toggle</a> instead; this is presentational state only.</p>
+                        <p class="mb-3 text-sm text-slate-500 dark:text-slate-400">A self-contained two-state button - aria-pressed and its label flip on click (the stylesheet draws the pressed look from aria-pressed), no page JavaScript required. For a value that submits with a form, use <a href="${contextPath}/components/toggle" class="text-blue-700 hover:underline dark:text-blue-400">Toggle</a> instead; this is presentational state only.</p>
                         @template.ashlar.components.button(text = "Follow", pressedText = "Following", type = "Secondary", toggle = true)
                     `
                     )

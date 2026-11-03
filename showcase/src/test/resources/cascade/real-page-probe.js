@@ -22,9 +22,9 @@
   function meta(key, value) { emit("meta", key, String(value).replace(/\s+/g, " ")); }
   function descr(el) {
     var cls = (el.getAttribute("class") || "").trim().split(/\s+/).slice(0, 3).join(".");
-    // "~badge" marks a Badge and anything inside one, so a comparison can apply the parity normalizations
-    // to exactly the migrated component's elements and to nothing else.
-    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "") + (el.closest("[data-badge]") ? "~badge" : "");
+    // "~badge" marks a Badge or a Button (data-btn) and anything inside one, so a comparison can apply the parity
+    // normalizations to exactly those migrated components' elements and to nothing else. (The suffix keeps its first name.)
+    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "") + (el.closest("[data-badge], [data-btn]") ? "~badge" : "");
   }
 
   function layerOrder() {

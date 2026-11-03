@@ -1,104 +1,87 @@
 package dev.redspartanlabs.ashlar.button;
 
+import java.util.Locale;
+
 /**
- * The single place that maps a button's variant/size/state to Tailwind
- * utility classes.
+ * The single place that maps a button's variant/size/state to its CSS classes.
  *
- * <p>To add a new variant: add a constant to {@link ButtonVariant}, then add
- * a matching {@code case} to both {@link #variant} and {@link #pressedVariant}
- * below. Nothing else needs to change - the JTE template and JavaScript both
- * read classes generically rather than knowing about individual variants.
+ * <p>The classes are Ashlar's own: {@code ash-btn} plus one variant modifier ({@code ash-btn--primary}, ...), one size modifier
+ * ({@code ash-btn--xs} ... {@code ash-btn--xl}) and, when they apply, {@code ash-btn--icon}, {@code ash-btn--block} and
+ * {@code ash-btn--pressed}. They are styled by {@code components/button.css} in the generated {@code ashlar.css} and no longer depend on
+ * Tailwind. Hover, active, focus-visible, disabled, loading and dark mode are not classes: they are CSS state selectors
+ * ({@code :hover}, {@code :active}, {@code :focus-visible}, {@code :disabled}, {@code [aria-disabled="true"]},
+ * {@code [aria-busy="true"]}) and {@code data-theme="dark"}.
+ *
+ * <p>The pressed look has two carriers, and a button uses exactly one of them. A rendered toggle Button carries
+ * {@code aria-pressed}, which its script flips, so its markup never carries {@code ash-btn--pressed} and the two can never disagree. Any
+ * other pressed button (a Button rendered with {@code pressed = true} and {@code toggle = false}, or a consumer's own element that uses
+ * these classes) has no {@code aria-pressed}, so it carries {@code ash-btn--pressed}; that is what {@link #pressedClasses} returns.
+ *
+ * <p>To add a new variant: add a constant to {@link ButtonVariant}, then give it a matching {@code .ash-btn--<name>} rule (and its pressed
+ * rule) in {@code button.css}. Nothing else needs to change: the JTE template and the script read state, not individual variants.
  */
 public final class ButtonStyles {
 
     private ButtonStyles() {
     }
 
-    /** Classes shared by every button regardless of variant/size. */
-    private static String base() {
-        return "inline-flex items-center justify-center gap-2 rounded-md font-medium " +
-                "transition-colors duration-150 ease-in-out cursor-pointer select-none " +
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " +
-                "disabled:cursor-not-allowed disabled:opacity-60 " +
-                "aria-disabled:cursor-not-allowed aria-disabled:opacity-60";
+    private static String variant(ButtonVariant variant) {
+        return "ash-btn--" + variant.name().toLowerCase(Locale.ROOT);
     }
 
-    private static String size(ButtonSize size, boolean iconOnly) {
+    private static String size(ButtonSize size) {
         return switch (size) {
-            case XSMALL -> iconOnly ? "h-6 w-6 text-xs" : "h-6 px-2 text-xs";
-            case SMALL -> iconOnly ? "h-8 w-8 text-sm" : "h-8 px-3 text-sm";
-            case MEDIUM -> iconOnly ? "h-10 w-10 text-sm" : "h-10 px-4 text-sm";
-            case LARGE -> iconOnly ? "h-12 w-12 text-base" : "h-12 px-6 text-base";
-            case XLARGE -> iconOnly ? "h-14 w-14 text-lg" : "h-14 px-8 text-lg";
+            case XSMALL -> "ash-btn--xs";
+            case SMALL -> "ash-btn--sm";
+            case MEDIUM -> "ash-btn--md";
+            case LARGE -> "ash-btn--lg";
+            case XLARGE -> "ash-btn--xl";
         };
     }
 
-    /** Icon size paired to each button size, so icons scale with the button. */
+    /**
+     * The icon size class paired to each button size, so icons scale with the button. These are the Icon component's own size modifiers
+     * ({@code ash-icon--xs} 0.75rem, {@code --sm} 1rem, {@code --md} 1.25rem, {@code --lg} 1.5rem), which is what the former
+     * {@code h-3 w-3}, {@code h-4 w-4}, {@code h-5 w-5} and {@code h-6 w-6} were.
+     */
     public static String iconSizeClasses(ButtonSize size) {
         return switch (size) {
-            case XSMALL -> "h-3 w-3";
-            case SMALL -> "h-4 w-4";
-            case MEDIUM -> "h-4 w-4";
-            case LARGE -> "h-5 w-5";
-            case XLARGE -> "h-6 w-6";
+            case XSMALL -> "ash-icon--xs";
+            case SMALL -> "ash-icon--sm";
+            case MEDIUM -> "ash-icon--sm";
+            case LARGE -> "ash-icon--md";
+            case XLARGE -> "ash-icon--lg";
         };
     }
 
-    /** The button's normal (not pressed) appearance for a variant. */
-    private static String variant(ButtonVariant variant) {
-        return switch (variant) {
-            case PRIMARY -> "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 " +
-                    "focus-visible:ring-blue-500 disabled:hover:bg-blue-600 aria-disabled:hover:bg-blue-600";
-            case SECONDARY -> "bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 " +
-                    "active:bg-slate-100 focus-visible:ring-blue-500 disabled:hover:bg-white aria-disabled:hover:bg-white " +
-                    "dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-700 " +
-                    "dark:active:bg-slate-600 dark:disabled:hover:bg-slate-800 dark:aria-disabled:hover:bg-slate-800";
-            case SUCCESS -> "bg-green-600 text-white shadow-sm hover:bg-green-700 active:bg-green-800 " +
-                    "focus-visible:ring-green-500 disabled:hover:bg-green-600 aria-disabled:hover:bg-green-600";
-            case WARNING -> "bg-amber-500 text-white shadow-sm hover:bg-amber-600 active:bg-amber-700 " +
-                    "focus-visible:ring-amber-500 disabled:hover:bg-amber-500 aria-disabled:hover:bg-amber-500";
-            case DANGER -> "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800 " +
-                    "focus-visible:ring-red-500 disabled:hover:bg-red-600 aria-disabled:hover:bg-red-600";
-            case INFO -> "bg-sky-600 text-white shadow-sm hover:bg-sky-700 active:bg-sky-800 " +
-                    "focus-visible:ring-sky-500 disabled:hover:bg-sky-600 aria-disabled:hover:bg-sky-600";
-            case GHOST -> "bg-transparent text-slate-700 hover:bg-slate-100 active:bg-slate-200 " +
-                    "focus-visible:ring-blue-500 disabled:hover:bg-transparent aria-disabled:hover:bg-transparent " +
-                    "dark:text-slate-300 dark:hover:bg-slate-800 dark:active:bg-slate-700";
-            case LINK -> "bg-transparent text-blue-600 shadow-none underline-offset-4 hover:underline " +
-                    "hover:text-blue-700 active:text-blue-800 focus-visible:ring-blue-500 disabled:hover:no-underline aria-disabled:hover:no-underline " +
-                    "dark:text-blue-400 dark:hover:text-blue-300 dark:active:text-blue-200";
-        };
-    }
-
-    /** The button's appearance while toggled "on" (aria-pressed="true"). */
-    private static String pressedVariant(ButtonVariant variant) {
-        return switch (variant) {
-            case PRIMARY -> "bg-blue-800 text-white shadow-inner focus-visible:ring-blue-500";
-            case SECONDARY -> "bg-slate-200 text-slate-900 border border-slate-300 shadow-inner focus-visible:ring-blue-500 " +
-                    "dark:bg-slate-600 dark:text-slate-100 dark:border-slate-500";
-            case SUCCESS -> "bg-green-800 text-white shadow-inner focus-visible:ring-green-500";
-            case WARNING -> "bg-amber-700 text-white shadow-inner focus-visible:ring-amber-500";
-            case DANGER -> "bg-red-800 text-white shadow-inner focus-visible:ring-red-500";
-            case INFO -> "bg-sky-800 text-white shadow-inner focus-visible:ring-sky-500";
-            case GHOST -> "bg-slate-200 text-slate-900 shadow-none focus-visible:ring-blue-500 " +
-                    "dark:bg-slate-700 dark:text-slate-100";
-            case LINK -> "bg-transparent text-blue-800 shadow-none underline focus-visible:ring-blue-500 " +
-                    "dark:text-blue-300";
-        };
-    }
-
-    /** Full class string for a button in its resting or pressed state. */
+    /**
+     * Full class string for a button in its resting or pressed state: {@code ash-btn}, the variant, the size, then {@code ash-btn--icon}
+     * when {@code iconOnly}, {@code ash-btn--block} when {@code fullWidth} and {@code ash-btn--pressed} when {@code pressed}, in that order.
+     */
     public static String classes(ButtonVariant variant, ButtonSize size, boolean iconOnly, boolean fullWidth, boolean pressed) {
-        String widthClass = fullWidth ? " w-full" : "";
-        String variantClasses = pressed ? pressedVariant(variant) : ButtonStyles.variant(variant);
-        return base() + " " + size(size, iconOnly) + " " + variantClasses + widthClass;
+        StringBuilder classes = new StringBuilder("ash-btn ").append(variant(variant)).append(' ').append(size(size));
+        if (iconOnly) {
+            classes.append(" ash-btn--icon");
+        }
+        if (fullWidth) {
+            classes.append(" ash-btn--block");
+        }
+        if (pressed) {
+            classes.append(" ash-btn--pressed");
+        }
+        return classes.toString();
     }
 
-    /** Exposed so the toggle-button script can read the two class sets to swap between. */
+    /** The classes of a button that is not pressed: {@code classes(..., false)}. */
     public static String restingClasses(ButtonVariant variant, ButtonSize size, boolean iconOnly, boolean fullWidth) {
         return classes(variant, size, iconOnly, fullWidth, false);
     }
 
+    /**
+     * The classes of the same button while pressed: {@link #restingClasses} plus {@code ash-btn--pressed}, which draws the pressed look
+     * for an element that has no {@code aria-pressed} to carry it. A rendered toggle Button does not use this: its pressed look comes from
+     * {@code aria-pressed="true"}, so toggling it changes an attribute and no class.
+     */
     public static String pressedClasses(ButtonVariant variant, ButtonSize size, boolean iconOnly, boolean fullWidth) {
         return classes(variant, size, iconOnly, fullWidth, true);
     }

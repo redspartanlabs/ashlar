@@ -28,7 +28,9 @@
 !{boolean hasIcon = icon != null;}
 <%-- A button with an icon and no text is icon-only whether or not the caller said so explicitly. --%>
 !{boolean effectiveIconOnly = iconOnly || (hasIcon && text.isEmpty());}
-!{String buttonClasses = ButtonStyles.classes(resolvedVariant, resolvedSize, effectiveIconOnly, fullWidth, pressed);}
+<%-- The pressed look has one carrier per button. A toggle carries aria-pressed (below), which the script flips, so it never gets the
+     ash-btn--pressed class; a pressed button that is not a toggle has no aria-pressed, so it gets the class instead. --%>
+!{String buttonClasses = ButtonStyles.classes(resolvedVariant, resolvedSize, effectiveIconOnly, fullWidth, pressed && !toggle);}
 !{String iconSizeClasses = ButtonStyles.iconSizeClasses(resolvedSize);}
 !{boolean showLeadingIcon = hasIcon && (effectiveIconOnly || "leading".equals(iconPosition));}
 !{boolean showTrailingIcon = hasIcon && !effectiveIconOnly && "trailing".equals(iconPosition);}
@@ -37,11 +39,8 @@
 !{String idAttr = id.isEmpty() ? null : id;}
 !{String ariaBusyAttr = loading ? "true" : null;}
 !{String ariaDisabledAttr = loading ? "true" : null;}
-!{String iconHiddenClass = loading ? "hidden" : null;}
 !{String ariaLabelAttr = effectiveIconOnly ? (ariaLabel.isEmpty() ? text : ariaLabel) : (ariaLabel.isEmpty() ? null : ariaLabel);}
 !{String togglePressedAttr = toggle ? String.valueOf(pressed) : null;}
-!{String toggleBaseClassesAttr = toggle ? ButtonStyles.restingClasses(resolvedVariant, resolvedSize, effectiveIconOnly, fullWidth) : null;}
-!{String togglePressedClassesAttr = toggle ? ButtonStyles.pressedClasses(resolvedVariant, resolvedSize, effectiveIconOnly, fullWidth) : null;}
 !{String toggleDefaultTextAttr = toggle ? text : null;}
 !{String togglePressedTextAttr = toggle ? (pressedText.isEmpty() ? text : pressedText) : null;}
 
@@ -58,37 +57,32 @@
         aria-label="${ariaLabelAttr}"
         data-btn-toggle="${toggle}"
         aria-pressed="${togglePressedAttr}"
-        data-btn-base-classes="${toggleBaseClassesAttr}"
-        data-btn-pressed-classes="${togglePressedClassesAttr}"
         data-btn-default-text="${toggleDefaultTextAttr}"
         data-btn-pressed-text="${togglePressedTextAttr}"
         $unsafe{attributes}
 >
-    <span
-            data-btn-spinner
-            class="${loading ? "inline-block" : "hidden"} h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-            aria-hidden="true"
-    ></span>
+    <%-- Shown and hidden by the button's own aria-busy (see button.css); no class is toggled. --%>
+    <span data-btn-spinner class="ash-btn__spinner" aria-hidden="true"></span>
 
     @if (showLeadingIcon)
-        <span data-btn-icon class="${iconHiddenClass}" aria-hidden="true">
+        <span data-btn-icon class="ash-btn__icon" aria-hidden="true">
             @template.ashlar.components.icon(icon = icon, classes = iconSizeClasses)
         </span>
     @endif
 
     @if (effectiveIconOnly)
-        <span class="sr-only">${text}</span>
+        <span class="ash-sr-only ash-btn__label">${text}</span>
     @else
-        <span data-btn-label>${text}</span>
+        <span data-btn-label class="ash-btn__label">${text}</span>
     @endif
 
     @if (showTrailingIcon)
-        <span data-btn-icon class="${iconHiddenClass}" aria-hidden="true">
+        <span data-btn-icon class="ash-btn__icon" aria-hidden="true">
             @template.ashlar.components.icon(icon = icon, classes = iconSizeClasses)
         </span>
     @endif
 
-    <span class="sr-only" data-btn-status aria-live="polite">${loading ? "Loading" : ""}</span>
+    <span class="ash-sr-only ash-btn__status" data-btn-status aria-live="polite">${loading ? "Loading" : ""}</span>
 </button>
 
 <%-- Served from this jar's own META-INF/resources/ashlar/js/, so a consumer
