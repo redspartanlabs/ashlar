@@ -1,6 +1,8 @@
 // Loading is one state, whether the server rendered it (loading = true) or
-// this function applied it: aria-busy="true" + aria-disabled="true", the
-// spinner shown, the icon hidden, and "Loading" in the polite status region.
+// this function applied it: aria-busy="true" + aria-disabled="true" and
+// "Loading" in the polite status region. The spinner is shown and the icon
+// hidden by the stylesheet (button.css) from the button's own aria-busy, so
+// this function toggles no class.
 // It deliberately does NOT set the native `disabled` attribute - a disabled
 // submit button is left out of the submitted form data, and disabling it
 // from its own click handler cancels the submission outright. aria-disabled
@@ -13,8 +15,6 @@ export function setButtonLoading(button, loading) {
     if (!(button instanceof HTMLElement) || !button.matches("[data-btn]")) {
         return;
     }
-    const spinner = button.querySelector("[data-btn-spinner]");
-    const icon = button.querySelector("[data-btn-icon]");
     const status = button.querySelector("[data-btn-status]");
     const isLoading = Boolean(loading);
 
@@ -24,13 +24,6 @@ export function setButtonLoading(button, loading) {
     } else {
         button.removeAttribute("aria-busy");
         button.removeAttribute("aria-disabled");
-    }
-    if (spinner) {
-        spinner.classList.toggle("hidden", !isLoading);
-        spinner.classList.toggle("inline-block", isLoading);
-    }
-    if (icon) {
-        icon.classList.toggle("hidden", isLoading);
     }
     if (status) {
         status.textContent = isLoading ? "Loading" : "";
@@ -42,11 +35,8 @@ function initToggleButton(button) {
         const isPressed = button.getAttribute("aria-pressed") === "true";
         const nextPressed = !isPressed;
 
-        const baseClasses = (button.dataset.btnBaseClasses || "").split(/\s+/).filter(Boolean);
-        const pressedClasses = (button.dataset.btnPressedClasses || "").split(/\s+/).filter(Boolean);
-
-        button.classList.remove(...(nextPressed ? baseClasses : pressedClasses));
-        button.classList.add(...(nextPressed ? pressedClasses : baseClasses));
+        // The pressed look is the stylesheet's response to aria-pressed, so
+        // flipping the attribute is the whole visual change.
         button.setAttribute("aria-pressed", String(nextPressed));
 
         const label = button.querySelector("[data-btn-label]");

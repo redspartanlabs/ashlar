@@ -259,6 +259,11 @@
     --tw-shadow: 0 0 #0000;
 }
 
+/* A Button owns its drop shadow in --ash-btn-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. */
+[data-skin="veridian"] .ash-btn {
+    --ash-btn-shadow: 0 0 #0000;
+}
+
 [data-skin="veridian"] :is(
     [data-modal-dialog],
     [data-drawer-panel],

@@ -1,0 +1,44 @@
+/* TEST-ONLY (Button migration oracle, scoped). The legacy Button's own Tailwind utilities and nothing else: no page-wide preflight, no
+   utilities for any other element on the page.
+
+   The full oracle is the whole former showcase stylesheet, so linking it into a page also restyles everything AROUND the Buttons. That is right
+   for "Tailwind present". For "Tailwind removed" the surroundings must be the same unstyled page on both sides, so the legacy Buttons are
+   rendered here with only what they themselves used.
+
+   Only the preflight rules a Button depended on are kept, and only for the elements the fixture marks (every measured element of a
+   Button carries data-parity, including the Icon inside it, which keeps its own legacy classes: an svg that is display: block with vertical-align: middle): border-box sizing with no default margin, padding or border width (a 0 solid border), and, for the <button>
+   element, the form-control reset (inherited font and letter spacing, no text transform, a transparent background, the button's own
+   colour and the native push-button appearance). That is what Tailwind's preflight gave a <button>, and what the Button's own CSS now states itself. ButtonParityTest proves this
+   scoped rendering equals the full legacy rendering, so it is a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../java/dev/redspartanlabs/ashlar/showcase/cascade/ButtonLegacyStyles.java";
+@source "../resources/parity/button/button-legacy.html";
+@source "../resources/parity/icon/icon-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="raw"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    svg[data-parity] {
+        display: block;
+        vertical-align: middle;
+    }
+
+    button[data-parity]:not([data-parity="raw"]) {
+        font: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        text-transform: none;
+        background-color: transparent;
+        border-radius: 0;
+        appearance: button;
+    }
+}

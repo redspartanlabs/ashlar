@@ -56,9 +56,9 @@ class TailwindVocabularyTest {
 
     @ParameterizedTest(name = "Java-held class {0}")
     @ValueSource(strings = {
-            "bg-red-600",               // ButtonStyles: a variant a templates-only scan loses
+            "pointer-events-auto",     // ToastStyles: a class held only in Java, which a templates-only scan loses
             "hover:bg-blue-700",        // ButtonStyles: state variant
-            "aria-disabled:opacity-60", // ButtonStyles: loading state
+            "data-[toast-state=hidden]:hidden", // ToastStyles: a state variant held only in Java
             "-translate-x-full",        // negative utility; a "looks like a class" filter dropped these
     })
     void capturesJavaHeldClasses(String token) {
