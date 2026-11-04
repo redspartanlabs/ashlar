@@ -1,0 +1,33 @@
+/* ash-tab-panel: the content of one tab. It is a role="tabpanel" <div> that is focusable (tabindex="0") and labelled by its tab.
+
+   Classes       ash-tab-panel                 the panel (it also carries data-tab-panel, data-tabs-id and data-tab-id)
+   Properties    --ash-tab-panel-fg            the panel's text colour
+                 This is an intentional customisation surface, set on the panel (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components).
+
+   State         An inactive panel carries the native `hidden` attribute (the template renders it, and tabs.js sets and clears it), so it is out of
+                 rendering and out of the tab order. `.ash-tab-panel[hidden]` states display: none explicitly, with more specificity than the
+                 panel's own rule, so no other declaration of this component can show a hidden panel.
+
+   Colour        The text colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own
+                 theme by a test); dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+
+   The panel sets padding and type, no width or margin. The focus indicator is the browser's own (the panel never removed it). The size is Tailwind's
+   text-sm (0.875rem, line-height 1.25 / 0.875 kept in a property so a minifier cannot fold it) and py-4. The component adds no global rule. */
+
+.ash-tab-panel {
+  --ash-tab-panel-leading: calc(1.25 / 0.875);
+  --ash-tab-panel-fg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  padding-block: var(--ash-space-4);
+  font-size: 0.875rem;
+  line-height: var(--ash-tab-panel-leading);
+  color: var(--ash-tab-panel-fg);
+}
+
+.ash-tab-panel:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-tab-panel-fg: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+.ash-tab-panel[hidden] {
+  display: none;
+}
