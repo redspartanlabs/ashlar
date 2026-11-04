@@ -1,0 +1,18 @@
+/* ash-sidebar: a vertical list of destinations. The <nav> landmark (which carries data-sidebar and ash-sidebar) has no surface of its own: no border,
+   background or width, because a sidebar sits in a fixed-width column on one page, inside a Card on another and inside a Drawer on a phone. The class
+   carries no declaration; it is what gives the <nav> Ashlar's border-box sizing, like every ash- element.
+
+   Classes       ash-sidebar                   the <nav>
+                 ash-sidebar__list             the <ul> of Sidebar Items
+
+   The list is a column of items 0.25rem apart. A <ul> has a browser list style, margin and padding that Tailwind's preflight removed, so each is
+   stated. The component adds no global rule. */
+
+.ash-sidebar__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

@@ -41,12 +41,16 @@
 @import "components/key-value-list.css" layer(ash.components);
 @import "components/list.css" layer(ash.components);
 @import "components/list-item.css" layer(ash.components);
+@import "components/nav-link.css" layer(ash.components);
+@import "components/navbar.css" layer(ash.components);
 @import "components/page-header.css" layer(ash.components);
 @import "components/page-section.css" layer(ash.components);
 @import "components/page-shell.css" layer(ash.components);
 @import "components/pagination.css" layer(ash.components);
 @import "components/pagination-item.css" layer(ash.components);
 @import "components/progress.css" layer(ash.components);
+@import "components/sidebar.css" layer(ash.components);
+@import "components/sidebar-item.css" layer(ash.components);
 @import "components/skeleton.css" layer(ash.components);
 @import "components/spinner.css" layer(ash.components);
 @import "components/stat-card.css" layer(ash.components);

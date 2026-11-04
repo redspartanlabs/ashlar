@@ -18,21 +18,21 @@
      controls (`[data-dropdown-menu-trigger]`, `[data-theme-toggle]`) that
      already needed exactly this.
 
-     `w-full`: this same item renders twice from one Navbar call - once
+     Width: this same item renders twice from one Navbar call - once
      inline in the desktop bar, once stacked in the mobile menu drawer - and
      a stacked link should fill the row so the whole width is a tap target,
-     not just its own text. navbar.jte's desktop list overrides this back to
-     content width with a child-selector utility (the same technique
-     filter-bar.jte already uses), so this component itself stays free of
-     any "which context am I in" knowledge. --%>
+     not just its own text, so `ash-nav-link` is full width. navbar.css sets
+     a link back to content width in the desktop bar with a child selector,
+     so this component itself stays free of any "which context am I in"
+     knowledge. --%>
 !{boolean isCurrent = current;}
 !{boolean isLink = !isCurrent && href != null && !href.isEmpty();}
 !{String ariaCurrentAttr = isCurrent ? "page" : null;}
 
-!{String linkClasses = "flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100";}
-!{String currentClasses = "flex w-full items-center rounded-md bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400";}
+!{String linkClasses = "ash-nav-link";}
+!{String currentClasses = "ash-nav-link ash-nav-link--current";}
 
-<li>
+<li class="ash-nav-link__item">
     @if (isLink)
         <a href="${href}" data-nav-link class="${linkClasses}">${label}</a>
     @else

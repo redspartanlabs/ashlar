@@ -1,0 +1,79 @@
+/* ash-nav-link: one destination in a Navbar's list: a real link, or, for the page the user is already on, non-interactive text.
+
+   Classes       ash-nav-link__item            the <li> around it; it has no style of its own, it carries Ashlar's border-box sizing like every ash- element
+                 ash-nav-link                  the <a> (a destination) or the <span> (the current page); both also carry data-nav-link
+                 ash-nav-link--current         the <span> that stands for the current page (it also carries aria-current="page")
+   Properties    --ash-nav-link-fg             the link's text colour           --ash-nav-link-fg-hover       its text colour on hover
+                 --ash-nav-link-bg-hover       its background on hover          --ash-nav-link-ring           its keyboard focus ring
+                 --ash-nav-link-current-bg     the current page's background   --ash-nav-link-current-fg     its text colour
+                 These are an intentional customisation surface, set on the element (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components).
+
+   Width         A Nav Link fills its row (width: 100%): the same item is written once into the desktop bar and once, stacked, into the mobile menu,
+                 where the whole row should be the tap target. The Navbar sets a link back to its content width in the desktop bar (see navbar.css);
+                 this component knows nothing about which of the two it is in.
+
+   Skins         data-nav-link is the stable hook a skin re-points the link's ink against (Civic's masthead). A skin's unlayered rule outranks this layer.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides
+                 --color-* recolours the link, and with no Tailwind and no skin it looks the same. The fallbacks are checked against Tailwind's own
+                 theme by a test. Dark mode follows data-theme="dark" with the same zero-specificity :where() form the Tailwind dark: variant used.
+                 The radius is the foundation token --ash-radius-md (var(--radius-md, 0.375rem)).
+
+   State         Hover sits inside @media (hover: hover), as Tailwind's hover: variant did, and applies to a link, not to the current page. The
+                 focus ring is two box-shadow rings (a 1px white offset and a 2px ring) and the outline is removed on focus, as before; both belong to a
+                 link, not to the current page, which is text and never takes focus.
+
+   Self-contained: nothing here relies on Tailwind's preflight. An <a> inherits its colour and has no decoration, so both are stated; the
+   sizes are what Tailwind's text-sm (0.875rem, line-height 1.25 / 0.875 kept in a property so a minifier cannot fold it), px-3 and py-2 were.
+   The component adds no global rule. */
+
+.ash-nav-link {
+  --ash-nav-link-leading: calc(1.25 / 0.875);
+  --ash-nav-link-fg: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-nav-link-fg-hover: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-nav-link-bg-hover: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-nav-link-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-nav-link-current-bg: var(--color-blue-50, oklch(97% 0.014 254.604));
+  --ash-nav-link-current-fg: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: var(--ash-radius-md);
+  padding-inline: var(--ash-space-3);
+  padding-block: var(--ash-space-2);
+  font-size: 0.875rem;
+  line-height: var(--ash-nav-link-leading);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-nav-link-fg);
+  text-decoration: none;
+}
+
+.ash-nav-link:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-nav-link-fg: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-nav-link-fg-hover: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-nav-link-bg-hover: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-nav-link-current-bg: color-mix(in oklab, var(--color-blue-950, oklch(28.2% 0.091 267.935)) 50%, transparent);
+  --ash-nav-link-current-fg: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+}
+
+.ash-nav-link--current {
+  background-color: var(--ash-nav-link-current-bg);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--ash-nav-link-current-fg);
+}
+
+@media (hover: hover) {
+  .ash-nav-link:where(:not(.ash-nav-link--current)):hover {
+    background-color: var(--ash-nav-link-bg-hover);
+    color: var(--ash-nav-link-fg-hover);
+  }
+}
+
+.ash-nav-link:where(:not(.ash-nav-link--current)):focus {
+  outline-style: none;
+}
+
+.ash-nav-link:where(:not(.ash-nav-link--current)):focus-visible {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 3px var(--ash-nav-link-ring);
+}

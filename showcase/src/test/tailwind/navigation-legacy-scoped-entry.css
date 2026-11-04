@@ -1,0 +1,42 @@
+/* TEST-ONLY (Navigation migration oracle, scoped). The legacy navigation's own Tailwind utilities and nothing else: no page-wide preflight, no
+   utilities for any other element on the page.
+
+   The full oracle is the whole former showcase stylesheet, so linking it into a page also restyles everything AROUND the navigation. That is right for
+   "Tailwind present". For "Tailwind removed" the surroundings must be the same unstyled page on both sides, so the legacy navigation is rendered here
+   with only what it itself used.
+
+   Only the preflight rules the navigation depended on are kept, and only for the elements the fixture marks (every measured element carries
+   data-parity; the caller's own brand link, trigger and actions are marked raw and stay unstyled on both sides): border-box sizing with no default
+   margin, padding or border width (a 0 solid border), a list with no list style, a link that inherits its colour and has no decoration, and an svg that is
+   display: block with vertical-align: middle. NavigationParityTest proves this scoped rendering equals the full legacy rendering, so it is a faithful
+   stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/navigation/navigation-legacy.html";
+@source "../resources/parity/icon/icon-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="raw"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    ul[data-parity] {
+        list-style: none;
+    }
+
+    a[data-parity]:not([data-parity="raw"]) {
+        color: inherit;
+        text-decoration: inherit;
+    }
+
+    svg[data-parity] {
+        display: block;
+        vertical-align: middle;
+    }
+}
