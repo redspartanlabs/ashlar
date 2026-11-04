@@ -1,0 +1,85 @@
+/* ash-sidebar-item: one destination in a Sidebar's vertical list: a real link, or, for the page the user is already on, non-interactive text,
+   each with an optional leading icon and a label that clips with an ellipsis instead of widening the column.
+
+   Classes       ash-sidebar-item__entry       the <li> around it; it has no style of its own, it carries Ashlar's border-box sizing like every ash- element
+                 ash-sidebar-item              the <a> (a destination) or the <span> (the current page)
+                 ash-sidebar-item--current     the <span> that stands for the current page (it also carries aria-current="page")
+                 ash-sidebar-item__icon        the wrapper of the optional, decorative icon
+                 ash-sidebar-item__label       the label, which shrinks and clips
+   Properties    --ash-sidebar-item-fg  --ash-sidebar-item-fg-hover  --ash-sidebar-item-bg-hover  --ash-sidebar-item-ring
+                 --ash-sidebar-item-current-bg  --ash-sidebar-item-current-fg
+                 These are an intentional customisation surface, set on the element (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components).
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own
+                 theme by a test); dark mode follows data-theme="dark" with the same zero-specificity :where() form. The radius is the foundation
+                 token --ash-radius-md. A separate component from nav-link on purpose: a block-level vertical row that commonly carries an icon is a
+                 different visual language from an inline row of text.
+
+   State         Hover sits inside @media (hover: hover) and applies to a link, not to the current page. The focus ring is an INSET 2px box-shadow
+                 (it must not be clipped by a narrow column) and the outline is removed on focus, as before; both belong to a link, not to the current page, which is text and never takes focus.
+
+   Self-contained: nothing here relies on Tailwind's preflight. An <a> inherits its colour and has no decoration, so both are stated. The
+   component adds no global rule. */
+
+.ash-sidebar-item {
+  --ash-sidebar-item-leading: calc(1.25 / 0.875);
+  --ash-sidebar-item-fg: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-sidebar-item-fg-hover: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-sidebar-item-bg-hover: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-sidebar-item-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-sidebar-item-current-bg: var(--color-blue-50, oklch(97% 0.014 254.604));
+  --ash-sidebar-item-current-fg: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  display: flex;
+  align-items: center;
+  gap: var(--ash-space-3);
+  border-radius: var(--ash-radius-md);
+  padding-inline: var(--ash-space-3);
+  padding-block: var(--ash-space-2);
+  font-size: 0.875rem;
+  line-height: var(--ash-sidebar-item-leading);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-sidebar-item-fg);
+  text-decoration: none;
+}
+
+.ash-sidebar-item:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-sidebar-item-fg: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-sidebar-item-fg-hover: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-sidebar-item-bg-hover: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-sidebar-item-current-bg: color-mix(in oklab, var(--color-blue-950, oklch(28.2% 0.091 267.935)) 50%, transparent);
+  --ash-sidebar-item-current-fg: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+}
+
+.ash-sidebar-item--current {
+  background-color: var(--ash-sidebar-item-current-bg);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--ash-sidebar-item-current-fg);
+}
+
+@media (hover: hover) {
+  .ash-sidebar-item:where(:not(.ash-sidebar-item--current)):hover {
+    background-color: var(--ash-sidebar-item-bg-hover);
+    color: var(--ash-sidebar-item-fg-hover);
+  }
+}
+
+.ash-sidebar-item:where(:not(.ash-sidebar-item--current)):focus {
+  outline-style: none;
+}
+
+.ash-sidebar-item:where(:not(.ash-sidebar-item--current)):focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ash-sidebar-item-ring);
+}
+
+.ash-sidebar-item__icon {
+  flex-shrink: 0;
+}
+
+.ash-sidebar-item__label {
+  min-width: 0;
+  flex: 1 1 0%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

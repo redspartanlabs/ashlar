@@ -1,0 +1,20 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Nav Link, Navbar, Sidebar and Sidebar Item, read verbatim from the templates at the
+     commit before the migration. It is never served. Tailwind compiles this file (see navigation-oracle-entry.css and navigation-legacy-scoped-entry.css) so the
+     legacy rendering stays reproducible, and the tests read the class strings back out of it, so there is one source of truth for what "legacy" means.
+     The role names are the part each string belonged to. -->
+<span data-legacy-role="nav-link" class="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"></span>
+<span data-legacy-role="nav-link-current" class="flex w-full items-center rounded-md bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"></span>
+<span data-legacy-role="sidebar-item" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"></span>
+<span data-legacy-role="sidebar-item-current" class="flex items-center gap-3 rounded-md bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"></span>
+<span data-legacy-role="sidebar-item-icon" class="shrink-0"></span>
+<span data-legacy-role="sidebar-item-label" class="min-w-0 flex-1 truncate"></span>
+<span data-legacy-role="sidebar-list" class="flex flex-col gap-1"></span>
+<span data-legacy-role="navbar" class="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"></span>
+<span data-legacy-role="navbar-inner" class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4"></span>
+<span data-legacy-role="navbar-end" class="flex items-center gap-3"></span>
+<span data-legacy-role="navbar-nav" class="hidden md:block"></span>
+<span data-legacy-role="navbar-list" class="flex items-center gap-1 text-sm md:[&>li>a]:w-auto"></span>
+<span data-legacy-role="navbar-actions" class="flex items-center gap-3"></span>
+<span data-legacy-role="navbar-menu" class="md:hidden"></span>
+<span data-legacy-role="navbar-menu-list" class="flex flex-col gap-1"></span>

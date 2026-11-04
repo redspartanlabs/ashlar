@@ -27,8 +27,8 @@
      this "Sections", a dashboard "Workspace"). It exists mainly so a page
      that also has a Navbar can give the two `<nav>` landmarks distinct
      names. --%>
-<nav aria-label="${ariaLabel}" data-sidebar>
-    <ul class="flex flex-col gap-1">
+<nav aria-label="${ariaLabel}" data-sidebar class="ash-sidebar">
+    <ul class="ash-sidebar__list">
         ${items}
     </ul>
 </nav>

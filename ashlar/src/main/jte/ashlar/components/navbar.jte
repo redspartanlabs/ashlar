@@ -58,24 +58,24 @@
      presentation changes with viewport width. --%>
 !{String drawerId = NavbarIds.next();}
 
-<header data-navbar class="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+<header data-navbar class="ash-navbar">
+    <div class="ash-navbar__inner">
         ${brand}
 
-        <div class="flex items-center gap-3">
-            <nav aria-label="${ariaLabel}" class="hidden md:block">
-                <ul class="flex items-center gap-1 text-sm md:[&>li>a]:w-auto">
+        <div class="ash-navbar__end">
+            <nav aria-label="${ariaLabel}" class="ash-navbar__nav">
+                <ul class="ash-navbar__list">
                     ${items}
                 </ul>
             </nav>
 
             @if (actions != null)
-                <div class="flex items-center gap-3">
+                <div class="ash-navbar__actions">
                     ${actions}
                 </div>
             @endif
 
-            <div class="md:hidden">
+            <div class="ash-navbar__menu">
                 @template.ashlar.components.button(
                 iconOnly = true,
                 icon = Icon.MENU,
@@ -94,7 +94,7 @@ title = menuTitle,
 placement = "Left",
 body = @`
     <nav aria-label="${ariaLabel}">
-        <ul class="flex flex-col gap-1">
+        <ul class="ash-navbar__menu-list">
             ${items}
         </ul>
     </nav>

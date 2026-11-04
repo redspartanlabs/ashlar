@@ -29,27 +29,27 @@
 !{String ariaCurrentAttr = isCurrent ? "page" : null;}
 !{boolean hasIcon = icon != null;}
 
-!{String linkClasses = "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100";}
-!{String currentClasses = "flex items-center gap-3 rounded-md bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-400";}
+!{String linkClasses = "ash-sidebar-item";}
+!{String currentClasses = "ash-sidebar-item ash-sidebar-item--current";}
 
-<li>
+<li class="ash-sidebar-item__entry">
     @if (isLink)
         <a href="${href}" class="${linkClasses}">
             @if (hasIcon)
-                <span class="shrink-0" aria-hidden="true">
-                    @template.ashlar.components.icon(icon = icon, classes = "h-4 w-4")
+                <span class="ash-sidebar-item__icon" aria-hidden="true">
+                    @template.ashlar.components.icon(icon = icon, classes = "ash-icon--sm")
                 </span>
             @endif
-            <span class="min-w-0 flex-1 truncate">${label}</span>
+            <span class="ash-sidebar-item__label">${label}</span>
         </a>
     @else
         <span aria-current="${ariaCurrentAttr}" class="${currentClasses}">
             @if (hasIcon)
-                <span class="shrink-0" aria-hidden="true">
-                    @template.ashlar.components.icon(icon = icon, classes = "h-4 w-4")
+                <span class="ash-sidebar-item__icon" aria-hidden="true">
+                    @template.ashlar.components.icon(icon = icon, classes = "ash-icon--sm")
                 </span>
             @endif
-            <span class="min-w-0 flex-1 truncate">${label}</span>
+            <span class="ash-sidebar-item__label">${label}</span>
         </span>
     @endif
 </li>

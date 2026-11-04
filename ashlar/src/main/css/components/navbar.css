@@ -1,0 +1,107 @@
+/* ash-navbar: the page's masthead: a brand, a set of destinations, a trailing area of always-visible controls, and, below 48rem, a trigger
+   that opens the same destinations in a Drawer.
+
+   Classes       ash-navbar                    the <header> (it also carries data-navbar)
+                 ash-navbar__inner             the centred row inside it: the brand, then the end group
+                 ash-navbar__end               the group after the brand: the desktop links, the actions and the mobile trigger
+                 ash-navbar__nav               the desktop <nav>; hidden below 48rem
+                 ash-navbar__list              the desktop <ul> of Nav Links
+                 ash-navbar__actions           the optional trailing controls, shown at every width
+                 ash-navbar__menu              the wrapper of the mobile menu trigger; hidden from 48rem
+                 ash-navbar__menu-list         the <ul> of Nav Links inside the Drawer
+   Properties    --ash-navbar-bg               the bar's background          --ash-navbar-border           its bottom rule
+                 These are an intentional customisation surface, set on the header (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components).
+
+   Structure     <header> > <div> > the brand is not incidental: skins key the masthead off `body > header` and `body > header > div > a:first-child`.
+                 The inner <div> is the first child of the header and the brand the first thing inside it. Nothing here changes that.
+
+   Breakpoint    48rem (Tailwind's md): from there the desktop <nav> is shown and the mobile trigger is not. A media query cannot read a custom
+                 property, so 48rem is written out in both rules.
+
+   Width         A Nav Link fills its row. In the desktop bar a LINK is set back to its content width by `.ash-navbar__list > li > a` (three
+                 selectors' worth of specificity, one more element than the link's own class), exactly as the Tailwind child-selector utility did:
+                 the current page, a <span>, keeps its full width, which in a shrink-to-fit item is its content width as well.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own
+                 theme by a test); dark mode follows data-theme="dark" with the same zero-specificity :where() form. A skin's unlayered rule on
+                 `body > header` outranks this layer, as it outranked the utilities.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <ul> has a list style, margin and padding the preflight removed, so each is
+   stated; the list's text size is Tailwind's text-sm (0.875rem, line-height 1.25 / 0.875 kept in a property so a minifier cannot fold it). The
+   component adds no global rule. */
+
+.ash-navbar {
+  --ash-navbar-bg: var(--color-white, #fff);
+  --ash-navbar-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  border: 0 solid var(--ash-navbar-border);
+  border-bottom-width: 1px;
+  background-color: var(--ash-navbar-bg);
+}
+
+.ash-navbar:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-navbar-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-navbar-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ash-space-4);
+  margin-inline: auto;
+  max-width: 72rem;
+  padding-inline: var(--ash-space-4);
+  padding-block: var(--ash-space-4);
+}
+
+.ash-navbar__end {
+  display: flex;
+  align-items: center;
+  gap: var(--ash-space-3);
+}
+
+.ash-navbar__nav {
+  display: none;
+}
+
+.ash-navbar__list {
+  --ash-navbar-leading: calc(1.25 / 0.875);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  line-height: var(--ash-navbar-leading);
+}
+
+.ash-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ash-space-3);
+}
+
+.ash-navbar__menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .ash-navbar__nav {
+    display: block;
+  }
+
+  .ash-navbar__menu {
+    display: none;
+  }
+
+  .ash-navbar__list > li > a {
+    width: auto;
+  }
+}
