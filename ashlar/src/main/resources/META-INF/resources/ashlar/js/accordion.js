@@ -5,24 +5,19 @@
 // keeps multiple Accordion instances on one page from ever seeing each
 // other's buttons, without needing any shared id-prefix scoping.
 //
-// No height is ever measured: the panel's open/closed size is a CSS grid
-// row (`0fr` closed, `1fr` open, set here purely via inline style - see
-// accordion-item.jte's own comment on why), and the browser's layout engine
-// resolves what "open" actually measures to. `inert` toggles alongside it
-// because a `0fr` row - unlike the `hidden` class this used to use - keeps
-// its content in the tab order and accessibility tree unless something
-// explicitly takes it back out.
+// No height is ever measured and no style or class is ever written: the
+// state is two attributes, kept in step here, and accordion.css answers both.
+// `aria-expanded` on the button turns the chevron; `inert` on the panel is the
+// collapsed grid row (`0fr`, `1fr` otherwise), and it is also what takes the
+// collapsed content out of the tab order and the accessibility tree, which a
+// `0fr` row would not do by itself.
 function initAccordion(root) {
     const buttons = Array.from(root.querySelectorAll("[data-accordion-button]"));
 
     function setExpanded(button, expanded) {
         const panel = document.getElementById(button.getAttribute("aria-controls"));
         button.setAttribute("aria-expanded", String(expanded));
-        panel.style.gridTemplateRows = expanded ? "1fr" : "0fr";
         panel.inert = !expanded;
-
-        const chevron = button.querySelector("[data-accordion-chevron]");
-        chevron.classList.toggle("rotate-90", expanded);
     }
 
     function toggle(button) {

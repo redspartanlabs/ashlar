@@ -1,0 +1,39 @@
+/* ash-accordion: a bordered, divided stack of disclosure sections. The wrapper owns the surface (border, radius, clipping) and the rule between sections; each
+   section is an Accordion Item (accordion-item.css), composed straight into it.
+
+   Classes       ash-accordion                 the wrapper <div> (it also carries data-accordion)
+                 ash-accordion__item           one section's <div> (it also carries data-accordion-item); the rule below a section is drawn on it
+   Properties    --ash-accordion-border        the wrapper's border and the rules between sections
+                 This is an intentional customisation surface, set on the wrapper (inline style, an unlayered rule, or a rule in a layer above
+                 ash.components). It is inherited by the sections.
+
+   Layout        The wrapper sets no width, margin or placement. It clips its sections (overflow: hidden) so their hover fill follows the rounded corners.
+                 Every section but the last has a 1px rule under it, which is what Tailwind's divide-y did to the wrapper's direct children.
+
+   Colour        The border reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides --color-slate-* recolours
+                 it, and with no Tailwind and no skin it looks the same (checked against Tailwind's own theme by a test). Dark mode follows data-theme="dark"
+                 with the same zero-specificity :where() form the Tailwind dark: variant used. The radius is the foundation token --ash-radius-lg, which is
+                 var(--radius-lg, 0.5rem): exactly what rounded-lg read.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A section's border states its own style and a zero width (a border is not drawn without a style),
+   so the rule appears only where a width is set. The component adds no global rule. */
+
+.ash-accordion {
+  --ash-accordion-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  overflow: hidden;
+  border: 1px solid var(--ash-accordion-border);
+  border-radius: var(--ash-radius-lg);
+}
+
+.ash-accordion:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-accordion-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-accordion__item {
+  border: 0 solid;
+}
+
+.ash-accordion__item:not(:last-child) {
+  border-bottom-width: 1px;
+  border-color: var(--ash-accordion-border);
+}

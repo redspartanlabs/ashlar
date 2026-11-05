@@ -35,7 +35,7 @@
      fresh rather than inheriting this one's claimed state. --%>
 !{AccordionExpansion.reset();}
 
-<div id="${id}" data-accordion class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+<div id="${id}" data-accordion class="ash-accordion">
     ${items}
 </div>
 

@@ -27,6 +27,8 @@
 @import "layout/split.css" layer(ash.layout);
 @import "layout/cluster.css" layer(ash.layout);
 @import "components/icon.css" layer(ash.components);
+@import "components/accordion.css" layer(ash.components);
+@import "components/accordion-item.css" layer(ash.components);
 @import "components/alert.css" layer(ash.components);
 @import "components/badge.css" layer(ash.components);
 @import "components/breadcrumbs.css" layer(ash.components);

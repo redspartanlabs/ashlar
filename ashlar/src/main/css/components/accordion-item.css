@@ -1,0 +1,135 @@
+/* ash-accordion-item: the inside of one Accordion section: a heading holding the real <button> that toggles it, and the panel it controls, which opens and
+   closes by animating a grid row.
+
+   Classes       ash-accordion__heading   the <h3> around the button
+                 ash-accordion__button         the <button> (it also carries data-accordion-button)
+                 ash-accordion__title          the button's title <span>; it has no declarations, it gives the text Ashlar's border-box sizing like every ash- element
+                 ash-accordion__chevron        the <span> around the chevron icon (it also carries data-accordion-chevron)
+                 ash-accordion__panel          the role="region" panel (it also carries data-accordion-panel)
+                 ash-accordion__clip           the panel's one grid item, which clips the content
+                 ash-accordion__content        the padded content
+   Properties    --ash-accordion-fg  --ash-accordion-hover  --ash-accordion-ring  --ash-accordion-chevron  --ash-accordion-content
+                 the title's colour, the button's hover fill, its focus ring, the chevron's colour and the content's colour. These are an intentional
+                 customisation surface, set on a section or the wrapper (inline style, an unlayered rule, or a rule in a layer above ash.components).
+
+   State         There is no state class and no inline style. The synchronised attributes are the state: the button's aria-expanded="true" turns the chevron a
+                 quarter turn, and the panel's inert attribute (the template renders it and accordion.js sets and clears it together with aria-expanded) is a
+                 collapsed row: the panel is a one-row grid, 1fr open and 0fr when inert, and the clip is what hides the content as the row shrinks. The panel is
+                 never display: none, because that cannot be animated, and inert is what takes a collapsed section's content out of the tab order and the
+                 accessibility tree.
+
+   Motion        The chevron's turn and the panel's row animate for 200ms, ease-out. Under prefers-reduced-motion: reduce neither animates.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own theme by a test);
+                 dark mode follows data-theme="dark" with the same zero-specificity :where() form. The hover fill is slate-50, and slate-800 at half strength in dark
+                 mode. Hover sits inside @media (hover: hover), as Tailwind's hover: variant did. The focus ring is an INSET 2px box-shadow (the wrapper clips, so an
+                 outer ring would be cut off) and the outline is removed on focus, as before.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <h3> has a browser margin, size and weight and a <button> a border, padding, font, colour and
+   background, so each is stated. The sizes are what Tailwind's text-sm (0.875rem, line-height 1.25 / 0.875 kept in a property so a minifier cannot fold it),
+   px-4, py-3, pt-1 (0.25rem: the foundation has no step that small) and pb-4 were. The component adds no global rule. */
+
+.ash-accordion__heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.ash-accordion__button {
+  --ash-accordion-leading: calc(1.25 / 0.875);
+  --ash-accordion-fg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-accordion-hover: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-accordion-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-accordion-chevron: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ash-space-3);
+  margin: 0;
+  border: 0 solid;
+  border-radius: 0;
+  background-color: transparent;
+  padding-inline: var(--ash-space-4);
+  padding-block: var(--ash-space-3);
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: var(--ash-accordion-leading);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: inherit;
+  text-transform: none;
+  color: var(--ash-accordion-fg);
+  appearance: button;
+}
+
+.ash-accordion__button:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-accordion-fg: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-accordion-hover: color-mix(in oklab, var(--color-slate-800, oklch(27.9% 0.041 260.031)) 50%, transparent);
+  --ash-accordion-chevron: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+@media (hover: hover) {
+  .ash-accordion__button:hover {
+    background-color: var(--ash-accordion-hover);
+  }
+}
+
+.ash-accordion__button:focus {
+  outline-style: none;
+}
+
+.ash-accordion__button:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ash-accordion-ring);
+}
+
+.ash-accordion__chevron {
+  flex-shrink: 0;
+  color: var(--ash-accordion-chevron);
+  transition-property: transform, translate, scale, rotate;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ash-accordion__button[aria-expanded="true"] .ash-accordion__chevron {
+  rotate: 90deg;
+}
+
+.ash-accordion__panel {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition-property: grid-template-rows;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ash-accordion__panel[inert] {
+  grid-template-rows: 0fr;
+}
+
+.ash-accordion__clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ash-accordion__content {
+  --ash-accordion-leading: calc(1.25 / 0.875);
+  --ash-accordion-content: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  padding-inline: var(--ash-space-4);
+  padding-top: 0.25rem;
+  padding-bottom: var(--ash-space-4);
+  font-size: 0.875rem;
+  line-height: var(--ash-accordion-leading);
+  color: var(--ash-accordion-content);
+}
+
+.ash-accordion__content:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-accordion-content: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-accordion__chevron,
+  .ash-accordion__panel {
+    transition-property: none;
+  }
+}
