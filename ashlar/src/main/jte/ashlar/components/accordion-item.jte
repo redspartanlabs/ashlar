@@ -46,13 +46,13 @@
      grid whose track size is `0fr` collapsed / `1fr` open, with its one
      child clipped by `overflow-hidden`, animates to the content's own
      natural height with no JavaScript ever measuring anything - the browser's
-     layout engine does that part. The 0fr/1fr value itself is set through
-     inline `style`, the same way progress.jte's fill width and
-     skeleton.jte's width/height already are: a genuinely dynamic per-render
-     value Tailwind's build-time class scanner can't enumerate, not a public
-     styling hook.
+     layout engine does that part. The 0fr/1fr value is not rendered at all:
+     accordion.css derives it from the panel's `inert` attribute (`0fr` while
+     inert, `1fr` otherwise), and the chevron turn from the button's
+     `aria-expanded="true"`, so the two attributes are the only state there is
+     and no inline style or state class can disagree with them.
 
-     The grid item that clips the content (`overflow-hidden` + `min-h-0`)
+     The grid item that clips the content (`ash-accordion__clip`: overflow hidden + min-height 0)
      carries no padding of its own - the padding lives one level deeper, on
      a third, innermost div. Verified live in-browser that padding directly
      on the clipping element itself holds the collapsed row open at the
@@ -81,22 +81,20 @@
 !{boolean resolvedExpanded = AccordionExpansion.resolve(expanded);}
 !{String buttonId = accordionId + "-button-" + itemId;}
 !{String panelId = accordionId + "-panel-" + itemId;}
-!{String rowValue = resolvedExpanded ? "1fr" : "0fr";}
-!{String chevronRotation = resolvedExpanded ? "rotate-90" : "";}
 
-<div data-accordion-item>
-    <h3>
+<div data-accordion-item class="ash-accordion__item">
+    <h3 class="ash-accordion__heading">
         <button
                 type="button"
                 id="${buttonId}"
                 data-accordion-button
                 aria-expanded="${String.valueOf(resolvedExpanded)}"
                 aria-controls="${panelId}"
-                class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-slate-900 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-slate-100 dark:hover:bg-slate-800/50"
+                class="ash-accordion__button"
         >
-            <span>${title}</span>
-            <span data-accordion-chevron class="shrink-0 text-slate-400 transition-transform duration-200 ease-out motion-reduce:transition-none dark:text-slate-500 ${chevronRotation}">
-                @template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "h-4 w-4")
+            <span class="ash-accordion__title">${title}</span>
+            <span data-accordion-chevron class="ash-accordion__chevron">
+                @template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "ash-icon--sm")
             </span>
         </button>
     </h3>
@@ -107,11 +105,10 @@
             role="region"
             aria-labelledby="${buttonId}"
             inert="${!resolvedExpanded}"
-            style="grid-template-rows: ${rowValue}"
-            class="grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none"
+            class="ash-accordion__panel"
     >
-        <div class="min-h-0 overflow-hidden">
-            <div class="px-4 pt-1 pb-4 text-sm text-slate-700 dark:text-slate-300">
+        <div class="ash-accordion__clip">
+            <div class="ash-accordion__content">
                 @if (content != null)
                     ${content}
                 @endif

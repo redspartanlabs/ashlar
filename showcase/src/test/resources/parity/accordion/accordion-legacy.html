@@ -1,0 +1,13 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Accordion and Accordion Item, read verbatim from the templates at the commit before the migration.
+     It is never served. Tailwind compiles this file (see accordion-oracle-entry.css and accordion-legacy-scoped-entry.css) so the legacy rendering stays reproducible,
+     and the tests read the class strings back out of it, so there is one source of truth for what "legacy" means. The legacy chevron carried `rotate-90` while its
+     section was expanded and the legacy panel carried an inline grid-template-rows (1fr open, 0fr collapsed); both are written by the rewrite from the state
+     attributes (aria-expanded, inert), so the chevron has two strings below and the panel one. The item, the heading and the title span had no class strings. -->
+<span data-legacy-role="accordion" class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 dark:divide-slate-700 dark:border-slate-700"></span>
+<span data-legacy-role="accordion-button" class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-slate-900 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-slate-100 dark:hover:bg-slate-800/50"></span>
+<span data-legacy-role="accordion-chevron" class="shrink-0 text-slate-400 transition-transform duration-200 ease-out motion-reduce:transition-none dark:text-slate-500"></span>
+<span data-legacy-role="accordion-chevron-open" class="shrink-0 text-slate-400 transition-transform duration-200 ease-out motion-reduce:transition-none dark:text-slate-500 rotate-90"></span>
+<span data-legacy-role="accordion-panel" class="grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none"></span>
+<span data-legacy-role="accordion-clip" class="min-h-0 overflow-hidden"></span>
+<span data-legacy-role="accordion-content" class="px-4 pt-1 pb-4 text-sm text-slate-700 dark:text-slate-300"></span>
