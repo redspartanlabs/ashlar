@@ -57,6 +57,8 @@
 @import "components/status-line.css" layer(ash.components);
 @import "components/stepper.css" layer(ash.components);
 @import "components/stepper-item.css" layer(ash.components);
+@import "components/tab-panel.css" layer(ash.components);
+@import "components/tabs.css" layer(ash.components);
 @import "components/timeline.css" layer(ash.components);
 @import "components/timeline-item.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);

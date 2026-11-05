@@ -21,15 +21,12 @@ function initTabs(root) {
             const isActive = button === tab;
             button.setAttribute("aria-selected", String(isActive));
             button.tabIndex = isActive ? 0 : -1;
-            // Read the active/inactive look from the button's own data
-            // attributes (computed once by tabs.jte) rather than hardcoding
-            // a second copy of the color classes here - otherwise this and
-            // the template's initial render can silently drift apart.
-            button.className = isActive ? button.dataset.tabActiveClasses : button.dataset.tabInactiveClasses;
+            // The selected look is tabs.css's response to aria-selected (and a
+            // disabled tab's to the native disabled), so no class is set here.
         });
 
         panels.forEach((panel) => {
-            panel.classList.toggle("hidden", panel.dataset.tabId !== tab.dataset.tabId);
+            panel.hidden = panel.dataset.tabId !== tab.dataset.tabId;
         });
 
         if (moveFocus) {

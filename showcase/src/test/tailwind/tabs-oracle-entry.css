@@ -1,0 +1,9 @@
+/* TEST-ONLY (Tabs and Tab Panel migration oracle). Cumulative: the Navigation oracle, imported unchanged (which is the Button oracle, the Card and Stat
+   Card oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes Tabs and Tab Panel
+   used before they moved to ash-tabs and ash-tab-panel.
+
+   Those classes are no longer emitted by the templates, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps them
+   compiled, which keeps the legacy rendering executable: the parity tests render the same tabs with these classes and with the ash- classes, in the same
+   browser, and compare. */
+@import "./navigation-oracle-entry.css";
+@source "../resources/parity/tabs/tabs-legacy.html";

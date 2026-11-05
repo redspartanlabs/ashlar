@@ -22,9 +22,10 @@
   function meta(key, value) { emit("meta", key, String(value).replace(/\s+/g, " ")); }
   function descr(el) {
     var cls = (el.getAttribute("class") || "").trim().split(/\s+/).slice(0, 3).join(".");
-    // "~badge" marks a Badge or a Button (data-btn) and anything inside one, so a comparison can apply the parity
+    // "~badge" marks a Badge, a Button (data-btn) or a Tabs badge (.ash-tabs__badge, the one pill inside a tab; the legacy rendering keeps that class
+    // as an inert hook, since the migrated component has no data attribute for it) and anything inside one, so a comparison can apply the parity
     // normalizations to exactly those migrated components' elements and to nothing else. (The suffix keeps its first name.)
-    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "") + (el.closest("[data-badge], [data-btn]") ? "~badge" : "");
+    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "") + (el.closest("[data-badge], [data-btn], .ash-tabs__badge") ? "~badge" : "");
   }
 
   function layerOrder() {

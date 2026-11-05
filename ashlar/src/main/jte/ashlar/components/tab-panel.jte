@@ -5,12 +5,12 @@
 
 !{String panelId = tabsId + "-panel-" + tabId;}
 !{String tabButtonId = tabsId + "-tab-" + tabId;}
-!{String visibilityClass = active ? "" : "hidden";}
+!{boolean hiddenAttr = !active;}
 
 <%-- `active` only decides what's visible before JS runs on first paint;
      tabs.js re-derives the true active tab from the tablist itself
-     (aria-selected="true") and reconciles every panel's visibility to match
-     at init, so a caller that forgets to keep this in sync with the paired
+     (aria-selected="true") and reconciles every panel's visibility (the native
+     `hidden` attribute) to match at init, so a caller that forgets to keep this in sync with the paired
      tabs() call's activeTab self-heals rather than producing a stuck or
      mismatched panel. --%>
 <div
@@ -21,7 +21,8 @@
         role="tabpanel"
         aria-labelledby="${tabButtonId}"
         tabindex="0"
-        class="${visibilityClass} py-4 text-sm text-slate-700 dark:text-slate-300"
+        hidden="${hiddenAttr}"
+        class="ash-tab-panel"
 >
     @if (content != null)
         ${content}
