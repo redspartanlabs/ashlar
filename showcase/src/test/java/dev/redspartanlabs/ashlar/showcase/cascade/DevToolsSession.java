@@ -6,17 +6,23 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.WebSocket;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -193,6 +199,12 @@ final class DevToolsSession implements AutoCloseable {
         return sb.toString();
     }
 
+    /** How long, in total, the browser and all of its helper processes are given to exit after they are killed: one shared deadline, however many helpers there are. */
+    private static final long EXIT_WAIT_SECONDS = 10;
+
+    /** How many times the profile is swept: a helper process that is still exiting can write a file into a directory that was just emptied. */
+    private static final int CLEANUP_ATTEMPTS = 3;
+
     @Override
     public void close() {
         try {
@@ -200,14 +212,123 @@ final class DevToolsSession implements AutoCloseable {
         } catch (RuntimeException ignored) {
             // The browser is being torn down anyway.
         }
+        // Chrome's helper processes (renderers, GPU, crashpad) outlive the browser process and go on writing and deleting inside the profile. The tree is captured while
+        // the parent is still alive, and only these handles (never a process found by name or by anything else) are terminated.
+        List<ProcessHandle> tree = process.descendants().toList();
         process.destroyForcibly();
+        tree.forEach(ProcessHandle::destroyForcibly);
+        boolean interrupted = false;
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(EXIT_WAIT_SECONDS);
         try {
-            process.waitFor(10, TimeUnit.SECONDS);
-            try (Stream<Path> walk = Files.walk(profile)) {
-                walk.sorted(Comparator.reverseOrder()).forEach(f -> f.toFile().delete());
+            process.waitFor(remaining(deadline), TimeUnit.NANOSECONDS);
+            for (ProcessHandle helper : tree) {
+                try {
+                    helper.onExit().get(remaining(deadline), TimeUnit.NANOSECONDS);
+                } catch (ExecutionException | TimeoutException notExited) {
+                    // Bounded: once the shared deadline has passed a helper is only checked, not waited for (a zero wait still sees one that has exited).
+                    // If one still holds files, the cleanup below reports it.
+                }
             }
-        } catch (IOException | InterruptedException ignored) {
-            // Best-effort cleanup of the throwaway profile.
+        } catch (InterruptedException e) {
+            interrupted = true;
         }
+        List<IOException> failures = deleteTree(profile);
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
+        if (!failures.isEmpty()) {
+            // Thrown from close(), so when the measurement or an assertion has already failed, try-with-resources keeps that failure as the primary one and adds this as suppressed.
+            throw cleanupFailure(profile, failures);
+        }
+    }
+
+    /** The time left until {@code deadline}, never negative. */
+    private static long remaining(long deadline) {
+        return Math.max(0, deadline - System.nanoTime());
+    }
+
+    // ---- the throwaway profile's cleanup ----
+
+    /** Deletes {@code root} and everything in it; returns the failures that were NOT an entry having already disappeared (an empty list is a complete cleanup). */
+    static List<IOException> deleteTree(Path root) {
+        return deleteTree(root, path -> { });
+    }
+
+    /**
+     * As {@link #deleteTree(Path)}. {@code beforeDelete} is called with each entry just before its deletion is attempted: production passes nothing, and a test uses it to make
+     * entries vanish or appear at exactly that moment. An entry that has disappeared (Chrome's helpers delete their own files) is expected and is not a failure; any other
+     * failure is kept, the sweep goes on with the rest of the tree, and the whole sweep is repeated a bounded number of times before the failures are returned.
+     */
+    static List<IOException> deleteTree(Path root, Consumer<Path> beforeDelete) {
+        List<IOException> failures = new ArrayList<>();
+        for (int attempt = 1; attempt <= CLEANUP_ATTEMPTS; attempt++) {
+            failures = sweep(root, beforeDelete);
+            if (failures.isEmpty()) {
+                return failures;
+            }
+            if (attempt < CLEANUP_ATTEMPTS) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        return failures;
+    }
+
+    /** One pass over the tree, with no repetition: what it returns is exactly what that pass could not delete. */
+    static List<IOException> sweep(Path root, Consumer<Path> beforeDelete) {
+        List<IOException> failures = new ArrayList<>();
+        try {
+            // Links are not followed, so a symbolic link in the profile (Chrome's Singleton* ones) is removed itself and its target is left alone.
+            Files.walkFileTree(root, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
+                    delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException failure) {
+                    if (!(failure instanceof NoSuchFileException)) {
+                        failures.add(failure);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path directory, IOException failure) {
+                    if (failure != null && !(failure instanceof NoSuchFileException)) {
+                        failures.add(failure);
+                    }
+                    delete(directory);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                private void delete(Path path) {
+                    beforeDelete.accept(path);
+                    try {
+                        Files.delete(path);
+                    } catch (NoSuchFileException alreadyGone) {
+                        // Expected: something else deleted it first.
+                    } catch (IOException failure) {
+                        failures.add(failure);
+                    }
+                }
+            });
+        } catch (IOException failure) {
+            failures.add(failure);
+        }
+        return failures;
+    }
+
+    /** The exception for a cleanup that failed unexpectedly: it names the profile, says what the first failure was, and carries every failure as suppressed. */
+    static IllegalStateException cleanupFailure(Path profile, List<IOException> failures) {
+        IllegalStateException failure = new IllegalStateException("could not delete the throwaway Chrome profile " + profile + ": " + failures.size()
+                + " unexpected failure(s), the first: " + failures.get(0));
+        failures.forEach(failure::addSuppressed);
+        return failure;
     }
 }
