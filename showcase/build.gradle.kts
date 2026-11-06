@@ -205,7 +205,9 @@ val phaseACascadeEntries = listOf(
     Triple("buildCascadeTabsOracle", "src/test/tailwind/tabs-oracle-entry.css", "tabs-oracle.css"),
     Triple("buildCascadeTabsLegacyScoped", "src/test/tailwind/tabs-legacy-scoped-entry.css", "tabs-legacy-scoped.css"),
     Triple("buildCascadeAccordionOracle", "src/test/tailwind/accordion-oracle-entry.css", "accordion-oracle.css"),
-    Triple("buildCascadeAccordionLegacyScoped", "src/test/tailwind/accordion-legacy-scoped-entry.css", "accordion-legacy-scoped.css")
+    Triple("buildCascadeAccordionLegacyScoped", "src/test/tailwind/accordion-legacy-scoped-entry.css", "accordion-legacy-scoped.css"),
+    Triple("buildCascadeTreeOracle", "src/test/tailwind/tree-oracle-entry.css", "tree-oracle.css"),
+    Triple("buildCascadeTreeLegacyScoped", "src/test/tailwind/tree-legacy-scoped-entry.css", "tree-legacy-scoped.css")
 ).map { (taskName, entry, outputName) -> registerCascadeCss(taskName, entry, outputName) }
 
 val buildCascadeCss = tasks.register("buildCascadeCss") {
@@ -226,4 +228,14 @@ tasks.named<Test>("test") {
     systemProperty("ashlar.css.generated", rootProject.layout.projectDirectory
         .file("ashlar/build/generated/css/META-INF/resources/ashlar/css/ashlar.css").asFile.absolutePath)
     dependsOn(":ashlar:generateAshlarCss")
+
+    // Failure diagnostics: print the full exception, with its message, for a FAILED test only. Without this the CI log shows just the exception class and line, and
+    // the parity suites' assertion messages (which name the differing step and fields) live only in a report CI does not upload. Passing tests stay silent.
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showCauses = true
+        showExceptions = true
+        showStackTraces = false
+    }
 }

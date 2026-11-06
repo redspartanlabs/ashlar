@@ -1,0 +1,9 @@
+/* TEST-ONLY (Tree and Tree Item migration oracle). Cumulative: the Accordion oracle, imported unchanged (which is the Tabs oracle, the Navigation oracle, ...
+   down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes Tree and Tree Item used before they moved
+   to the ash-tree classes.
+
+   Those classes are no longer emitted by the templates, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps them
+   compiled, which keeps the legacy rendering executable: the parity tests render the same trees with these classes and with the ash- classes, in the same browser, and
+   compare. */
+@import "./accordion-oracle-entry.css";
+@source "../resources/parity/tree/tree-legacy.html";

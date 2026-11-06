@@ -6,6 +6,11 @@
 // live inside its own root, so every lookup here only ever searches within
 // `root`, never `document` - the same per-instance scoping every other
 // interactive component in this library already uses.
+//
+// No style or class is ever written: the state is two attributes, kept in step
+// here (`aria-expanded` on the treeitem, `inert` on its group), and
+// tree-item.css answers both - the chevron turn from the treeitem's own
+// `aria-expanded="true"`, the collapsed grid row from the group's `inert`.
 function initTree(root) {
     function allItems() {
         return Array.from(root.querySelectorAll("[data-tree-item]"));
@@ -51,13 +56,7 @@ function initTree(root) {
             return;
         }
         item.setAttribute("aria-expanded", String(expanded));
-        group.style.gridTemplateRows = expanded ? "1fr" : "0fr";
         group.inert = !expanded;
-
-        const chevron = item.querySelector(":scope > div [data-tree-chevron]");
-        if (chevron) {
-            chevron.classList.toggle("rotate-90", expanded);
-        }
     }
 
     function toggle(item) {

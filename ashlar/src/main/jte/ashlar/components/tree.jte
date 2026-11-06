@@ -31,7 +31,7 @@
      one page can never see or interfere with each other's items. --%>
 !{TreeContext.reset();}
 
-<ul role="tree" data-tree class="flex flex-col gap-0.5 text-sm">
+<ul role="tree" data-tree class="ash-tree">
     ${items}
 </ul>
 
