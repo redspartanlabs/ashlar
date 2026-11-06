@@ -43,13 +43,19 @@ class TreeLegacyBehaviourTest {
         String migratedScript = TreeBrowser.script(TreeLegacyBehaviourTest.class, "/META-INF/resources/ashlar/js/tree.js");
         TreeLegacyMarkup tree = new TreeLegacyMarkup();
         IconLegacyMarkup icons = new IconLegacyMarkup();
-        try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir()); DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
-            cdp.navigate(server.registerRaw(TreeBrowser.page(List.of(ParityFrames.generated("tree-oracle.css")), TreeBrowser.body(true, tree, icons), legacyScript)));
-            TreeBrowser.initialise(cdp);
-            legacy = TreeBrowser.run(cdp, steps);
-            cdp.navigate(server.registerRaw(TreeBrowser.page(List.of(ParityFrames.ASHLAR), TreeBrowser.body(false, tree, icons), migratedScript)));
-            TreeBrowser.initialise(cdp);
-            migrated = TreeBrowser.run(cdp, steps);
+        // Each rendering runs in its OWN fresh browser (process and profile), one after the other, so both start from identical conditions. Sharing one tab let the
+        // second run inherit the first run's input-modality history, which decides whether a script focus matches :focus-visible (it differed on Linux CI).
+        try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
+            try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+                cdp.navigate(server.registerRaw(TreeBrowser.page(List.of(ParityFrames.generated("tree-oracle.css")), TreeBrowser.body(true, tree, icons), legacyScript)));
+                TreeBrowser.initialise(cdp);
+                legacy = TreeBrowser.run(cdp, steps);
+            }
+            try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+                cdp.navigate(server.registerRaw(TreeBrowser.page(List.of(ParityFrames.ASHLAR), TreeBrowser.body(false, tree, icons), migratedScript)));
+                TreeBrowser.initialise(cdp);
+                migrated = TreeBrowser.run(cdp, steps);
+            }
         }
     }
 
