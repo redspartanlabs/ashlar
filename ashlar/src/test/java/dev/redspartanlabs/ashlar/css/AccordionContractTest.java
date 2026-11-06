@@ -271,7 +271,6 @@ class AccordionContractTest {
         for (String name : List.of("accordion", "accordion-item")) {
             assertTrue(source.contains("@import \"components/" + name + ".css\" layer(ash.components);"), name);
         }
-        assertFalse(source.contains("components/tree"), "Tree and Tree Item are a later migration");
     }
 
     @Test

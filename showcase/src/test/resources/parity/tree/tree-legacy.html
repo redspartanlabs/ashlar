@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Tree and Tree Item, read verbatim from the templates at commit 25b3165 (the commit before the migration).
+     It is never served. Tailwind compiles this file (see tree-oracle-entry.css and tree-legacy-scoped-entry.css) so the legacy rendering stays reproducible, and the
+     tests read the class strings back out of it, so there is one source of truth for what "legacy" means. Three legacy parts depended on state: the chevron carried
+     `rotate-90` while its OWN item was expanded (two strings below), the panel carried an inline grid-template-rows (1fr open, 0fr collapsed, written by the rewrite from
+     its inert attribute), and the label is an <a> when the item has an href and a <span> otherwise (two strings). -->
+<span data-legacy-role="tree" class="flex flex-col gap-0.5 text-sm"></span>
+<span data-legacy-role="tree-item" class="focus:outline-none"></span>
+<span data-legacy-role="tree-row" class="flex items-center gap-1 rounded-md px-2 py-1.5 text-slate-700 hover:bg-slate-100 [li:focus-visible>&]:bg-blue-50 [li:focus-visible>&]:ring-2 [li:focus-visible>&]:ring-inset [li:focus-visible>&]:ring-blue-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:[li:focus-visible>&]:bg-blue-950/40"></span>
+<span data-legacy-role="tree-toggle" class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"></span>
+<span data-legacy-role="tree-chevron" class="transition-transform duration-150 ease-out motion-reduce:transition-none"></span>
+<span data-legacy-role="tree-chevron-open" class="transition-transform duration-150 ease-out motion-reduce:transition-none rotate-90"></span>
+<span data-legacy-role="tree-spacer" class="h-5 w-5 shrink-0"></span>
+<span data-legacy-role="tree-icon" class="shrink-0 text-slate-400 dark:text-slate-500"></span>
+<span data-legacy-role="tree-label-link" class="min-w-0 flex-1 truncate rounded-sm font-medium text-slate-900 hover:underline focus:outline-none dark:text-slate-100"></span>
+<span data-legacy-role="tree-label" class="min-w-0 flex-1 truncate font-medium text-slate-900 dark:text-slate-100"></span>
+<span data-legacy-role="tree-panel" class="grid transition-[grid-template-rows] duration-150 ease-out motion-reduce:transition-none"></span>
+<span data-legacy-role="tree-clip" class="min-h-0 overflow-hidden"></span>
+<span data-legacy-role="tree-group" class="pl-5"></span>

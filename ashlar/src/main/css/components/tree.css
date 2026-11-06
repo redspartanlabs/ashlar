@@ -1,0 +1,22 @@
+/* ash-tree: the root list of a Tree View. It establishes the vertical stack of top-level items; every item, row and nested group is Tree Item's (tree-item.css).
+
+   Classes       ash-tree                      the root <ul role="tree"> (it also carries data-tree)
+
+   Layout        The root is a flex column with a 0.125rem gap between its TOP-LEVEL items only. A nested group (ash-tree__group) is a plain block: its items sit flush,
+                 exactly as before. It also sets the text size (0.875rem, line-height 1.25 / 0.875 kept in a property so a minifier cannot fold it) that every row inherits.
+                 It sets no width, margin or placement.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <ul> has a list marker, a margin and padding by default, so each is stated. The component adds no
+   global rule. */
+
+.ash-tree {
+  --ash-tree-leading: calc(1.25 / 0.875);
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  line-height: var(--ash-tree-leading);
+}

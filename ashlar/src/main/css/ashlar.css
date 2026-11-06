@@ -63,5 +63,7 @@
 @import "components/tabs.css" layer(ash.components);
 @import "components/timeline.css" layer(ash.components);
 @import "components/timeline-item.css" layer(ash.components);
+@import "components/tree.css" layer(ash.components);
+@import "components/tree-item.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
 @import "utilities/truncate.css" layer(ash.utilities);

@@ -40,7 +40,13 @@
      `inert` on the collapsed state and for the same reason: a `0fr` row,
      unlike `hidden`, doesn't remove its content from the tab order or the
      accessibility tree by itself, and a collapsed branch's whole nested
-     subtree needs that removed, not just its own direct row.
+     subtree needs that removed, not just its own direct row. The 0fr/1fr
+     value is not rendered at all: tree-item.css derives it from the panel's
+     `inert` attribute (`0fr` while inert, `1fr` otherwise), and the chevron
+     turn from this `<li>`'s own `aria-expanded="true"` through child
+     combinators only, so the two attributes are the only state there is, no
+     inline style or state class can disagree with them, and a parent's state
+     never reaches the items nested under it.
 
      Unlike accordion-item.jte's single panel, this one grid item has to
      hold an arbitrary NUMBER of nested `<li>` siblings (however many
@@ -50,22 +56,21 @@
      role="group">` to gather those siblings into one item would be
      non-conforming markup (a `<ul>`'s children are only ever `<li>`), so the
      grid/clip/inert layer wraps the whole `<ul>` from the *outside*
-     instead: `<div grid+inert><div min-h-0 overflow-hidden><ul
+     instead: `<div grid+inert><div clip><ul
      role="group">${children}</ul></div></div>`. That keeps the real list
      nesting intact at every depth (so the tree still degrades to a plain,
      readable nested list if CSS or JS were ever stripped, the same
      reasoning tree.jte's own doc comment gives for its root `<ul>`) while
      still giving the grid exactly one item to size itself against.
 
-     The row's focus ring is driven by `[li:focus-visible>&]`, a direct-child
-     selector, rather than the `group`/`group-focus-visible` pattern used
-     elsewhere in this library (Stepper's connector, for one): `group`
-     matches focus on ANY ancestor carrying the group class, and since every
-     treeitem at every depth carries the same class, a `group`-based ring on
-     an expanded parent would light up every descendant row nested under it
-     too - verified live before settling on this fix. `li:focus-visible>&`
-     only ever matches this row's own immediate parent, so nesting doesn't
-     leak the ring onto content that isn't actually focused.
+     The row's focus ring is driven by `li:focus-visible > row`, a direct-child
+     selector in tree-item.css, rather than an ancestor-matching pattern:
+     that would match focus on ANY ancestor carrying the class, and since
+     every treeitem at every depth carries the same class, a ring on an
+     expanded parent would light up every descendant row nested under it
+     too. `li:focus-visible > row` only ever matches this row's own
+     immediate parent, so nesting doesn't leak the ring onto content that
+     isn't actually focused.
 
      A row with an `href` renders its label as a real `<a>`; a row that also
      has `children` still gets the same link, entirely independent of its
@@ -78,8 +83,6 @@
 !{boolean isLink = href != null && !href.isEmpty();}
 !{boolean hasIcon = icon != null;}
 !{String ariaExpandedAttr = hasChildren ? String.valueOf(expanded) : null;}
-!{String rowValue = expanded ? "1fr" : "0fr";}
-!{String chevronRotation = expanded ? "rotate-90" : "";}
 
 <li
         role="treeitem"
@@ -87,35 +90,35 @@
         aria-level="${level}"
         tabindex="-1"
         data-tree-item
-        class="focus:outline-none"
+        class="ash-tree__item"
 >
-    <div class="flex items-center gap-1 rounded-md px-2 py-1.5 text-slate-700 hover:bg-slate-100 [li:focus-visible>&]:bg-blue-50 [li:focus-visible>&]:ring-2 [li:focus-visible>&]:ring-inset [li:focus-visible>&]:ring-blue-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:[li:focus-visible>&]:bg-blue-950/40">
+    <div class="ash-tree__row">
         @if (hasChildren)
             <button
                     type="button"
                     tabindex="-1"
                     aria-hidden="true"
                     data-tree-toggle
-                    class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                    class="ash-tree__toggle"
             >
-                <span data-tree-chevron class="transition-transform duration-150 ease-out motion-reduce:transition-none ${chevronRotation}">
-                    @template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "h-4 w-4")
+                <span data-tree-chevron class="ash-tree__chevron">
+                    @template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "ash-icon--sm")
                 </span>
             </button>
         @else
-            <span class="h-5 w-5 shrink-0" aria-hidden="true"></span>
+            <span class="ash-tree__spacer" aria-hidden="true"></span>
         @endif
 
         @if (hasIcon)
-            <span class="shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true">
-                @template.ashlar.components.icon(icon = icon, classes = "h-4 w-4")
+            <span class="ash-tree__icon" aria-hidden="true">
+                @template.ashlar.components.icon(icon = icon, classes = "ash-icon--sm")
             </span>
         @endif
 
         @if (isLink)
-            <a href="${href}" tabindex="-1" class="min-w-0 flex-1 truncate rounded-sm font-medium text-slate-900 hover:underline focus:outline-none dark:text-slate-100">${label}</a>
+            <a href="${href}" tabindex="-1" class="ash-tree__label">${label}</a>
         @else
-            <span class="min-w-0 flex-1 truncate font-medium text-slate-900 dark:text-slate-100">${label}</span>
+            <span class="ash-tree__label">${label}</span>
         @endif
     </div>
 
@@ -124,11 +127,10 @@
         <div
                 data-tree-children
                 inert="${!expanded}"
-                style="grid-template-rows: ${rowValue}"
-                class="grid transition-[grid-template-rows] duration-150 ease-out motion-reduce:transition-none"
+                class="ash-tree__panel"
         >
-            <div class="min-h-0 overflow-hidden">
-                <ul role="group" class="pl-5">
+            <div class="ash-tree__clip">
+                <ul role="group" class="ash-tree__group">
                     ${children}
                 </ul>
             </div>
