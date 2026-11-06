@@ -103,10 +103,28 @@ class TreeLegacyBehaviourTest {
         List<String> differences = new ArrayList<>();
         for (int i = 0; i < steps.size(); i++) {
             if (!withoutFingerprint(legacy.get(i)).equals(withoutFingerprint(migrated.get(i)))) {
-                differences.add("#" + i + " " + steps.get(i).action() + "\n  legacy:   " + legacy.get(i) + "\n  migrated: " + migrated.get(i));
+                differences.add("step #" + i + " input=" + steps.get(i).action() + " (the step expects focus on '" + steps.get(i).active() + "')"
+                        + "\n  differing fields (legacy -> migrated): " + differingFields(withoutFingerprint(legacy.get(i)), withoutFingerprint(migrated.get(i)))
+                        + "\n  legacy snapshot:   " + legacy.get(i)
+                        + "\n  migrated snapshot: " + migrated.get(i));
             }
         }
-        assertEquals(List.of(), differences);
+        assertTrue(differences.isEmpty(), differences.size() + " of " + steps.size() + " steps differ:\n" + String.join("\n", differences));
+    }
+
+    /** Diagnostic only: names each field whose value differs between two snapshots, with both values. The comparison itself is unchanged. */
+    private static String differingFields(String legacySnapshot, String migratedSnapshot) {
+        List<String> out = new ArrayList<>();
+        List<String> a = List.of(legacySnapshot.split(";"));
+        List<String> b = List.of(migratedSnapshot.split(";"));
+        for (int k = 0; k < Math.max(a.size(), b.size()); k++) {
+            String left = k < a.size() ? a.get(k) : "(missing)";
+            String right = k < b.size() ? b.get(k) : "(missing)";
+            if (!left.equals(right)) {
+                out.add("[" + left + " -> " + right + "]");
+            }
+        }
+        return String.join(" ", out);
     }
 
     @Test

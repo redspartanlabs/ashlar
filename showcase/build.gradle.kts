@@ -228,4 +228,14 @@ tasks.named<Test>("test") {
     systemProperty("ashlar.css.generated", rootProject.layout.projectDirectory
         .file("ashlar/build/generated/css/META-INF/resources/ashlar/css/ashlar.css").asFile.absolutePath)
     dependsOn(":ashlar:generateAshlarCss")
+
+    // Failure diagnostics: print the full exception, with its message, for a FAILED test only. Without this the CI log shows just the exception class and line, and
+    // the parity suites' assertion messages (which name the differing step and fields) live only in a report CI does not upload. Passing tests stay silent.
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showCauses = true
+        showExceptions = true
+        showStackTraces = false
+    }
 }
