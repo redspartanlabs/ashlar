@@ -23,10 +23,8 @@ function initCharacterCount(root) {
         counter.textContent = hasMax ? `${length} / ${textarea.maxLength}` : `${length} characters`;
 
         const atLimit = hasMax && length >= textarea.maxLength;
-        counter.classList.toggle("text-red-600", atLimit);
-        counter.classList.toggle("dark:text-red-400", atLimit);
-        counter.classList.toggle("text-slate-500", !atLimit);
-        counter.classList.toggle("dark:text-slate-400", !atLimit);
+        // The at-limit colour is CSS (textarea.css), keyed to this attribute.
+        counter.toggleAttribute("data-at-limit", atLimit);
     }
 
     // The browser already enforces maxlength on typing and pasting, so this

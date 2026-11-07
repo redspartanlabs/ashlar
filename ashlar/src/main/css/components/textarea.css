@@ -1,0 +1,70 @@
+/* ash-textarea: what a Textarea adds to the shared field chrome (field.css): its resize behaviour, the row that holds the help text and the character count, and the count's
+   at-limit colour.
+
+   Classes       ash-textarea__control         the <textarea> (it also carries ash-field__control and ash-field__control--readonly)
+                 ash-textarea__control--fixed  a Textarea with resizable = false: it cannot be resized
+                 ash-textarea__row             the row of help text and count under the field
+                 ash-textarea__help            the help text inside that row
+                 ash-textarea__count           the live character count (it also carries data-textarea-count)
+
+   State         The count turns red while the field is at its maxlength. textarea.js sets and clears the data-at-limit attribute on the count as the user types; the colour is
+                 CSS. The script writes no class. A disabled textarea cannot be resized, as before.
+
+   Colour        Palette variables with Tailwind's exact value as the fallback; dark follows data-theme="dark" through the zero-specificity :where() form. The count's at-limit
+                 colour reads --ash-field-error, so it follows the field's error colour.
+
+   Layout        Unlike a Text Input, a Textarea has no width cap: it takes the width its container gives it.
+
+   Self-contained: a <textarea> has a resize behaviour of its own (stated here as vertical); a paragraph has margins. The component adds no global rule. */
+
+.ash-textarea__control {
+  resize: vertical;
+}
+
+.ash-textarea__control--fixed {
+  resize: none;
+}
+
+.ash-textarea__control:disabled {
+  resize: none;
+}
+
+.ash-textarea__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ash-space-2);
+  margin-top: 0.25rem;
+}
+
+.ash-textarea__help {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-field-leading);
+  color: var(--ash-field-help, var(--color-slate-500, oklch(55.4% 0.046 257.417)));
+}
+
+.ash-textarea__help:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-field-help, var(--color-slate-400, oklch(70.4% 0.04 256.788)));
+}
+
+.ash-textarea__count {
+  --ash-textarea-count-leading: calc(1 / 0.75);
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: var(--ash-textarea-count-leading);
+  color: var(--ash-field-help, var(--color-slate-500, oklch(55.4% 0.046 257.417)));
+}
+
+.ash-textarea__count[data-at-limit] {
+  color: var(--ash-field-error, var(--color-red-600, oklch(57.7% 0.245 27.325)));
+}
+
+.ash-textarea__count:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-field-help, var(--color-slate-400, oklch(70.4% 0.04 256.788)));
+}
+
+.ash-textarea__count[data-at-limit]:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-field-error, var(--color-red-400, oklch(70.4% 0.191 22.216)));
+}
