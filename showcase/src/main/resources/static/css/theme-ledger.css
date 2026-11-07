@@ -227,6 +227,12 @@
     --tw-shadow: 0 0 #0000;
 }
 
+/* A Text Entry field (Form Field, Text Input, Number Input, Textarea, Search Input) owns its drop shadow in --ash-field-shadow rather than through a Tailwind shadow class, so the
+   rule above no longer reaches it. It is set on the skin's root so any field below inherits the flat shadow; the focus ring is not part of it. */
+[data-skin="ledger"] {
+    --ash-field-shadow: 0 0 #0000;
+}
+
 /* A Button owns its drop shadow in --ash-btn-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. */
 [data-skin="ledger"] .ash-btn {
     --ash-btn-shadow: 0 0 #0000;
@@ -404,7 +410,7 @@
    utility class has to be scoped the same way, because the class is present
    regardless of which mode is actually showing.
    ------------------------------------------------------------------------- */
-:root[data-skin="ledger"]:not([data-theme="dark"]) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select).bg-white {
+:root[data-skin="ledger"]:not([data-theme="dark"]) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):is(.bg-white, .ash-field__control) {
     background-color: var(--color-slate-50);
 }
 

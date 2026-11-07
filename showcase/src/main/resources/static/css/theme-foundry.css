@@ -239,6 +239,12 @@
     --tw-shadow: 0 0 #0000;
 }
 
+/* A Text Entry field (Form Field, Text Input, Number Input, Textarea, Search Input) owns its drop shadow in --ash-field-shadow rather than through a Tailwind shadow class, so the
+   rule above no longer reaches it. It is set on the skin's root so any field below inherits the flat shadow; the focus ring is not part of it. */
+[data-skin="foundry"] {
+    --ash-field-shadow: 0 0 #0000;
+}
+
 /* A Button owns its drop shadow in --ash-btn-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. Foundry's own
    box-shadow below decides a real Button; this keeps a decorative element that borrows the Button classes (File Upload's "Choose File") flat. */
 [data-skin="foundry"] .ash-btn {

@@ -60,11 +60,11 @@
 !{boolean hasHelp = !helpText.isEmpty();}
 !{boolean hasError = !errorMessage.isEmpty();}
 
-<div class="mb-6">
-    <label for="${fieldId}" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+<div class="ash-field">
+    <label for="${fieldId}" class="ash-field__label">
         ${label}
         @if (required)
-            <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+            <span class="ash-field__required" aria-hidden="true"> *</span>
         @endif
     </label>
 
@@ -73,10 +73,10 @@
     ${control}
 
     @if (hasHelp)
-        <p id="${helpId}" class="mt-1 text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+        <p id="${helpId}" class="ash-field__help">${helpText}</p>
     @endif
 
     @if (hasError)
-        <p id="${errorId}" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+        <p id="${errorId}" class="ash-field__error" role="alert">${errorMessage}</p>
     @endif
 </div>

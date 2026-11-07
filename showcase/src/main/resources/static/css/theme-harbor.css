@@ -347,6 +347,12 @@
     --tw-shadow: 0 0 #0000;
 }
 
+/* A Text Entry field (Form Field, Text Input, Number Input, Textarea, Search Input) owns its drop shadow in --ash-field-shadow rather than through a Tailwind shadow class, so the
+   rule above no longer reaches it. It is set on the skin's root so any field below inherits the flat shadow; the focus ring is not part of it. */
+[data-skin="harbor"] {
+    --ash-field-shadow: 0 0 #0000;
+}
+
 /* A Button owns its drop shadow in --ash-btn-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. */
 [data-skin="harbor"] .ash-btn {
     --ash-btn-shadow: 0 0 #0000;

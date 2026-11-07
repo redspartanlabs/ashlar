@@ -1,0 +1,80 @@
+/* ash-search-input: what a Search Input adds to the shared field chrome (field.css): room for its icon and its clear button, the removal of the browser's own clear affordance, and
+   the clear button itself.
+
+   Classes       ash-search-input__field       the <input type="search"> (it also carries ash-field__control, and data-search-input-field)
+                 ash-search-input__clear       the clear <button> (it also carries data-search-input-clear)
+
+   State         The clear button is shown only while the field has text. The template renders the native `hidden` attribute for an empty field and search-input.js sets and clears
+                 it as the user types; the button is `display: flex`, so the stylesheet states `[hidden] { display: none }` itself, because an author `display` would otherwise
+                 override the browser's own rule for the attribute. A hidden button is not in the tab order. The button is also `:disabled` with the field, and is then dimmed.
+
+   Focus         The button shows a 2px outer ring in the focus colour on :focus-visible only (a mouse click does not draw it); its outline is removed on :focus.
+
+   Colour        Palette variables with Tailwind's exact value as the fallback; dark follows data-theme="dark" through the zero-specificity :where() form. Hover is inside
+                 @media (hover: hover).
+
+   Native        WebKit and Blink draw their own "x" in a type="search" field once it has text, which would double this component's button, so it is removed with
+                 ::-webkit-search-cancel-button { appearance: none }. The Search Input has no read-only presentation (it carries no ash-field__control--readonly).
+
+   Self-contained: a <button> has a border, padding, font, colour, background, radius and appearance of its own; each is stated. The component adds no global rule. */
+
+.ash-search-input__field {
+  padding-left: 2.25rem;
+  padding-right: 2.25rem;
+}
+
+.ash-search-input__field::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ash-search-input__clear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  border: 0 solid;
+  border-radius: var(--ash-radius-md);
+  background-color: transparent;
+  padding: 0 var(--ash-space-3) 0 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  appearance: button;
+}
+
+.ash-search-input__clear[hidden] {
+  display: none;
+}
+
+@media (hover: hover) {
+  .ash-search-input__clear:hover {
+    color: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  }
+}
+
+.ash-search-input__clear:focus {
+  outline-style: none;
+}
+
+.ash-search-input__clear:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-blue-500, oklch(62.3% 0.214 259.815));
+}
+
+.ash-search-input__clear:disabled {
+  opacity: 0.4;
+}
+
+.ash-search-input__clear:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+@media (hover: hover) {
+  .ash-search-input__clear:where([data-theme="dark"], [data-theme="dark"] *):hover {
+    color: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  }
+}

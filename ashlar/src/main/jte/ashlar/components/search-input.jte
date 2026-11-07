@@ -25,8 +25,8 @@
      `type="search"` has one native side effect worth handling
      deliberately: WebKit/Blink draw their own "x" clear affordance
      once the field has text, which would visually double up with this
-     component's own clear button. The `[&::-webkit-search-cancel-button]`
-     arbitrary variant below turns that native one off; this component's
+     component's own clear button. The `::-webkit-search-cancel-button`
+     rule in search-input.css turns that native one off; this component's
      own button is the only clear affordance a user ever sees.
 
      JavaScript is only responsible for what native HTML/CSS genuinely
@@ -43,33 +43,25 @@
 !{boolean showError = error && !errorMessage.isEmpty();}
 !{String describedByAttr = hasHelp && showError ? helpId + " " + errorId : hasHelp ? helpId : showError ? errorId : null;}
 !{boolean hasValue = !value.isEmpty();}
-!{String clearDisplay = hasValue ? "flex" : "hidden";}
+!{boolean clearHidden = !hasValue;}
 
 <%-- Smart attributes: a null/false expression makes JTE omit the attribute entirely. --%>
 !{String placeholderAttr = placeholder.isEmpty() ? null : placeholder;}
 !{String ariaInvalidAttr = error ? "true" : null;}
 
-!{String inputClasses = "block w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 " +
-        "[&::-webkit-search-cancel-button]:appearance-none " +
-        "hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 " +
-        "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 " +
-        "user-invalid:border-red-500 user-invalid:hover:border-red-600 user-invalid:focus:border-red-500 user-invalid:focus:ring-red-500 " +
-        "aria-invalid:border-red-500 aria-invalid:hover:border-red-600 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500 " +
-        "dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500 " +
-        "dark:disabled:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 " +
-        "dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500";}
+!{String inputClasses = "ash-field__control ash-search-input__field";}
 
-<div class="mb-6" data-search-input>
-    <label for="${inputId}" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+<div class="ash-field" data-search-input>
+    <label for="${inputId}" class="ash-field__label">
         ${label}
         @if (required)
-            <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+            <span class="ash-field__required" aria-hidden="true"> *</span>
         @endif
     </label>
 
-    <div class="relative w-full max-w-sm">
-        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
-            @template.ashlar.components.icon(icon = Icon.SEARCH, classes = "h-4 w-4")
+    <div class="ash-field__box">
+        <span class="ash-field__icon">
+            @template.ashlar.components.icon(icon = Icon.SEARCH, classes = "ash-icon--sm")
         </span>
 
         <input
@@ -89,20 +81,21 @@
         <button
                 type="button"
                 disabled="${disabled}"
+                hidden="${clearHidden}"
                 aria-label="Clear search"
                 data-search-input-clear
-                class="${clearDisplay} absolute inset-y-0 right-0 items-center rounded-md pr-3 text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-40 dark:text-slate-500 dark:hover:text-slate-300"
+                class="ash-search-input__clear"
         >
-            @template.ashlar.components.icon(icon = Icon.CLOSE, classes = "h-4 w-4")
+            @template.ashlar.components.icon(icon = Icon.CLOSE, classes = "ash-icon--sm")
         </button>
     </div>
 
     @if (hasHelp)
-        <p id="${helpId}" class="mt-1 text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+        <p id="${helpId}" class="ash-field__help">${helpText}</p>
     @endif
 
     @if (showError)
-        <p id="${errorId}" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+        <p id="${errorId}" class="ash-field__error" role="alert">${errorMessage}</p>
     @endif
 </div>
 

@@ -30,7 +30,7 @@
      reimplements.
 
      Even the error *styling* is done in pure CSS, via the
-     `user-invalid:`/`aria-invalid:` Tailwind variants, rather than a
+     `:user-invalid`/`[aria-invalid="true"]` selectors in field.css, rather than a
      JavaScript `invalid`-event listener like Date Picker/Select use: a
      plain <input>, unlike those two, already IS the control the user sees
      and types into, so there's no hidden native element for JS to
@@ -68,31 +68,20 @@
 !{String ariaInvalidAttr = error ? "true" : null;}
 !{String maskAttr = hasMask ? mask : null;}
 
-!{String leadingPadding = leadingIcon != null ? "pl-9" : "pl-3";}
-!{String trailingPadding = trailingIcon != null ? "pr-9" : "pr-3";}
-!{String inputClasses = "block w-full rounded-md border border-slate-300 bg-white py-2 " + leadingPadding + " " + trailingPadding + " text-sm text-slate-900 shadow-sm placeholder:text-slate-400 " +
-        "hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 " +
-        "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 " +
-        "read-only:cursor-default read-only:bg-slate-50 read-only:hover:border-slate-300 " +
-        "user-invalid:border-red-500 user-invalid:hover:border-red-600 user-invalid:focus:border-red-500 user-invalid:focus:ring-red-500 " +
-        "aria-invalid:border-red-500 aria-invalid:hover:border-red-600 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500 " +
-        "dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500 " +
-        "dark:disabled:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 " +
-        "dark:read-only:bg-slate-900 dark:read-only:hover:border-slate-600 " +
-        "dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500";}
+!{String inputClasses = "ash-field__control ash-field__control--readonly" + (leadingIcon != null ? " ash-field__control--leading" : "") + (trailingIcon != null ? " ash-field__control--trailing" : "");}
 
-<div class="mb-6">
-    <label for="${inputId}" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+<div class="ash-field">
+    <label for="${inputId}" class="ash-field__label">
         ${label}
         @if (required)
-            <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+            <span class="ash-field__required" aria-hidden="true"> *</span>
         @endif
     </label>
 
-    <div class="relative w-full max-w-sm">
+    <div class="ash-field__box">
         @if (leadingIcon != null)
-            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500">
-                @template.ashlar.components.icon(icon = leadingIcon, classes = "h-4 w-4")
+            <span class="ash-field__icon">
+                @template.ashlar.components.icon(icon = leadingIcon, classes = "ash-icon--sm")
             </span>
         @endif
 
@@ -117,18 +106,18 @@
         >
 
         @if (trailingIcon != null)
-            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 dark:text-slate-500">
-                @template.ashlar.components.icon(icon = trailingIcon, classes = "h-4 w-4")
+            <span class="ash-field__icon ash-field__icon--end">
+                @template.ashlar.components.icon(icon = trailingIcon, classes = "ash-icon--sm")
             </span>
         @endif
     </div>
 
     @if (hasHelp)
-        <p id="${helpId}" class="mt-1 text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+        <p id="${helpId}" class="ash-field__help">${helpText}</p>
     @endif
 
     @if (showError)
-        <p id="${errorId}" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+        <p id="${errorId}" class="ash-field__error" role="alert">${errorMessage}</p>
     @endif
 </div>
 

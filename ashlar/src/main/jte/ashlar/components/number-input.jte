@@ -15,8 +15,8 @@
 
 <%-- A plain, native <input type="number"> - the numeric sibling of
      text-input.jte, sharing its identity/validation/help/error
-     conventions and its zero-JavaScript, pure-CSS `user-invalid:`/
-     `aria-invalid:` error styling. `type` isn't a param here the way it
+     conventions and its zero-JavaScript, pure-CSS `:user-invalid`/
+     `[aria-invalid="true"]` error styling (field.css). `type` isn't a param here the way it
      is on text-input.jte: this component's whole reason to exist is
      `type="number"`, so there's nothing to make configurable.
 
@@ -52,22 +52,13 @@
 !{String stepAttr = step.isEmpty() ? null : step;}
 !{String ariaInvalidAttr = error ? "true" : null;}
 
-!{String inputClasses = "block w-full max-w-sm rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 " +
-        "hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 " +
-        "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 " +
-        "read-only:cursor-default read-only:bg-slate-50 read-only:hover:border-slate-300 " +
-        "user-invalid:border-red-500 user-invalid:hover:border-red-600 user-invalid:focus:border-red-500 user-invalid:focus:ring-red-500 " +
-        "aria-invalid:border-red-500 aria-invalid:hover:border-red-600 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500 " +
-        "dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500 " +
-        "dark:disabled:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 " +
-        "dark:read-only:bg-slate-900 dark:read-only:hover:border-slate-600 " +
-        "dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500";}
+!{String inputClasses = "ash-field__control ash-field__control--readonly ash-field__control--narrow";}
 
-<div class="mb-6">
-    <label for="${inputId}" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+<div class="ash-field">
+    <label for="${inputId}" class="ash-field__label">
         ${label}
         @if (required)
-            <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+            <span class="ash-field__required" aria-hidden="true"> *</span>
         @endif
     </label>
 
@@ -89,10 +80,10 @@
     >
 
     @if (hasHelp)
-        <p id="${helpId}" class="mt-1 text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+        <p id="${helpId}" class="ash-field__help">${helpText}</p>
     @endif
 
     @if (showError)
-        <p id="${errorId}" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+        <p id="${errorId}" class="ash-field__error" role="alert">${errorMessage}</p>
     @endif
 </div>

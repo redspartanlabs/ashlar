@@ -21,7 +21,7 @@
 <%-- The multiline sibling of text-input.jte - same identity/validation/help/
      error conventions, native browser behavior wherever the two elements
      share it, and text-input.jte's already-established pattern of styling
-     the error state in pure CSS (`user-invalid:`/`aria-invalid:`) rather
+     the error state in pure CSS (`:user-invalid`/`[aria-invalid="true"]`, field.css) rather
      than a JS `invalid` listener.
 
      Two attributes text-input.jte accepts are deliberately absent here:
@@ -60,23 +60,13 @@
 !{String ariaInvalidAttr = error ? "true" : null;}
 !{String counterMarkerAttr = showCharacterCount ? "true" : null;}
 
-!{String resizeClass = resizable ? "resize-y" : "resize-none";}
-!{String textareaClasses = "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 " + resizeClass + " " +
-        "hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 " +
-        "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 disabled:resize-none " +
-        "read-only:cursor-default read-only:bg-slate-50 read-only:hover:border-slate-300 " +
-        "user-invalid:border-red-500 user-invalid:hover:border-red-600 user-invalid:focus:border-red-500 user-invalid:focus:ring-red-500 " +
-        "aria-invalid:border-red-500 aria-invalid:hover:border-red-600 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500 " +
-        "dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500 " +
-        "dark:disabled:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 " +
-        "dark:read-only:bg-slate-900 dark:read-only:hover:border-slate-600 " +
-        "dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500";}
+!{String textareaClasses = "ash-field__control ash-field__control--readonly ash-textarea__control" + (resizable ? "" : " ash-textarea__control--fixed");}
 
-<div class="mb-6" data-textarea-counter="${counterMarkerAttr}">
-    <label for="${textareaId}" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+<div class="ash-field" data-textarea-counter="${counterMarkerAttr}">
+    <label for="${textareaId}" class="ash-field__label">
         ${label}
         @if (required)
-            <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+            <span class="ash-field__required" aria-hidden="true"> *</span>
         @endif
     </label>
 
@@ -101,18 +91,18 @@
     >${value}</textarea>
 
     @if (hasHelp || showCharacterCount)
-        <div class="mt-1 flex items-start justify-between gap-2">
+        <div class="ash-textarea__row">
             @if (hasHelp)
-                <p id="${helpId}" class="text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+                <p id="${helpId}" class="ash-textarea__help">${helpText}</p>
             @endif
             @if (showCharacterCount)
-                <span id="${countId}" data-textarea-count class="shrink-0 text-xs text-slate-500 dark:text-slate-400">${counterText}</span>
+                <span id="${countId}" data-textarea-count class="ash-textarea__count">${counterText}</span>
             @endif
         </div>
     @endif
 
     @if (showError)
-        <p id="${errorId}" class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+        <p id="${errorId}" class="ash-field__error" role="alert">${errorMessage}</p>
     @endif
 </div>
 
