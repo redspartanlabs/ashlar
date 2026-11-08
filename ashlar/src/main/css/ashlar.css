@@ -68,5 +68,8 @@
 @import "components/field.css" layer(ash.components);
 @import "components/search-input.css" layer(ash.components);
 @import "components/textarea.css" layer(ash.components);
+@import "components/choice.css" layer(ash.components);
+@import "components/checkbox.css" layer(ash.components);
+@import "components/radio-group.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
 @import "utilities/truncate.css" layer(ash.utilities);

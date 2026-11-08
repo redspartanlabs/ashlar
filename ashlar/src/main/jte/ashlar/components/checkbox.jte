@@ -12,15 +12,15 @@
 @param boolean error = false
 @param String errorMessage = ""
 
-<%-- A real <input type="checkbox">, styled via `accent-*` rather than
+<%-- A real <input type="checkbox">, styled via `accent-color` rather than
      `appearance-none` plus a hand-drawn checkmark - the browser keeps
      drawing its own check/indeterminate mark, just tinted to match the
      library's palette. That's what keeps this a native control end to
      end: native focus ring, native Space-to-toggle, native "checkedness"
      constraint validation for `required`, and the same pure-CSS
-     `user-invalid:`/`aria-invalid:` error styling text-input.jte and
-     textarea.jte already use, with no JS `invalid` listener needed here
-     either.
+     `:user-invalid`/`[aria-invalid="true"]` error styling text-input.jte and
+     textarea.jte already use (choice.css), with no JS `invalid` listener
+     needed here either.
 
      `readonly` is deliberately not a param: it has no effect on a
      checkbox per the HTML spec (only text-entry-like controls respect
@@ -45,16 +45,8 @@
 !{String ariaInvalidAttr = error ? "true" : null;}
 !{String indeterminateAttr = indeterminate ? "true" : null;}
 
-!{String checkboxClasses = "mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border border-slate-300 bg-white accent-blue-600 " +
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 " +
-        "disabled:cursor-not-allowed disabled:opacity-60 " +
-        "user-invalid:border-red-500 user-invalid:accent-red-600 " +
-        "aria-invalid:border-red-500 aria-invalid:accent-red-600 " +
-        "dark:border-slate-600 dark:bg-slate-800 " +
-        "dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500";}
-
-<div class="mb-4">
-    <div class="flex items-start gap-3">
+<div class="ash-checkbox">
+    <div class="ash-choice">
         <input
                 type="checkbox"
                 id="${checkboxId}"
@@ -66,23 +58,23 @@
                 aria-invalid="${ariaInvalidAttr}"
                 aria-describedby="${describedByAttr}"
                 data-checkbox-indeterminate="${indeterminateAttr}"
-                class="${checkboxClasses}"
+                class="ash-choice__input"
         >
 
-        <div class="flex-1">
-            <label for="${checkboxId}" class="cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
+        <div class="ash-choice__body">
+            <label for="${checkboxId}" class="ash-choice__label">
                 ${label}
                 @if (required)
-                    <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+                    <span class="ash-field__required" aria-hidden="true"> *</span>
                 @endif
             </label>
 
             @if (hasHelp)
-                <p id="${helpId}" class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+                <p id="${helpId}" class="ash-choice__description">${helpText}</p>
             @endif
 
             @if (showError)
-                <p id="${errorId}" class="mt-0.5 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+                <p id="${errorId}" class="ash-choice__error" role="alert">${errorMessage}</p>
             @endif
         </div>
     </div>
