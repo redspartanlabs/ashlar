@@ -1,0 +1,12 @@
+/* ash-checkbox: a Checkbox's own wrapper. Everything else is the shared choice styling (choice.css).
+
+   Classes       ash-checkbox                  the outer wrapper of one checkbox (the row, help and error); 1rem below it
+
+   Behaviour     Its label stays exactly as it is while the checkbox is disabled: the pointer cursor and the resting colour. Only the control itself dims. That is how it always
+                 rendered (a Radio Group's labels do dim, see radio-group.css), and it is kept rather than corrected.
+
+   Self-contained: a <div> has no margin of its own; the one below the wrapper is stated. The component adds no global rule. */
+
+.ash-checkbox {
+  margin: 0 0 var(--ash-space-4);
+}

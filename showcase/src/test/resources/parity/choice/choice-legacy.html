@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Checkbox and Radio Group, read verbatim from the templates at commit 0c26bc2 (the commit before the Choice Controls PR 1
+     migration) by evaluating the same string expressions the templates used. It is never served. Tailwind compiles this file (see choice-oracle-entry.css and
+     choice-legacy-scoped-entry.css) so the legacy rendering stays reproducible, and the tests read the class strings back out of it: one source of truth for what "legacy" means.
+     Variants the templates chose from their parameters: a Radio Group's orientation (two option-layout strings) and, per option, the disabled state of the label and the
+     description (a label and a description each have an enabled and a disabled string; the template chose by "the group is disabled OR the option is disabled"). -->
+<span data-legacy-role="checkbox" class="mb-4"></span>
+<span data-legacy-role="choice-row" class="flex items-start gap-3"></span>
+<span data-legacy-role="choice-body" class="flex-1"></span>
+<span data-legacy-role="checkbox-input" class="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 user-invalid:border-red-500 user-invalid:accent-red-600 aria-invalid:border-red-500 aria-invalid:accent-red-600 dark:border-slate-600 dark:bg-slate-800 dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500"></span>
+<span data-legacy-role="checkbox-label" class="cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="required" class="text-red-600 dark:text-red-400"></span>
+<span data-legacy-role="checkbox-help" class="mt-0.5 text-sm text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="checkbox-error" class="mt-0.5 text-sm text-red-600 dark:text-red-400"></span>
+<span data-legacy-role="radio-fieldset" class="mb-6 min-w-0 border-0 p-0"></span>
+<span data-legacy-role="radio-legend" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="radio-options" class="flex flex-col gap-3"></span>
+<span data-legacy-role="radio-options-horizontal" class="flex flex-wrap gap-x-8 gap-y-3"></span>
+<span data-legacy-role="radio-input" class="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 user-invalid:border-red-500 user-invalid:accent-red-600 aria-invalid:border-red-500 aria-invalid:accent-red-600 dark:border-slate-600 dark:bg-slate-800 dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500"></span>
+<span data-legacy-role="radio-label" class="text-sm font-medium cursor-pointer text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="radio-label-disabled" class="text-sm font-medium cursor-not-allowed text-slate-400 dark:text-slate-500"></span>
+<span data-legacy-role="radio-description" class="mt-0.5 text-sm text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="radio-description-disabled" class="mt-0.5 text-sm text-slate-300 dark:text-slate-600"></span>
+<span data-legacy-role="radio-help" class="mt-2 text-sm text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="radio-error" class="mt-2 text-sm text-red-600 dark:text-red-400"></span>

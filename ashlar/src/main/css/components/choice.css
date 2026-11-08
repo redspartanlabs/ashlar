@@ -1,0 +1,126 @@
+/* ash-choice: what a Checkbox and a Radio Group's options have in common: one native <input type="checkbox"> or <input type="radio"> beside a body of label and description.
+   It is not a component of its own; checkbox.css and radio-group.css add only what is theirs.
+
+   Classes       ash-choice                    the row: the native control, then its body (a flex row, the control aligned to the first line)
+                 ash-choice__input             the native <input type="checkbox"> or <input type="radio">
+                 ash-choice__body              the label and description beside the control (takes the remaining width)
+                 ash-choice__label             the <label> (medium weight, the pointer cursor)
+                 ash-choice__description       a line of help text under a label (a Checkbox's help text, a Radio option's description, a Radio Group's help text)
+                 ash-choice__error             an error line (a Checkbox's error text, a Radio Group's)
+                 The required marker is ash-field__required (field.css): the same red " *", and the same --ash-field-error property.
+
+   Native        The control is the browser's own. It is NOT given appearance: none and nothing is drawn over it: the mark, its check or dot, its indeterminate dash and its
+                 disabled look are the browser's. What styles it is `accent-color`, its size, its margin, its opacity and cursor, its focus ring and its background. Measured in a real
+                 browser (same browser, pixel for pixel, every state, both themes, every skin), a border and a radius on a native-appearance checkbox or radio change not one pixel, so
+                 none is written here. The background is the exception and is kept: the browser ignores it for the mark itself, but the square corners around the mark show it once the
+                 focus ring is drawn, so on a surface that is not white (dark mode) leaving it out changes those corner pixels. It is the palette's white (slate-800 in dark).
+                 Consequence worth knowing: an invalid but unchecked control looks exactly like a valid one (the accent colour only shows on a checked mark). That is how it always
+                 rendered, and it is kept.
+
+   Properties    Customisation is by ancestor: each property is only READ, with the palette value as its fallback, and never declared by the component, so a value set on any
+                 ancestor, or on the control, takes effect.
+                 --ash-choice-accent           the checked mark's colour
+                 --ash-choice-invalid          the checked mark's colour while the control is invalid
+                 --ash-choice-ring             the keyboard focus ring's colour
+                 --ash-choice-label            the label's colour
+                 --ash-choice-description      the description's colour
+                 --ash-choice-error            the error text's colour
+                 A disabled Radio option's dimmer label and description keep their palette values.
+
+   State         The native selectors ARE the state: :focus, :focus-visible, :disabled, :user-invalid and [aria-invalid="true"]. There is no state class and nothing is written by
+                 script (checkbox.js only sets the DOM-only `indeterminate` property, which the browser draws). Disabled works the same for a control disabled itself and one
+                 disabled by a fieldset, because :disabled matches both.
+
+   Focus         The ring is shown on :focus-visible only (a mouse click draws none): a 2px white offset, then a 2px ring in the focus colour. The offset is white in dark mode too,
+                 as it always was. :focus removes the outline, as it always did; a skin's own unlayered :focus-visible outline therefore still shows on top of the ring.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own theme by a test). Dark mode follows
+                 data-theme="dark" with the zero-specificity :where() form.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A native control has a browser margin, a <p> has margins, a <label> and its paragraph have a font and line height
+                 (kept as a ratio in an internal property so a minifier cannot fold it, set on each text rule because the Radio Group's help text sits outside the row); each is stated. The component adds no global rule. */
+
+.ash-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ash-space-3);
+}
+
+.ash-choice__input {
+  flex-shrink: 0;
+  margin: 0.125rem 0 0;
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--color-white, #fff);
+  accent-color: var(--ash-choice-accent, var(--color-blue-600, oklch(54.6% 0.245 262.881)));
+}
+
+.ash-choice__input:where([data-theme="dark"], [data-theme="dark"] *) {
+  background-color: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+}
+
+.ash-choice__input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.ash-choice__input:focus {
+  outline-style: none;
+}
+
+.ash-choice__input:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ash-choice-ring, var(--color-blue-500, oklch(62.3% 0.214 259.815)));
+}
+
+.ash-choice__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ash-choice__input:user-invalid {
+  accent-color: var(--ash-choice-invalid, var(--color-red-600, oklch(57.7% 0.245 27.325)));
+}
+
+.ash-choice__input[aria-invalid="true"] {
+  accent-color: var(--ash-choice-invalid, var(--color-red-600, oklch(57.7% 0.245 27.325)));
+}
+
+.ash-choice__body {
+  flex: 1 1 0%;
+}
+
+.ash-choice__label {
+  --ash-choice-leading: calc(1.25 / 0.875);
+  cursor: pointer;
+  font-size: 0.875rem;
+  line-height: var(--ash-choice-leading);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-choice-label, var(--color-slate-700, oklch(37.2% 0.044 257.287)));
+}
+
+.ash-choice__label:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-choice-label, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+}
+
+.ash-choice__description {
+  --ash-choice-leading: calc(1.25 / 0.875);
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-choice-leading);
+  color: var(--ash-choice-description, var(--color-slate-500, oklch(55.4% 0.046 257.417)));
+}
+
+.ash-choice__description:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-choice-description, var(--color-slate-400, oklch(70.4% 0.04 256.788)));
+}
+
+.ash-choice__error {
+  --ash-choice-leading: calc(1.25 / 0.875);
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-choice-leading);
+  color: var(--ash-choice-error, var(--color-red-600, oklch(57.7% 0.245 27.325)));
+}
+
+.ash-choice__error:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-choice-error, var(--color-red-400, oklch(70.4% 0.191 22.216)));
+}

@@ -15,11 +15,10 @@
 
 <%-- A real, native radio group: a <fieldset>/<legend> wrapping one
      <input type="radio"> per option, all sharing `name`. Styled the same
-     way checkbox.jte styles its own control - `accent-*` instead of
-     `appearance-none`, so the browser keeps drawing its own selection
-     dot, just tinted to match the library's palette - with `rounded-full`
-     in place of checkbox.jte's `rounded` as the one necessary visual
-     difference between the two.
+     way checkbox.jte styles its own control - `accent-color` instead of
+     `appearance: none`, so the browser keeps drawing its own selection
+     dot, just tinted to match the library's palette - both through the
+     shared choice.css.
 
      <fieldset> is doing real work here, not just semantic decoration:
      `disabled` on the fieldset natively disables every descendant radio
@@ -40,24 +39,16 @@
 !{boolean showError = error && !errorMessage.isEmpty();}
 !{String describedByAttr = hasHelp && showError ? helpId + " " + errorId : hasHelp ? helpId : showError ? errorId : null;}
 !{boolean isHorizontal = "horizontal".equalsIgnoreCase(orientation);}
-!{String optionsLayoutClasses = isHorizontal ? "flex flex-wrap gap-x-8 gap-y-3" : "flex flex-col gap-3";}
+!{String optionsLayoutClasses = isHorizontal ? "ash-radio-group__options ash-radio-group__options--horizontal" : "ash-radio-group__options";}
 
 <%-- Smart attributes: a null/false expression makes JTE omit the attribute entirely. --%>
 !{String ariaInvalidAttr = error ? "true" : null;}
 
-!{String radioClasses = "mt-0.5 h-4 w-4 shrink-0 rounded-full border border-slate-300 bg-white accent-blue-600 " +
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 " +
-        "disabled:cursor-not-allowed disabled:opacity-60 " +
-        "user-invalid:border-red-500 user-invalid:accent-red-600 " +
-        "aria-invalid:border-red-500 aria-invalid:accent-red-600 " +
-        "dark:border-slate-600 dark:bg-slate-800 " +
-        "dark:user-invalid:border-red-500 dark:aria-invalid:border-red-500";}
-
-<fieldset class="mb-6 min-w-0 border-0 p-0" disabled="${disabled}" aria-describedby="${describedByAttr}">
-    <legend class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+<fieldset class="ash-radio-group" disabled="${disabled}" aria-describedby="${describedByAttr}">
+    <legend class="ash-radio-group__legend">
         ${label}
         @if (required)
-            <span class="text-red-600 dark:text-red-400" aria-hidden="true"> *</span>
+            <span class="ash-field__required" aria-hidden="true"> *</span>
         @endif
     </legend>
 
@@ -66,11 +57,8 @@
             !{String optionId = groupId + "-" + option.value();}
             !{boolean isSelected = option.value().equals(selectedValue);}
             !{boolean hasDescription = option.description() != null && !option.description().isEmpty();}
-            !{boolean optionDisabled = disabled || option.disabled();}
-            !{String optionLabelClasses = optionDisabled ? "cursor-not-allowed text-slate-400 dark:text-slate-500" : "cursor-pointer text-slate-700 dark:text-slate-300";}
-            !{String optionDescriptionClasses = optionDisabled ? "text-slate-300 dark:text-slate-600" : "text-slate-500 dark:text-slate-400";}
 
-            <div class="flex items-start gap-3">
+            <div class="ash-choice">
                 <input
                         type="radio"
                         id="${optionId}"
@@ -80,13 +68,13 @@
                         disabled="${option.disabled()}"
                         required="${required}"
                         aria-invalid="${ariaInvalidAttr}"
-                        class="${radioClasses}"
+                        class="ash-choice__input"
                 >
 
-                <div class="flex-1">
-                    <label for="${optionId}" class="text-sm font-medium ${optionLabelClasses}">${option.label()}</label>
+                <div class="ash-choice__body">
+                    <label for="${optionId}" class="ash-choice__label">${option.label()}</label>
                     @if (hasDescription)
-                        <p class="mt-0.5 text-sm ${optionDescriptionClasses}">${option.description()}</p>
+                        <p class="ash-choice__description">${option.description()}</p>
                     @endif
                 </div>
             </div>
@@ -94,10 +82,10 @@
     </div>
 
     @if (hasHelp)
-        <p id="${helpId}" class="mt-2 text-sm text-slate-500 dark:text-slate-400">${helpText}</p>
+        <p id="${helpId}" class="ash-choice__description ash-radio-group__help">${helpText}</p>
     @endif
 
     @if (showError)
-        <p id="${errorId}" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">${errorMessage}</p>
+        <p id="${errorId}" class="ash-choice__error ash-radio-group__error" role="alert">${errorMessage}</p>
     @endif
 </fieldset>

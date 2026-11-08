@@ -1,0 +1,72 @@
+/* ash-radio-group: what a Radio Group adds to the shared choice styling (choice.css): the <fieldset> and its <legend>, the layout of its options, the dimmer look of a
+   disabled option's label and description, and the larger gap above the group's own help and error text.
+
+   Classes       ash-radio-group                      the <fieldset>; 1.5rem below it
+                 ash-radio-group__legend              the <legend> (the group's accessible name)
+                 ash-radio-group__options             the options: a column with a 0.75rem gap
+                 ash-radio-group__options--horizontal a row that wraps, 0.75rem between lines and 2rem between options (orientation = "horizontal")
+                 ash-radio-group__help                with ash-choice__description: the group's help text, 0.5rem below the options
+                 ash-radio-group__error               with ash-choice__error: the group's error text, 0.5rem below the options
+                 Each option is a row of choice.css (ash-choice with ash-choice__input, __body, __label and __description).
+
+   State         A disabled option, and an option in a disabled <fieldset>, look the same, because the rules read :disabled on the option's own input, which matches both. Its label
+                 turns slate-400 (slate-500 in dark) with the not-allowed cursor, and its description slate-300 (slate-600 in dark): the existing, very faint look, kept as it was. This
+                 replaces classes the template used to choose from the disabled state; nothing about the rendered result changes.
+
+   Self-contained: a <fieldset> has a margin, padding, border and minimum width of its own (the border's width is cleared, as the old `border-0` did, and its style left alone) and a <legend> has padding; each is stated. The component adds no global rule. */
+
+.ash-radio-group {
+  margin: 0 0 var(--ash-space-6);
+  border-width: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.ash-radio-group__legend {
+  --ash-choice-leading: calc(1.25 / 0.875);
+  display: block;
+  margin: 0 0 var(--ash-space-2);
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-choice-leading);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-choice-label, var(--color-slate-700, oklch(37.2% 0.044 257.287)));
+}
+
+.ash-radio-group__legend:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-choice-label, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+}
+
+.ash-radio-group__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ash-space-3);
+}
+
+.ash-radio-group__options--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: var(--ash-space-8);
+}
+
+.ash-radio-group__help,
+.ash-radio-group__error {
+  margin-top: var(--ash-space-2);
+}
+
+.ash-radio-group .ash-choice__input:disabled + .ash-choice__body .ash-choice__label {
+  cursor: not-allowed;
+  color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-radio-group .ash-choice__input:disabled + .ash-choice__body .ash-choice__label:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+.ash-radio-group .ash-choice__input:disabled + .ash-choice__body .ash-choice__description {
+  color: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+.ash-radio-group .ash-choice__input:disabled + .ash-choice__body .ash-choice__description:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+}

@@ -117,6 +117,7 @@ class AshlarCssFoundationTest {
                 "ash.components", "ash.components", "ash.components", "ash.components", "ash.components", "ash.components", "ash.components", "ash.components", "ash.components",
                 "ash.components", "ash.components", "ash.components", "ash.components",
                 "ash.components", "ash.components", "ash.components",
+                "ash.components", "ash.components", "ash.components",
                 "ash.utilities", "ash.utilities"), layerBlockSequence);
     }
 
