@@ -71,5 +71,6 @@
 @import "components/choice.css" layer(ash.components);
 @import "components/checkbox.css" layer(ash.components);
 @import "components/radio-group.css" layer(ash.components);
+@import "components/toggle.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
 @import "utilities/truncate.css" layer(ash.utilities);

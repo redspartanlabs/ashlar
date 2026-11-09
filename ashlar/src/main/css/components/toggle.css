@@ -1,0 +1,168 @@
+/* ash-toggle: a Toggle, a native checkbox drawn as a track and a thumb. Its help and error text, and its required marker, are the shared choice styling (choice.css, field.css).
+
+   Classes       ash-toggle                    the outer wrapper (the switch row, then help and error); 1rem below it
+                 ash-toggle__label             the one <label> around the switch and its text (an inline row, 0.75rem apart, the pointer cursor, not-allowed while disabled)
+                 ash-toggle__label--start      the text before the switch (labelPosition = "start"): the row reversed
+                 ash-toggle__switch            the 44 by 24 box the track and thumb are drawn in (the native input is also inside it)
+                 ash-toggle__input             the real <input type="checkbox">, visually hidden by ash-sr-only (still focusable, still what Tab, Space, a label click, submit and reset act on)
+                 ash-toggle__track             the decorative track (aria-hidden), a sibling AFTER the input
+                 ash-toggle__thumb             the decorative thumb (aria-hidden), a sibling after the track: 20 by 20, moved 20px when the input is checked
+                 ash-toggle__text              the label text (medium weight, 0.875rem)
+                 ash-toggle__help, __error     with ash-choice__description / ash-choice__error: 0.25rem below the row (a Checkbox's is 2px and a Radio Group's 8px; each kept as it was)
+                 The required marker is ash-field__required (field.css).
+
+   Native        There is no browser drawing of a switch, so the checkbox itself is hidden (ash-sr-only, not display: none) and the track and thumb are two spans that only REFLECT its
+                 state through sibling selectors. The input stays a plain native checkbox: no role="switch", no script, and nothing here changes what the keyboard or the label do.
+
+   State         The input's native selectors ARE the state, read through the sibling combinator (`.ash-toggle__input:checked ~ .ash-toggle__track`): :checked, :disabled, :focus-visible and
+                 [aria-invalid="true"]. Hover is the track's own :hover, inside @media (hover: hover), and is not applied while the input is disabled (a disabled track keeps its resting colour).
+                 Precedence, as it always was: a checked track is the "on" colour in every case; hover darkens it; disabled cancels hover; a keyboard focus ring replaces the resting shadow; an
+                 invalid input draws a 2px red ring, and an invalid input that is also keyboard-focused draws the white offset and a red ring instead of the blue one.
+
+   Properties    Customisation is by ancestor: each property is only READ, with the palette value as its fallback, and never declared by the component, so a value set on any ancestor of the
+                 toggle (or on the toggle) takes effect. A colour property replaces that colour in every state of the track or text it names, in light and in dark mode.
+                 --ash-toggle-track-off        the unchecked track (resting, hovered, and in dark mode: one colour, so a track given this colour does not change on hover)
+                 --ash-toggle-track-on         the checked track (likewise)
+                 --ash-toggle-thumb-shadow     the thumb's drop shadow. A skin that wants a flat thumb sets it to `0 0 #0000` (every skin does)
+                 --ash-toggle-ring             the keyboard focus ring's colour (an invalid toggle's ring stays red)
+                 --ash-toggle-label-color      the label text's colour
+
+   Shape         Both the track and the thumb are fully rounded: calc(infinity * 1px), which is what Tailwind's rounded-full is and computes to the same enormous radius.
+
+   Motion        The track fades its colour and the thumb slides, for 150ms with the standard ease. Under prefers-reduced-motion: reduce neither transitions (the property list becomes none).
+
+   Focus         The ring is the track's, shown on :focus-visible only: a 2px offset that is white in dark mode too, then a 2px ring. The hidden input's own outline cannot be seen, so none
+                 is removed here.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own theme by a test). Dark mode follows
+                 data-theme="dark" with the zero-specificity :where() form.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <p> has margins, the track and thumb are positioned, the label and the text have a font and line height (a ratio in an
+                 internal property so a minifier cannot fold it); each is stated. The component adds no global rule. */
+
+.ash-toggle {
+  margin: 0 0 var(--ash-space-4);
+}
+
+.ash-toggle__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ash-space-3);
+  cursor: pointer;
+}
+
+.ash-toggle__label:has(:disabled) {
+  cursor: not-allowed;
+}
+
+.ash-toggle__label--start {
+  flex-direction: row-reverse;
+}
+
+.ash-toggle__switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  width: 2.75rem;
+  height: 1.5rem;
+}
+
+.ash-toggle__track {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(infinity * 1px);
+  background-color: var(--ash-toggle-track-off, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ash-toggle__track:where([data-theme="dark"], [data-theme="dark"] *) {
+  background-color: var(--ash-toggle-track-off, var(--color-slate-600, oklch(44.6% 0.043 257.281)));
+}
+
+.ash-toggle__input:checked ~ .ash-toggle__track {
+  background-color: var(--ash-toggle-track-on, var(--color-blue-600, oklch(54.6% 0.245 262.881)));
+}
+
+.ash-toggle__input:checked ~ .ash-toggle__track:where([data-theme="dark"], [data-theme="dark"] *) {
+  background-color: var(--ash-toggle-track-on, var(--color-blue-500, oklch(62.3% 0.214 259.815)));
+}
+
+@media (hover: hover) {
+  .ash-toggle__input:not(:disabled) ~ .ash-toggle__track:hover {
+    background-color: var(--ash-toggle-track-off, var(--color-slate-400, oklch(70.4% 0.04 256.788)));
+  }
+
+  .ash-toggle__input:not(:disabled) ~ .ash-toggle__track:hover:where([data-theme="dark"], [data-theme="dark"] *) {
+    background-color: var(--ash-toggle-track-off, var(--color-slate-500, oklch(55.4% 0.046 257.417)));
+  }
+
+  .ash-toggle__input:not(:disabled):checked ~ .ash-toggle__track:hover {
+    background-color: var(--ash-toggle-track-on, var(--color-blue-700, oklch(48.8% 0.243 264.376)));
+  }
+
+  .ash-toggle__input:not(:disabled):checked ~ .ash-toggle__track:hover:where([data-theme="dark"], [data-theme="dark"] *) {
+    background-color: var(--ash-toggle-track-on, var(--color-blue-400, oklch(70.7% 0.165 254.624)));
+  }
+}
+
+.ash-toggle__input:disabled ~ .ash-toggle__track {
+  opacity: 0.6;
+}
+
+.ash-toggle__input[aria-invalid="true"] ~ .ash-toggle__track {
+  box-shadow: 0 0 0 2px var(--color-red-500, oklch(63.7% 0.237 25.331));
+}
+
+.ash-toggle__input:focus-visible ~ .ash-toggle__track {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ash-toggle-ring, var(--color-blue-500, oklch(62.3% 0.214 259.815)));
+}
+
+.ash-toggle__input[aria-invalid="true"]:focus-visible ~ .ash-toggle__track {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-red-500, oklch(63.7% 0.237 25.331));
+}
+
+.ash-toggle__thumb {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: calc(infinity * 1px);
+  background-color: var(--color-white, #fff);
+  box-shadow: var(--ash-toggle-thumb-shadow, 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1));
+  pointer-events: none;
+  transition-property: transform, translate, scale, rotate;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ash-toggle__input:checked ~ .ash-toggle__thumb {
+  translate: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-toggle__track,
+  .ash-toggle__thumb {
+    transition-property: none;
+  }
+}
+
+.ash-toggle__text {
+  --ash-toggle-leading: calc(1.25 / 0.875);
+  font-size: 0.875rem;
+  line-height: var(--ash-toggle-leading);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-toggle-label-color, var(--color-slate-700, oklch(37.2% 0.044 257.287)));
+}
+
+.ash-toggle__text:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-toggle-label-color, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+}
+
+.ash-toggle__help,
+.ash-toggle__error {
+  margin-top: 0.25rem;
+}
