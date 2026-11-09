@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Toggle, read verbatim from toggle.jte at commit d558802 (the commit before the Choice Controls PR 2 migration) by taking
+     each class attribute and resolving the one expression the template used (labelPosition="start" added flex-row-reverse to the label). It is never served. Tailwind compiles this
+     file (see toggle-oracle-entry.css and toggle-legacy-scoped-entry.css) so the legacy rendering stays reproducible, and the tests read the class strings back out of it: one source of
+     truth for what "legacy" means. -->
+<span data-legacy-role="toggle" class="mb-4"></span>
+<span data-legacy-role="label" class="inline-flex cursor-pointer items-center gap-3 has-[:disabled]:cursor-not-allowed"></span>
+<span data-legacy-role="label-start" class="inline-flex cursor-pointer items-center gap-3 has-[:disabled]:cursor-not-allowed flex-row-reverse"></span>
+<span data-legacy-role="switch" class="relative inline-flex h-6 w-11 shrink-0 items-center"></span>
+<span data-legacy-role="input" class="peer sr-only"></span>
+<span data-legacy-role="track" class="absolute inset-0 rounded-full bg-slate-300 transition-colors duration-150 motion-reduce:transition-none hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500 peer-checked:bg-blue-600 peer-checked:hover:bg-blue-700 dark:peer-checked:bg-blue-500 dark:peer-checked:hover:bg-blue-400 peer-disabled:hover:bg-slate-300 dark:peer-disabled:hover:bg-slate-600 peer-checked:peer-disabled:hover:bg-blue-600 dark:peer-checked:peer-disabled:hover:bg-blue-500 peer-disabled:opacity-60 peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 peer-aria-invalid:ring-2 peer-aria-invalid:ring-red-500 dark:peer-aria-invalid:ring-red-500"></span>
+<span data-legacy-role="thumb" class="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150 motion-reduce:transition-none peer-checked:translate-x-5"></span>
+<span data-legacy-role="text" class="text-sm font-medium text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="required" class="text-red-600 dark:text-red-400"></span>
+<span data-legacy-role="help" class="mt-1 text-sm text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="error" class="mt-1 text-sm text-red-600 dark:text-red-400"></span>

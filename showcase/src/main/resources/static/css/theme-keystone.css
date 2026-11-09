@@ -341,6 +341,11 @@
     --ash-btn-shadow: 0 0 #0000;
 }
 
+/* A Toggle owns its thumb's drop shadow in --ash-toggle-thumb-shadow rather than through a Tailwind shadow class, so the rule above no longer reaches it. */
+[data-skin="keystone"] {
+    --ash-toggle-thumb-shadow: 0 0 #0000;
+}
+
 [data-skin="keystone"] :is(
     [data-modal-dialog],
     [data-drawer-panel],
