@@ -1,0 +1,145 @@
+/* ash-file-upload: a File Upload, a native <input type="file"> inside a dashed card that is one <label>, so a click anywhere on the card opens the browser's own file picker. The field's
+   own label, required marker, help and error text, and its bottom margin, are the shared field styling (field.css).
+
+   Classes       ash-field ash-file-upload     the root (the field's 1.5rem bottom margin; the data-file-upload hook is what file-upload.js finds)
+                 ash-field__label              the visible <label for> above the card, with ash-field__required for the marker
+                 ash-file-upload__zone         the card: a <label> that wraps the input, the icon, the status and the "Choose File" text (centred column, 0.75rem apart, 24rem at most)
+                 ash-file-upload__input        the real <input type="file">, visually hidden by ash-sr-only (still focusable, still what Tab, Space, Enter, a label click and submit act on)
+                 ash-file-upload__icon         the decorative wrapper (aria-hidden) of the upload icon, which is ash-icon ash-icon--lg (1.5rem)
+                 ash-file-upload__status       the line of text that says what is selected (file-upload.js writes it); one line, cut off with an ellipsis
+                 ash-file-upload__choose       the decorative "Choose File" span: the Button's own classes (ash-btn ash-btn--secondary ash-btn--sm) and nothing else, never a second <button>;
+                                               it takes no pointer events, so every click lands on the card's <label>
+                 ash-field__help, __error      the help and error text below the card (4px above, as they always were)
+
+   Native        There is no browser drawing worth reusing, so the file input is hidden (ash-sr-only, not display: none) and the card is its <label>. The input is a descendant of the
+                 card, not a sibling, so the card reacts to it with :has(): :has(:focus-visible), :has(:disabled), :has([aria-invalid="true"]) and :has(:user-invalid). Nothing here changes what
+                 the keyboard, the label or the form do, and nothing here adds drag and drop (a file dropped on the card is not accepted, as before).
+
+   State         Precedence, as it always was: hover changes the border and background (only where the device can hover, and never while the input is disabled); an invalid input (aria-invalid
+                 or :user-invalid) has a red border that wins over hover and over a custom border, while a hovered invalid card still takes the hover background (the one exception, kept as
+                 measured: a card that is disabled AND invalid goes back to its resting border while hovered); a disabled card is dimmed with the
+                 not-allowed cursor; a keyboard focus ring (never an ordinary mouse focus) is a 2px white offset and a 2px ring, blue even when the input is invalid.
+
+   Properties    Each is only READ, with the palette value as its fallback, and never declared by the component, so a value set on any ancestor (or on the card) takes effect.
+                 --ash-file-upload-border        the card's border colour: replaces the resting, hover and dark colours alike (a custom border does not change on hover); an invalid card's red still wins
+                 --ash-file-upload-background    the card's background: likewise in every state and in dark mode
+                 --ash-file-upload-ring          the keyboard focus ring's colour (the 2px white offset is not changed)
+                 --ash-file-upload-status-color  the status text's colour
+
+   Shape         The radius is Tailwind's rounded-lg, which is var(--radius-lg), so a skin's radius still reaches the card; 0.5rem is the fallback.
+
+   Motion        The card fades its colours for 150ms with the standard ease (the legacy property list). Under prefers-reduced-motion: reduce the property list becomes none.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback (checked against Tailwind's own theme by a test), so a skin's palette reaches the
+                 card. The dark resting background is the palette's slate-800 at half opacity, as it was. Dark mode follows data-theme="dark" with the zero-specificity :where() form.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The card has border-box sizing and states its font size and line height (the icon's line box depends on them); the status is a
+                 <p> and states its margin, font and line height (a ratio, so a minifier cannot fold it). The component adds no global rule. */
+
+.ash-file-upload__zone {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ash-space-3);
+  width: 100%;
+  max-width: 24rem;
+  margin: 0;
+  padding: var(--ash-space-8) var(--ash-space-6);
+  border: 2px dashed var(--ash-file-upload-border, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+  border-radius: var(--radius-lg, 0.5rem);
+  background-color: var(--ash-file-upload-background, var(--color-slate-50, oklch(98.4% 0.003 247.858)));
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+  cursor: pointer;
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ash-file-upload__zone:where([data-theme="dark"], [data-theme="dark"] *) {
+  border-color: var(--ash-file-upload-border, var(--color-slate-600, oklch(44.6% 0.043 257.281)));
+  background-color: var(--ash-file-upload-background, color-mix(in oklab, var(--color-slate-800, oklch(27.9% 0.041 260.031)) 50%, transparent));
+}
+
+@media (hover: hover) {
+  .ash-file-upload__zone:hover:not(:has(:disabled)) {
+    border-color: var(--ash-file-upload-border, var(--color-slate-400, oklch(70.4% 0.04 256.788)));
+    background-color: var(--ash-file-upload-background, var(--color-slate-100, oklch(96.8% 0.007 247.896)));
+  }
+
+  .ash-file-upload__zone:hover:not(:has(:disabled)):where([data-theme="dark"], [data-theme="dark"] *) {
+    border-color: var(--ash-file-upload-border, var(--color-slate-500, oklch(55.4% 0.046 257.417)));
+    background-color: var(--ash-file-upload-background, var(--color-slate-800, oklch(27.9% 0.041 260.031)));
+  }
+}
+
+.ash-file-upload__zone:has(:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ash-file-upload__zone:has(:focus-visible) {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ash-file-upload-ring, var(--color-blue-500, oklch(62.3% 0.214 259.815)));
+}
+
+.ash-file-upload__zone:has([aria-invalid="true"]),
+.ash-file-upload__zone:has([aria-invalid="true"]):hover,
+.ash-file-upload__zone:has(:user-invalid),
+.ash-file-upload__zone:has(:user-invalid):hover {
+  border-color: var(--color-red-400, oklch(70.4% 0.191 22.216));
+}
+
+.ash-file-upload__zone:has([aria-invalid="true"]):where([data-theme="dark"], [data-theme="dark"] *),
+.ash-file-upload__zone:has([aria-invalid="true"]):hover:where([data-theme="dark"], [data-theme="dark"] *),
+.ash-file-upload__zone:has(:user-invalid):where([data-theme="dark"], [data-theme="dark"] *),
+.ash-file-upload__zone:has(:user-invalid):hover:where([data-theme="dark"], [data-theme="dark"] *) {
+  border-color: var(--color-red-500, oklch(63.7% 0.237 25.331));
+}
+
+/* A disabled card that is also invalid and hovered goes back to its resting border: the legacy disabled-hover reset outranked the invalid border (measured, and kept). */
+@media (hover: hover) {
+  .ash-file-upload__zone:has([aria-invalid="true"]):has(:disabled):hover {
+    border-color: var(--ash-file-upload-border, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+  }
+
+  .ash-file-upload__zone:has([aria-invalid="true"]):has(:disabled):hover:where([data-theme="dark"], [data-theme="dark"] *) {
+    border-color: var(--ash-file-upload-border, var(--color-slate-600, oklch(44.6% 0.043 257.281)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-file-upload__zone {
+    transition-property: none;
+  }
+}
+
+.ash-file-upload__icon {
+  color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+}
+
+.ash-file-upload__icon:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+.ash-file-upload__status {
+  --ash-file-upload-leading: calc(1.25 / 0.875);
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: var(--ash-file-upload-leading);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-file-upload-status-color, var(--color-slate-700, oklch(37.2% 0.044 257.287)));
+}
+
+.ash-file-upload__status:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--ash-file-upload-status-color, var(--color-slate-300, oklch(86.9% 0.022 252.894)));
+}
+
+.ash-file-upload__choose {
+  pointer-events: none;
+}
