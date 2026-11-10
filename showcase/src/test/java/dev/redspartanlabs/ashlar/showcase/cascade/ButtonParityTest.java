@@ -115,6 +115,7 @@ class ButtonParityTest {
 
     private static ButtonLegacyMarkup buttonLegacy;
     private static IconLegacyMarkup iconLegacy;
+    private static FileUploadLegacyMarkup fileUploadLegacy;
     private static ParityProbe.Probe probe;
     private static final Map<String, List<ParityProbe.Finding>> PRESENT = new LinkedHashMap<>();
     private static final Map<String, List<ParityProbe.Finding>> REMOVED_SCOPED = new LinkedHashMap<>();
@@ -197,10 +198,10 @@ class ButtonParityTest {
                     .append("</div></div>");
         }
         // File Upload's "Choose File": a decorative span that carries the Button's own classes (ButtonStyles.classes) and is not a <button>.
-        sb.append("<div style=\"margin:4px 0\"><div data-layout=\"block\" style=\"").append(layoutStyle("block")).append("\"><span class=\"ash-btn ash-btn--secondary ash-btn--sm pointer-events-none\"")
+        sb.append("<div style=\"margin:4px 0\"><div data-layout=\"block\" style=\"").append(layoutStyle("block")).append("\"><span class=\"ash-btn ash-btn--secondary ash-btn--sm ash-file-upload__choose\"")
                 .append(mark("button-decorative", "file-upload-choose")).append(">Choose File</span></div></div>");
         String html = sb.toString();
-        return legacyMarkup ? iconLegacy.rewrite(buttonLegacy.rewrite(html)) : html;
+        return legacyMarkup ? iconLegacy.rewrite(buttonLegacy.rewrite(fileUploadLegacy.rewrite(html))) : html;
     }
 
     // ---- frames ----
@@ -276,6 +277,7 @@ class ButtonParityTest {
         ParitySession session = ParitySession.open("button-parity");
         buttonLegacy = new ButtonLegacyMarkup();
         iconLegacy = new IconLegacyMarkup();
+        fileUploadLegacy = new FileUploadLegacyMarkup();
         String environment = ParityFrames.environment(session.generatedDir());
         String migrated = markup(false);
         String legacyMarkup = markup(true);
@@ -442,8 +444,9 @@ class ButtonParityTest {
             ParityProbe.Row r = rows.get(0);
             assertEquals("inline-flex", probe.value(r, "display"), where);
             assertEquals("32px", probe.value(r, "height"), where);
-            // pointer-events-none is File Upload's own Tailwind utility, so it is in force wherever Tailwind (or the legacy utilities) is, and not with Tailwind removed.
-            assertEquals(phase.endsWith("|R") ? "auto" : "none", probe.value(r, "pointer-events"), where + ": it is a label inside a label, never a target of its own");
+            // File Upload's own class (ash-file-upload__choose, file-upload.css) owns pointer-events: none now, so it is in force in every rendering, Tailwind removed included (it was File Upload's
+            // Tailwind utility before the Choice Controls PR 3 migration, and then "auto" with Tailwind removed).
+            assertEquals("none", probe.value(r, "pointer-events"), where + ": it is a label inside a label, never a target of its own");
             assertEquals("pointer", probe.value(r, "cursor"), where);
             assertEquals("1px", probe.value(r, "border-top-width"), where);
             assertEquals("none", probe.value(r, "appearance"), where + ": only a <button> element is a native push button");
@@ -707,7 +710,7 @@ class ButtonParityTest {
             HttpResponse<String> upload = client.send(HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + app.port() + "/ashlar/components/file-upload")).GET().build(),
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             String uploadBody = upload.body();
-            if (count(uploadBody, "<span class=\"ash-btn ash-btn--secondary ash-btn--sm pointer-events-none\">Choose File</span>") < 1) {
+            if (count(uploadBody, "<span class=\"ash-btn ash-btn--secondary ash-btn--sm ash-file-upload__choose\">Choose File</span>") < 1) {
                 problems.add("/ashlar/components/file-upload: the decorative Choose File span does not carry the Secondary Small Button classes");
             }
             if (uploadBody.contains("bg-white text-slate-700") && uploadBody.contains("focus-visible:ring-blue-500")) {

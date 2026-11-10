@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of File Upload, read verbatim from file-upload.jte at commit 05fd7c8 (the commit before the Choice Controls PR 3 migration) by taking
+     each class attribute, the Icon's size classes and the utility the Choose File span carried beside the Button's generated classes. It is never served. Tailwind compiles this file (see
+     file-upload-oracle-entry.css and file-upload-legacy-scoped-entry.css) so the legacy rendering stays reproducible, and the tests read the class strings back out of it: one source of
+     truth for what "legacy" means. -->
+<span data-legacy-role="root" class="mb-6"></span>
+<span data-legacy-role="label" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="required" class="text-red-600 dark:text-red-400"></span>
+<span data-legacy-role="zone" class="flex w-full max-w-sm cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center transition-colors motion-reduce:transition-none hover:border-slate-400 hover:bg-slate-100 has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-500 has-[:focus-visible]:ring-offset-2 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 has-[:disabled]:hover:border-slate-300 has-[:disabled]:hover:bg-slate-50 has-[:user-invalid]:border-red-400 has-[[aria-invalid=true]]:border-red-400 dark:border-slate-600 dark:bg-slate-800/50 dark:hover:border-slate-500 dark:hover:bg-slate-800 dark:has-[:disabled]:hover:border-slate-600 dark:has-[:disabled]:hover:bg-slate-800/50 dark:has-[:user-invalid]:border-red-500 dark:has-[[aria-invalid=true]]:border-red-500"></span>
+<span data-legacy-role="input" class="sr-only"></span>
+<span data-legacy-role="icon" class="text-slate-400 dark:text-slate-500"></span>
+<span data-legacy-role="icon-svg" class="h-6 w-6"></span>
+<span data-legacy-role="status" class="max-w-full truncate text-sm font-medium text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="choose" class="pointer-events-none"></span>
+<span data-legacy-role="help" class="mt-1 text-sm text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="error" class="mt-1 text-sm text-red-600 dark:text-red-400"></span>

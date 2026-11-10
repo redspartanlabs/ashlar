@@ -1,0 +1,8 @@
+/* TEST-ONLY (Choice Controls PR 3 migration oracle: File Upload). Cumulative: the Toggle oracle, imported unchanged (which is the Choice Controls oracle, the Text Entry oracle, the Tree
+   oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes File Upload used before it moved to the ash-file-upload
+   classes.
+
+   Those classes are no longer emitted by the template, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps them compiled, which
+   keeps the legacy rendering executable: the parity tests render the same uploads with these classes and with the ash- classes, in the same browser, and compare. */
+@import "./toggle-oracle-entry.css";
+@source "../resources/parity/file-upload/file-upload-legacy.html";
