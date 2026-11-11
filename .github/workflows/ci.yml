@@ -3,6 +3,21 @@ name: CI
 # Builds and tests everything - the library and the showcase - on every push to
 # the main branches and on every pull request. Nothing here publishes anything
 # and no secret is available to it.
+#
+# The Showcase tests are split across four runners so the build finishes in a
+# quarter of the time. Splitting changes WHERE a test runs, never WHETHER: the
+# job named `build` at the end is the one branch rules require, and it passes
+# only if every shard passed and the coverage gate proves that the shards
+# together executed every test class that exists, exactly once, with no test
+# failed or skipped, failing closed on anything missing or unreadable (the
+# policy is written out in .github/scripts/coverage-gate.mjs). It needs no
+# committed snapshot of the tests.
+#
+#   library    the whole build except the Showcase tests (compiles, packages,
+#              runs the fast Ashlar library tests)
+#   showcase   four parallel shards of the Showcase tests; which shard runs a
+#              class is decided by .github/scripts/shard-tests.mjs
+#   build      the gate; named `build` because that is the required check
 
 on:
   push:
@@ -13,8 +28,10 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  library:
+    name: library
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -34,4 +51,121 @@ jobs:
 
       - run: npm ci
 
-      - run: ./gradlew build
+      # Everything `./gradlew build` does except the Showcase tests, which the shards run.
+      - run: ./gradlew build -x :showcase:test --profile
+
+      - name: Collect reports
+        if: always()
+        run: |
+          mkdir -p out/junit out/profile
+          cp ashlar/build/test-results/test/*.xml out/junit/ || true
+          cp -r build/reports/profile/. out/profile/ || true
+          node .github/scripts/shard-tests.mjs compiled ashlar/build/classes/java/test > out/compiled-classes.txt || true
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: library
+          path: out/
+          if-no-files-found: error
+          retention-days: 14
+
+  showcase:
+    name: showcase (shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      # A failing shard must not cancel the others: the gate wants every shard's evidence.
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Select this shard's test classes
+        run: |
+          node .github/scripts/shard-tests.mjs select --shard ${{ matrix.shard }} > shard-classes.txt
+          echo "shard ${{ matrix.shard }} runs $(wc -l < shard-classes.txt) test classes"
+
+      - name: Run this shard's tests
+        run: |
+          args=()
+          while IFS= read -r class; do args+=(--tests "$class"); done < shard-classes.txt
+          ./gradlew :showcase:test --profile "${args[@]}"
+
+      # Gradle accepts a filter that matches nothing for one class and says nothing, so the gate checks the result; this check proves, here, that the classes the
+      # repository discovered are the classes Gradle compiled and could therefore run.
+      - name: Check that discovered and compiled test classes agree
+        if: always()
+        run: node .github/scripts/shard-tests.mjs verify-compiled showcase/build/classes/java/test
+
+      - name: Collect reports
+        if: always()
+        run: |
+          mkdir -p out/junit out/profile
+          cp showcase/build/test-results/test/*.xml out/junit/ || true
+          cp shard-classes.txt out/ || true
+          cp -r build/reports/profile/. out/profile/ || true
+          node .github/scripts/shard-tests.mjs compiled showcase/build/classes/java/test > out/compiled-classes.txt || true
+          node .github/scripts/test-manifest.mjs --out out/manifest --module showcase=showcase/build/test-results/test || true
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: showcase-shard-${{ matrix.shard }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 14
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [library, showcase]
+    # Runs even when a needed job failed, was cancelled or was skipped, because a
+    # skipped required check would count as passing. The gate turns every such
+    # outcome into a failure of this job.
+    if: always()
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Download every report
+        # If this fails the gate below reports exactly which artifacts are missing.
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          path: gate-in
+
+      - name: Coverage-equivalence gate
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node .github/scripts/coverage-gate.mjs --in gate-in --out gate-out
+
+      - name: Upload the gate's evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-gate
+          path: gate-out/
+          if-no-files-found: warn
+          retention-days: 14
