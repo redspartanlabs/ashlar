@@ -83,13 +83,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # NEGATIVE CONTROL - TEMPORARY, REVERTED IN THE NEXT COMMIT. Fails shard 2 at once, to show that the required `build` check cannot pass when a shard fails.
-      - name: NEGATIVE CONTROL - deliberately fail shard 2
-        if: matrix.shard == 2
-        run: |
-          echo "::error::Deliberate failure of shard 2 (negative control)"
-          exit 1
-
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
