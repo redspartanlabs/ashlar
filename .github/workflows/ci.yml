@@ -7,9 +7,11 @@ name: CI
 # The Showcase tests are split across four runners so the build finishes in a
 # quarter of the time. Splitting changes WHERE a test runs, never WHETHER: the
 # job named `build` at the end is the one branch rules require, and it passes
-# only if every shard passed and the coverage-equivalence gate proves that the
-# shards together executed every test class that exists, exactly once, with no
-# test failed or skipped (see .github/scripts/coverage-gate.mjs).
+# only if every shard passed and the coverage gate proves that the shards
+# together executed every test class that exists, exactly once, with no test
+# failed or skipped, failing closed on anything missing or unreadable (the
+# policy is written out in .github/scripts/coverage-gate.mjs). It needs no
+# committed snapshot of the tests.
 #
 #   library    the whole build except the Showcase tests (compiles, packages,
 #              runs the fast Ashlar library tests)
@@ -58,6 +60,7 @@ jobs:
           mkdir -p out/junit out/profile
           cp ashlar/build/test-results/test/*.xml out/junit/ || true
           cp -r build/reports/profile/. out/profile/ || true
+          node .github/scripts/shard-tests.mjs compiled ashlar/build/classes/java/test > out/compiled-classes.txt || true
 
       - name: Upload reports
         if: always()
@@ -118,6 +121,7 @@ jobs:
           cp showcase/build/test-results/test/*.xml out/junit/ || true
           cp shard-classes.txt out/ || true
           cp -r build/reports/profile/. out/profile/ || true
+          node .github/scripts/shard-tests.mjs compiled showcase/build/classes/java/test > out/compiled-classes.txt || true
           node .github/scripts/test-manifest.mjs --out out/manifest --module showcase=showcase/build/test-results/test || true
 
       - name: Upload reports
@@ -155,7 +159,7 @@ jobs:
       - name: Coverage-equivalence gate
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
-        run: node .github/scripts/coverage-gate.mjs --in gate-in --out gate-out --baseline .github/ci/baseline-manifest.txt
+        run: node .github/scripts/coverage-gate.mjs --in gate-in --out gate-out
 
       - name: Upload the gate's evidence
         if: always()

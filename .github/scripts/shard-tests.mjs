@@ -3,6 +3,7 @@
 //
 //   node .github/scripts/shard-tests.mjs select --shard <1..N>      the test classes (one fully qualified name per line) shard <n> must run
 //   node .github/scripts/shard-tests.mjs plan                       the whole assignment, class by class, with the pinned or hashed reason
+//   node .github/scripts/shard-tests.mjs compiled <dir>             the compiled test classes in <dir>, one per line
 //   node .github/scripts/shard-tests.mjs verify-compiled <dir>      the compiled test classes in <dir> are exactly the classes this tool discovered
 //
 // The rule, in full:
@@ -97,6 +98,9 @@ function main() {
       console.log(`\nshard ${s}: ${mine.length} classes (${mine.filter(([, v]) => v.reason === "pinned").length} pinned, ${mine.filter(([, v]) => v.reason === "hash").length} hashed)`);
       for (const [name, v] of mine.sort()) console.log(`  ${v.reason === "pinned" ? "P" : "h"} ${name}`);
     }
+  } else if (command === "compiled") {
+    // The compiled test classes under <dir>, one fully qualified name per line. CI records this list per job so the gate can compare it with the source discovery.
+    console.log(compiledTestClasses(rest[0]).join("\n"));
   } else if (command === "verify-compiled") {
     const compiled = compiledTestClasses(rest[0]);
     const discovered = classes.map((c) => c.fqcn);
@@ -108,7 +112,7 @@ function main() {
     }
     console.log(`compiled and discovered test classes agree: ${compiled.length} classes`);
   } else {
-    console.error("usage: shard-tests.mjs select --shard <n> | plan | verify-compiled <dir>");
+    console.error("usage: shard-tests.mjs select --shard <n> | plan | compiled <dir> | verify-compiled <dir>");
     process.exit(2);
   }
 }
