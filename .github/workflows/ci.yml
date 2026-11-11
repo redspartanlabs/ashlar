@@ -34,4 +34,49 @@ jobs:
 
       - run: npm ci
 
-      - run: ./gradlew build
+      # Timing evidence (experiment): the build below is the unchanged, unsharded one. These steps only record what it did, never decide its outcome (the job named
+      # build still passes or fails with ./gradlew build alone), and publish the JUnit XML, Gradle's per-task profile and a manifest of the tests actually executed.
+      - name: Record environment
+        continue-on-error: true
+        run: |
+          {
+            echo "### Environment"
+            echo '```'
+            echo "runner image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            echo "cpus: $(nproc)"
+            grep -E 'MemTotal' /proc/meminfo
+            echo "chrome: $(command -v google-chrome || echo none) $(google-chrome --version 2>/dev/null)"
+            java -version 2>&1 | head -1
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - run: ./gradlew build --profile
+
+      - name: Summarize test timings and executed tests
+        if: always()
+        continue-on-error: true
+        run: node .github/scripts/test-manifest.mjs --out e2b-out --module ashlar=ashlar/build/test-results/test --module showcase=showcase/build/test-results/test
+
+      - name: Upload timing evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2b-timing-and-manifest
+          path: |
+            e2b-out/
+            build/reports/profile/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload JUnit XML reports
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-xml
+          path: |
+            ashlar/build/test-results/test/*.xml
+            showcase/build/test-results/test/*.xml
+          if-no-files-found: warn
+          retention-days: 30
