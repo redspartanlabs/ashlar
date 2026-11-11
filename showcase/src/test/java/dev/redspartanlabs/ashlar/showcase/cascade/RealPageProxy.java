@@ -101,7 +101,7 @@ final class RealPageProxy implements AutoCloseable {
                 return;
             }
             HttpResponse<byte[]> upstream = client.send(
-                    HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + appPort + pathAndQuery)).GET().build(),
+                    HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + appPort + pathAndQuery)).timeout(java.time.Duration.ofSeconds(60)).GET().build(),
                     HttpResponse.BodyHandlers.ofByteArray());
             String type = upstream.headers().firstValue("Content-Type").orElse("application/octet-stream");
             byte[] body = upstream.body();

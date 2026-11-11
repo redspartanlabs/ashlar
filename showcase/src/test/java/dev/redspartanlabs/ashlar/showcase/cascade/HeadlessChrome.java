@@ -5,13 +5,12 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 /** Locates a real Chrome/Chromium and loads a page in it, returning the serialized DOM. */
 final class HeadlessChrome {
@@ -67,6 +66,17 @@ final class HeadlessChrome {
 
     /** As {@link #dumpDom(String)}, with extra Chrome command-line flags. */
     String dumpDom(String url, List<String> extraFlags) throws Exception {
+        return dumpDom(url, extraFlags, DUMP_TIMEOUT);
+    }
+
+    /** How long a page may take to load and be dumped: the load, the 5 s of virtual time and the dump of the heaviest page the suites use finish in a few seconds. */
+    static final Duration DUMP_TIMEOUT = Duration.ofSeconds(90);
+
+    /**
+     * As {@link #dumpDom(String, List)}, with the time the browser is given stated. When it runs out, the browser and everything it started are terminated (not only the
+     * browser process, whose helpers would otherwise outlive it) before the failure is thrown.
+     */
+    String dumpDom(String url, List<String> extraFlags, Duration timeout) throws Exception {
         Path profile = Files.createTempDirectory("ashlar-cascade-chrome");
         try {
             List<String> command = new ArrayList<>(List.of(
@@ -92,17 +102,19 @@ final class HeadlessChrome {
                     throw new UncheckedIOException(e);
                 }
             });
-            if (!p.waitFor(90, TimeUnit.SECONDS)) {
-                p.destroyForcibly();
-                throw new IllegalStateException("Chrome did not finish within 90s for " + url);
+            if (!p.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
+                DevToolsSession.Termination termination = DevToolsSession.terminate(p);
+                stdout.cancel(true);
+                if (termination.interrupted()) {
+                    Thread.currentThread().interrupt();
+                }
+                throw new IllegalStateException("Chrome did not finish within " + (timeout.toMillis() % 1000 == 0 ? timeout.toSeconds() + "s" : timeout.toMillis() + " ms") + " for " + url
+                        + " (terminated " + termination.processes() + " browser process(es))");
             }
             return new String(stdout.get(15, TimeUnit.SECONDS), StandardCharsets.UTF_8);
         } finally {
-            try (Stream<Path> walk = Files.walk(profile)) {
-                walk.sorted(Comparator.reverseOrder()).forEach(f -> f.toFile().delete());
-            } catch (IOException ignored) {
-                // Best-effort cleanup of the throwaway profile.
-            }
+            // Best-effort cleanup of the throwaway profile: the failures are not reported here, but the sweep copes with entries that vanish while it runs and is repeated.
+            DevToolsSession.deleteTree(profile);
         }
     }
 }
