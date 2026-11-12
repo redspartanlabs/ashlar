@@ -6,6 +6,11 @@
 // Same shape as the rest of the library's JavaScript: one init function per
 // [data-table] root, all state closed over inside it, so several tables on a
 // page never see each other.
+//
+// What it writes is state, never presentation: aria-sort on a heading and the
+// sort glyph, data-selected on a selected row, and the hidden attribute on the
+// selection bar, the scroller and the two empty states. How those look is
+// table*.css's business; no class is added or removed here.
 
 function parseNumber(value) {
     // Tolerant on purpose: callers hand over display strings like "1,204,981",
@@ -135,11 +140,8 @@ function initTable(root) {
             heading.setAttribute("aria-sort", active ? sortDirection : "none");
             const icon = heading.querySelector("[data-table-sort-icon]");
             if (icon) {
+                // The glyph is content; its colour is the stylesheet's, keyed off the heading's aria-sort.
                 icon.innerHTML = active ? (sortDirection === "ascending" ? "&uarr;" : "&darr;") : "&#8645;";
-                icon.classList.toggle("text-blue-600", active);
-                icon.classList.toggle("dark:text-blue-400", active);
-                icon.classList.toggle("text-slate-400", !active);
-                icon.classList.toggle("dark:text-slate-500", !active);
             }
         });
     }
@@ -169,8 +171,7 @@ function initTable(root) {
             if (checkbox) {
                 checkbox.checked = isSelected;
             }
-            row.classList.toggle("bg-blue-50/60", isSelected);
-            row.classList.toggle("dark:bg-blue-950/40", isSelected);
+            row.toggleAttribute("data-selected", isSelected);
         });
 
         const selectableOnPage = visibleOnPage.filter((row) => row.getAttribute("data-row-key") !== null);
@@ -180,8 +181,7 @@ function initTable(root) {
 
         if (selectionBar) {
             const hasSelection = selected.size > 0;
-            selectionBar.classList.toggle("hidden", !hasSelection);
-            selectionBar.classList.toggle("flex", hasSelection);
+            selectionBar.hidden = !hasSelection;
             if (hasSelection && selectionCount) {
                 selectionCount.textContent = `${selected.size} selected`;
             }
@@ -212,13 +212,13 @@ function initTable(root) {
         // was found.
         const filteredToNothing = visible.length === 0 && rows.length > 0;
         if (emptyFiltered) {
-            emptyFiltered.classList.toggle("hidden", !filteredToNothing);
+            emptyFiltered.hidden = !filteredToNothing;
         }
         if (scroll && rows.length > 0) {
-            scroll.classList.toggle("hidden", filteredToNothing);
+            scroll.hidden = filteredToNothing;
         }
         if (emptyNone && rows.length > 0) {
-            emptyNone.classList.add("hidden");
+            emptyNone.hidden = true;
         }
 
         if (status) {

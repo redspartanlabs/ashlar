@@ -1,0 +1,8 @@
+/* TEST-ONLY (Table family migration oracle: Table, Table Column, Table Row, Table Cell and, through them, Data Table). Cumulative: the File Upload oracle, imported unchanged (which is
+   the Toggle oracle, the Choice Controls oracle, the Text Entry oracle, the Tree oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was
+   imported), PLUS the Tailwind classes the Table family used before it moved to the ash-table classes.
+
+   Those classes are no longer emitted by the templates, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps them compiled, which keeps
+   the legacy rendering executable: the parity tests render the same tables with these classes and with the ash- classes, in the same browser, and compare. */
+@import "./file-upload-oracle-entry.css";
+@source "../resources/parity/table/table-legacy.html";

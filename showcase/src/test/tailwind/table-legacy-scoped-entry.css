@@ -1,0 +1,57 @@
+/* TEST-ONLY (Table family migration oracle, scoped). The legacy Table's own Tailwind utilities (and its Icon's legacy classes) and nothing else: no page-wide preflight, no utilities for
+   any other element on the page.
+
+   The full oracle is the whole former showcase stylesheet, so linking it into a page also restyles everything AROUND the table. That is right for "Tailwind present". For "Tailwind
+   removed" the surroundings must be the same unstyled page on both sides, so the legacy table is rendered here with only what it itself used.
+
+   Only the preflight rules the table depended on are kept, and only for the elements the fixture marks (every measured element carries data-parity; the text a caller supplies is
+   marked raw and stays unstyled on both sides): border-box sizing with no default margin, padding or border width (a 0 solid border); the table reset (no text indent, an inherited
+   border colour, collapsed borders); the form-control reset a <button> and an <input> had (inherited font and letter spacing, inherited colour, no radius, a transparent background,
+   an opacity of 1) and the native push-button appearance of a <button>; the search input's removed decoration; and an svg that is display: block with vertical-align: middle.
+   The Tailwind-removed comparison in TableTailwindFreeTest and the equality in TableParityTest are what make this scoped rendering a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/table/table-legacy.html";
+@source "../resources/parity/icon/icon-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="raw"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    table[data-parity] {
+        text-indent: 0;
+        border-color: inherit;
+        border-collapse: collapse;
+    }
+
+    svg[data-parity] {
+        display: block;
+        vertical-align: middle;
+    }
+
+    button[data-parity]:not([data-parity="raw"]), input[data-parity]:not([data-parity="raw"]) {
+        font: inherit;
+        font-feature-settings: inherit;
+        font-variation-settings: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        border-radius: 0;
+        background-color: transparent;
+        opacity: 1;
+    }
+
+    button[data-parity]:not([data-parity="raw"]) {
+        appearance: button;
+    }
+
+    input[data-parity]::-webkit-search-decoration {
+        -webkit-appearance: none;
+    }
+}

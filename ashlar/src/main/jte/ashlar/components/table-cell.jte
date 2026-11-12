@@ -34,28 +34,28 @@
      one who knows which a column holds. --%>
 !{boolean hasContent = content != null;}
 !{boolean isBlank = !hasContent && text.isBlank();}
-!{String alignClass = "right".equals(align) ? "text-right" : "center".equals(align) ? "text-center" : "text-left";}
-!{String monoClass = mono ? " font-mono text-[0.8125rem]" : "";}
-!{String wrapClass = nowrap ? " whitespace-nowrap" : " break-words";}
+!{String alignClass = "right".equals(align) ? " ash-table__cell--end" : "center".equals(align) ? " ash-table__cell--center" : "";}
+!{String monoClass = mono ? " ash-table__cell--mono" : "";}
+!{String wrapClass = nowrap ? " ash-table__cell--nowrap" : "";}
 !{String sortAttr = sortValue.isEmpty() ? null : sortValue;}
-!{String cellClasses = "px-4 py-2.5 " + alignClass + monoClass + wrapClass;}
+!{String cellClasses = "ash-table__cell" + alignClass + monoClass + wrapClass;}
 
 @if (header)
-    <th scope="row" data-table-cell data-sort-value="${sortAttr}" class="${cellClasses} font-medium text-slate-900 dark:text-slate-100">
+    <th scope="row" data-table-cell data-sort-value="${sortAttr}" class="${cellClasses} ash-table__cell--header">
         @if (hasContent)
             ${content}
         @elseif (isBlank)
-            <span aria-hidden="true" class="text-slate-400 dark:text-slate-500">&mdash;</span><span class="sr-only">No value</span>
+            <span aria-hidden="true" class="ash-table__blank">&mdash;</span><span class="ash-table__label ash-sr-only">No value</span>
         @else
             ${text}
         @endif
     </th>
 @else
-    <td data-table-cell data-sort-value="${sortAttr}" class="${cellClasses} text-slate-700 dark:text-slate-300">
+    <td data-table-cell data-sort-value="${sortAttr}" class="${cellClasses}">
         @if (hasContent)
             ${content}
         @elseif (isBlank)
-            <span aria-hidden="true" class="text-slate-400 dark:text-slate-500">&mdash;</span><span class="sr-only">No value</span>
+            <span aria-hidden="true" class="ash-table__blank">&mdash;</span><span class="ash-table__label ash-sr-only">No value</span>
         @else
             ${text}
         @endif

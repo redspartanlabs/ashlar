@@ -30,16 +30,16 @@
 !{String rowKeyAttr = hasKey ? rowKey : null;}
 !{String checkboxLabel = rowLabel.isEmpty() ? "Select row" : "Select row " + rowLabel;}
 
-<tr data-table-row data-row-key="${rowKeyAttr}" class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+<tr data-table-row data-row-key="${rowKeyAttr}" class="ash-table__row">
     @if (selectable)
-        <td class="w-10 px-4 py-2.5">
+        <td class="ash-table__select">
             @if (hasKey)
-                <label class="flex items-center">
-                    <span class="sr-only">${checkboxLabel}</span>
+                <label class="ash-table__check">
+                    <span class="ash-table__label ash-sr-only">${checkboxLabel}</span>
                     <input
                             type="checkbox"
                             data-table-select-row
-                            class="h-4 w-4 cursor-pointer rounded border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800"
+                            class="ash-table__checkbox"
                     >
                 </label>
             @endif

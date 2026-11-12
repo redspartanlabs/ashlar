@@ -1,0 +1,53 @@
+/* ash-table-cell: one cell, a <td>, or a <th scope="row"> when the caller marks the column that identifies its row.
+
+   Classes       ash-table__cell               the <td> or <th> (it also carries data-table-cell and, when given, data-sort-value)
+                 ash-table__cell--end          a right-aligned cell
+                 ash-table__cell--center       a centered cell
+                 ash-table__cell--mono         a monospaced cell, at 0.8125rem
+                 ash-table__cell--nowrap       a cell that does not wrap
+                 ash-table__cell--header       a row header: medium weight, in the heading ink
+                 ash-table__blank              the dash that stands for an empty value (the visually hidden "No value" beside it carries ash-table__label and ash-sr-only)
+   Properties    None of its own. It reads --ash-table-ink, --ash-table-ink-cell and --ash-table-ink-faint from the .ash-table it sits in (see table.css).
+
+   Wrapping      A cell wraps long words by default (overflow-wrap: break-word), as break-words did; ash-table__cell--nowrap turns that off and keeps the text on one line. Which
+                 columns do not wrap is the caller's call: Data Table does not wrap its non-text, monospaced and Badge columns.
+
+   Mono          The monospaced cell sets a family and a size and nothing else. Its line height is the table's own, inherited as a number, so a monospaced row is as tall as its
+                 neighbours. The family is --font-mono, which the skins set, with Tailwind's stack as the fallback.
+
+   Self-contained: a <td> and a <th> have padding, a weight (a <th> is bold) and an alignment of their own; each is stated. The component adds no global rule. */
+
+.ash-table__cell {
+  padding-block: 0.625rem;
+  padding-inline: 1rem;
+  text-align: left;
+  overflow-wrap: break-word;
+  color: var(--ash-table-ink-cell);
+}
+
+.ash-table__cell--end {
+  text-align: right;
+}
+
+.ash-table__cell--center {
+  text-align: center;
+}
+
+.ash-table__cell--mono {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-size: 0.8125rem;
+}
+
+.ash-table__cell--nowrap {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+.ash-table__cell--header {
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-table-ink);
+}
+
+.ash-table__blank {
+  color: var(--ash-table-ink-faint);
+}

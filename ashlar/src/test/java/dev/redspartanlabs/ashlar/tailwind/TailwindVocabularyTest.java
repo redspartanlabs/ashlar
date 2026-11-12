@@ -69,7 +69,6 @@ class TailwindVocabularyTest {
     @ValueSource(strings = {
             "opacity-100",   // drawer.js open state
             "translate-x-0", // drawer.js open state
-            "bg-blue-50/60", // table.js selected row
     })
     void capturesJavaScriptHeldClasses(String token) {
         assertTrue(lines.contains(token), token + " is missing from the vocabulary");
