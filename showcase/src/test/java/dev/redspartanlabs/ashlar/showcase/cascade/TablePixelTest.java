@@ -33,6 +33,7 @@ class TablePixelTest {
     private static final int CHUNK = 12;
     private static final List<String> TAILWIND_FREE = List.of("light/none", "dark/none", "light/ledger", "dark/axiom", "dark/foundry");
 
+    private static final List<PixelDiagnostics.Candidate> CANDIDATES = new ArrayList<>();
     private static final List<String> MISMATCHES = new ArrayList<>();
     private static final List<String> FREE_MISMATCHES = new ArrayList<>();
     private static final Set<String> DISTINCT_LIGHT = new HashSet<>();
@@ -84,8 +85,10 @@ class TablePixelTest {
                 for (TableParityTest.Field f : chunk) {
                     String migratedBody = f.markup();
                     String legacyBody = new IconLegacyMarkup().rewrite(new TableLegacyMarkup().rewrite(migratedBody));
-                    String legacy = picture(cdp, server.registerRaw(singlePage(legacySheets, config, legacyBody, environment)), f);
-                    String migrated = picture(cdp, server.registerRaw(singlePage(migratedSheets, config, migratedBody, environment)), f);
+                    String legacyPage = singlePage(legacySheets, config, legacyBody, environment);
+                    String migratedPage = singlePage(migratedSheets, config, migratedBody, environment);
+                    String legacy = picture(cdp, server.registerRaw(legacyPage), f);
+                    String migrated = picture(cdp, server.registerRaw(migratedPage), f);
                     if (count) {
                         compared++;
                     } else {
@@ -93,6 +96,10 @@ class TablePixelTest {
                     }
                     if (!legacy.equals(migrated)) {
                         mismatches.add(where + " " + f.id() + " (" + f.spec().key() + ")");
+                    }
+                    // DIAGNOSTIC ONLY (PR #31 investigation): remember the pair so it can be explained after every comparison is done. Nothing here changes a capture or a verdict.
+                    if (count && PixelDiagnostics.wanted(config.id(), f.spec().key(), !legacy.equals(migrated))) {
+                        CANDIDATES.add(new PixelDiagnostics.Candidate(config.id(), f.id(), f.spec().key(), legacy, migrated, legacyPage, migratedPage, f));
                     }
                     if (distinct != null) {
                         distinct.add(legacy);
@@ -134,6 +141,84 @@ class TablePixelTest {
                 cdp.navigate(server.registerRaw(darkPage.replace("</head>", "<style>:root{color-scheme:light !important}</style></head>")));
                 schemeOff = shot(cdp, "c1");
             }
+            diagnose(session, server);
+        }
+    }
+
+    // ---------------------------------------------------------------- DIAGNOSTIC ONLY (PR #31 investigation)
+
+    /** What the browser says about the focused target of a case, read while its state is forced: geometry relative to the picture, computed style, fonts, pixel ratio. */
+    private static String probe(DevToolsSession cdp, String url, TableParityTest.Field f) throws Exception {
+        cdp.navigate(url);
+        String selector = TableBrowser.target(f.spec(), f.id());
+        List<Integer> nodes = cdp.nodes(selector);
+        cdp.force(nodes, f.spec().pseudo());
+        String fonts = "n/a";
+        try {
+            cdp.call("DOM.enable", "{}");
+            cdp.call("CSS.enable", "{}");
+            if (!nodes.isEmpty()) {
+                fonts = cdp.call("CSS.getPlatformFontsForNode", "{\"nodeId\":" + nodes.get(0) + "}");
+            }
+        } catch (Throwable t) {
+            fonts = "error " + t.getMessage();
+        }
+        String info = cdp.evaluate("(function(){var f=document.querySelector('[data-field=\"" + f.id() + "\"]').getBoundingClientRect();var t=document.querySelector(" + DevToolsSession.quote(selector)
+                + ");var r=t.getBoundingClientRect();var c=getComputedStyle(t);return JSON.stringify({box:[r.x-f.x+6,r.y-f.y+6,r.width,r.height],field:[f.x,f.y,f.width,f.height],dpr:devicePixelRatio,"
+                + "inner:[innerWidth,innerHeight],boxShadow:c.boxShadow,borderRadius:c.borderTopLeftRadius+' '+c.borderTopRightRadius+' '+c.borderBottomRightRadius+' '+c.borderBottomLeftRadius,"
+                + "outline:c.outlineStyle+' '+c.outlineWidth+' '+c.outlineColor,font:c.fontFamily+' '+c.fontSize+' '+c.fontWeight,focused:t.matches(':focus-visible'),display:c.display,"
+                + "matchesFocus:t.matches(':focus')})})()");
+        cdp.force(nodes, List.of());
+        return info.substring(0, info.length() - 1) + ",\"platformFonts\":" + PixelDiagnostics.json(fonts) + "}";
+    }
+
+    /** Explains every pair collected for the target configurations: statistics, ring profile, images, and whether fresh captures of each side repeat. Never throws. */
+    private static void diagnose(ParitySession session, CascadeFixtureServer server) {
+        try {
+            PixelDiagnostics.selfCheck();
+            PixelDiagnostics.line("environment os=" + System.getProperty("os.name") + " " + System.getProperty("os.version") + " java=" + System.getProperty("java.version") + " ci=" + (System.getenv("CI") != null)
+                    + " force=" + PixelDiagnostics.FORCE + " candidates=" + CANDIDATES.size() + " mismatchesInTotal=" + MISMATCHES.size());
+            if (System.getProperty("os.name", "").toLowerCase().contains("linux")) {
+                for (String family : List.of("Arial", "Helvetica", "sans-serif", "Arial:bold")) {
+                    try {
+                        Process p = new ProcessBuilder("fc-match", family).redirectErrorStream(true).start();
+                        p.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+                        PixelDiagnostics.line("environment fc-match " + family + " = " + new String(p.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim());
+                    } catch (Throwable t) {
+                        PixelDiagnostics.line("environment fc-match " + family + " unavailable: " + t);
+                    }
+                }
+            }
+            if (CANDIDATES.isEmpty()) {
+                PixelDiagnostics.line("none: every target-configuration picture pair was identical");
+                return;
+            }
+            try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+                PixelDiagnostics.line("environment browser=" + cdp.call("Browser.getVersion", "{}"));
+                for (PixelDiagnostics.Candidate c : CANDIDATES) {
+                    String note = "";
+                    String legacyInfo = "";
+                    String migratedInfo = "";
+                    boolean legacyRepeats = true;
+                    boolean migratedRepeats = true;
+                    int recaptures = 3;
+                    try {
+                        String legacyUrl = server.registerRaw(c.legacyPage());
+                        String migratedUrl = server.registerRaw(c.migratedPage());
+                        legacyInfo = probe(cdp, legacyUrl, c.field());
+                        migratedInfo = probe(cdp, migratedUrl, c.field());
+                        for (int i = 0; i < recaptures; i++) {
+                            legacyRepeats &= c.legacy().equals(picture(cdp, legacyUrl, c.field()));
+                            migratedRepeats &= c.migrated().equals(picture(cdp, migratedUrl, c.field()));
+                        }
+                    } catch (Throwable t) {
+                        note = "probe failed: " + t;
+                    }
+                    PixelDiagnostics.report(c, new PixelDiagnostics.Probe(legacyInfo, migratedInfo, legacyRepeats, migratedRepeats, recaptures, note));
+                }
+            }
+        } catch (Throwable t) {
+            PixelDiagnostics.line("diagnostics failed: " + t);
         }
     }
 
