@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +47,7 @@ class TablePixelTest {
     private static String schemeOn;
     private static String schemeOff;
 
-    private static String shot(DevToolsSession cdp, String fieldId) throws Exception {
+    static String shot(DevToolsSession cdp, String fieldId) throws Exception {
         String box = cdp.evaluate("(function(){var b=document.querySelector('[data-field=\"" + fieldId + "\"]').getBoundingClientRect();return JSON.stringify({x:b.x+scrollX-6,y:b.y+scrollY-6,width:b.width+12,height:b.height+12})})()");
         String response = cdp.call("Page.captureScreenshot", "{\"clip\":" + box.replace("}", ",\"scale\":1}") + "}");
         int at = response.indexOf("\"data\":\"");
@@ -71,7 +73,7 @@ class TablePixelTest {
         return first;
     }
 
-    private static String singlePage(List<String> sheets, ParityConfigs.Config config, String body, String environment) {
+    static String singlePage(List<String> sheets, ParityConfigs.Config config, String body, String environment) {
         String page = TextEntryBrowser.page(sheets, config, "", body, TableBrowser.INDETERMINATE);
         return environment == null ? page : page.replace("</head>", "<style>" + environment + "</style></head>");
     }
@@ -142,6 +144,7 @@ class TablePixelTest {
                 schemeOff = shot(cdp, "c1");
             }
             diagnose(session, server);
+            repeatDiagnostics(session, server, fields);
         }
     }
 
@@ -166,7 +169,7 @@ class TablePixelTest {
         String info = cdp.evaluate("(function(){var f=document.querySelector('[data-field=\"" + f.id() + "\"]').getBoundingClientRect();var t=document.querySelector(" + DevToolsSession.quote(selector)
                 + ");var r=t.getBoundingClientRect();var c=getComputedStyle(t);return JSON.stringify({box:[r.x-f.x+6,r.y-f.y+6,r.width,r.height],field:[f.x,f.y,f.width,f.height],dpr:devicePixelRatio,"
                 + "inner:[innerWidth,innerHeight],boxShadow:c.boxShadow,borderRadius:c.borderTopLeftRadius+' '+c.borderTopRightRadius+' '+c.borderBottomRightRadius+' '+c.borderBottomLeftRadius,"
-                + "outline:c.outlineStyle+' '+c.outlineWidth+' '+c.outlineColor,font:c.fontFamily+' '+c.fontSize+' '+c.fontWeight,focused:t.matches(':focus-visible'),display:c.display,"
+                + "outline:c.outlineStyle+' '+c.outlineWidth+' '+c.outlineColor,outlineOffset:c.outlineOffset,font:c.fontFamily+' '+c.fontSize+' '+c.fontWeight,focused:t.matches(':focus-visible'),display:c.display,"
                 + "matchesFocus:t.matches(':focus')})})()");
         cdp.force(nodes, List.of());
         return info.substring(0, info.length() - 1) + ",\"platformFonts\":" + PixelDiagnostics.json(fonts) + "}";
@@ -248,5 +251,84 @@ class TablePixelTest {
     @Test
     void theColourSchemeChangesHowTheBrowserDrawsTheCheckboxSoBothSidesMustShareIt() {
         assertNotEquals(schemeOn, schemeOff, "a dark page draws the native mark differently with the dark colour scheme");
+    }
+
+    // ---------------------------------------------------------------- DIAGNOSTIC ONLY, final round (PR #31 investigation)
+
+    /** One capture of the target with its state forced, exactly as the comparison takes it but a single time and without any assertion. */
+    private static String once(DevToolsSession cdp, String url, TableParityTest.Field f) throws Exception {
+        cdp.navigate(url);
+        List<Integer> nodes = cdp.nodes(TableBrowser.target(f.spec(), f.id()));
+        cdp.force(nodes, f.spec().pseudo());
+        String png = shot(cdp, f.id());
+        cdp.force(nodes, List.of());
+        return png;
+    }
+
+    /** Repeated captures of the focus-visible sort button in the configurations that failed in either CI run; reported, never asserted. Never throws. */
+    private static void repeatDiagnostics(ParitySession session, CascadeFixtureServer server, List<TableParityTest.Field> fields) {
+        if (!PixelRepeatDiagnostics.enabled()) {
+            return;
+        }
+        try {
+            TableParityTest.Field f = fields.stream().filter(x -> x.spec().key().equals("sort button focus-visible")).findFirst().orElseThrow();
+            PixelRepeatDiagnostics.line("round configs=" + PixelRepeatDiagnostics.configs() + " repeats=" + PixelRepeatDiagnostics.REPEATS + " case=" + f.id() + " (" + f.spec().key() + ")");
+            for (String id : PixelRepeatDiagnostics.configs()) {
+                try {
+                    repeatOne(session, server, f, ParityConfigs.get(id));
+                } catch (Throwable t) {
+                    PixelRepeatDiagnostics.line(id + " failed: " + t);
+                }
+            }
+        } catch (Throwable t) {
+            PixelRepeatDiagnostics.line("repeat diagnostics failed: " + t);
+        }
+    }
+
+    private static void repeatOne(ParitySession session, CascadeFixtureServer server, TableParityTest.Field f, ParityConfigs.Config config) throws Exception {
+        String migratedBody = f.markup();
+        String legacyBody = new IconLegacyMarkup().rewrite(new TableLegacyMarkup().rewrite(migratedBody));
+        String migratedPage = singlePage(List.of(ParityFrames.APP), config, migratedBody, null);
+        String legacyUrl = server.registerRaw(singlePage(List.of(ParityFrames.generated("table-oracle.css")), config, legacyBody, null));
+        String migratedUrl = server.registerRaw(migratedPage);
+        List<PixelRepeatDiagnostics.Capture> captures = new ArrayList<>();
+        Map<String, String> broken = new LinkedHashMap<>();
+        String info;
+        int repeats = PixelRepeatDiagnostics.REPEATS;
+        // One session: the two renderings alternate. The broken renderings are captured here too.
+        try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+            info = probe(cdp, migratedUrl, f);
+            for (int i = 0; i < repeats; i++) {
+                captures.add(new PixelRepeatDiagnostics.Capture("same-session-alternating", 0, i, "legacy", once(cdp, legacyUrl, f)));
+                captures.add(new PixelRepeatDiagnostics.Capture("same-session-alternating", 0, i, "migrated", once(cdp, migratedUrl, f)));
+            }
+            for (Map.Entry<String, String> m : PixelRepeatDiagnostics.mutations(PixelRepeatDiagnostics.ring(info)).entrySet()) {
+                broken.put(m.getKey(), once(cdp, server.registerRaw(migratedPage.replace("</head>", "<style>" + m.getValue() + "</style></head>")), f));
+            }
+        }
+        // Another session: all the migrated captures first, then all the legacy ones.
+        try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+            for (int i = 0; i < repeats; i++) {
+                captures.add(new PixelRepeatDiagnostics.Capture("same-session-migrated-then-legacy", 0, i, "migrated", once(cdp, migratedUrl, f)));
+            }
+            for (int i = 0; i < repeats; i++) {
+                captures.add(new PixelRepeatDiagnostics.Capture("same-session-migrated-then-legacy", 0, i, "legacy", once(cdp, legacyUrl, f)));
+            }
+        }
+        // Fresh browsers: each takes one capture of each rendering, in alternating order.
+        for (int i = 0; i < repeats; i++) {
+            try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+                boolean legacyFirst = i % 2 == 0;
+                String mode = legacyFirst ? "fresh-legacy-first" : "fresh-migrated-first";
+                if (legacyFirst) {
+                    captures.add(new PixelRepeatDiagnostics.Capture(mode, i, 0, "legacy", once(cdp, legacyUrl, f)));
+                    captures.add(new PixelRepeatDiagnostics.Capture(mode, i, 0, "migrated", once(cdp, migratedUrl, f)));
+                } else {
+                    captures.add(new PixelRepeatDiagnostics.Capture(mode, i, 0, "migrated", once(cdp, migratedUrl, f)));
+                    captures.add(new PixelRepeatDiagnostics.Capture(mode, i, 0, "legacy", once(cdp, legacyUrl, f)));
+                }
+            }
+        }
+        PixelRepeatDiagnostics.report(config.id(), f.id(), info, captures, broken);
     }
 }
