@@ -6,6 +6,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -246,5 +248,111 @@ class PixelPolicyTest {
         BufferedImage flatOutside = with(18, 20, 5);
         assertTrue(ring(flatOutside).accepted());
         assertFalse(hover(flatOutside).accepted());
+    }
+
+    // ---------------------------------------------------------------- geometry that cannot describe a region
+
+    private static final double[] NOT_FINITE = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY};
+
+    /** Every way the browser's answer could be unusable: a NaN or an infinity in any of the five numbers, a negative size or reach, and no box at all. */
+    private static List<PixelPolicy.Geometry> unusableGeometries() {
+        List<PixelPolicy.Geometry> all = new ArrayList<>();
+        for (double bad : NOT_FINITE) {
+            all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(bad, 14, 20, 12), 2));
+            all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, bad, 20, 12), 2));
+            all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, 14, bad, 12), 2));
+            all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, 14, 20, bad), 2));
+            all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, 14, 20, 12), bad));
+        }
+        all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, 14, -1, 12), 2));
+        all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, 14, 20, -1), 2));
+        all.add(new PixelPolicy.Geometry(new PixelPolicy.Box(20, 14, 20, 12), -1));
+        all.add(new PixelPolicy.Geometry(null, 2));
+        return all;
+    }
+
+    @Test
+    void anUnusableGeometryNeverAuthorizesADifferingPicture() throws IOException {
+        // The first candidate is accepted under the finite geometry RING (the control), so a rejection below is due to the geometry alone: an edge pixel on the ring, a flat pixel next to it, two flat
+        // pixels farther away.
+        List<BufferedImage> candidates = List.of(with(19, 20, 5), with(18, 20, 1), with(2, 2, 1), with(30, 20, 1));
+        for (PixelPolicy.Policy policy : List.of(PixelPolicy.FOCUS_RING, PixelPolicy.HOVER_TEXT_EDGE)) {
+            assertTrue(PixelPolicy.compare(picture(), candidates.get(0), policy, RING).accepted(), policy.name() + ": the control is accepted under a finite geometry");
+            for (PixelPolicy.Geometry bad : unusableGeometries()) {
+                for (BufferedImage candidate : candidates) {
+                    PixelPolicy.Verdict v = PixelPolicy.compare(picture(), candidate, policy, bad);
+                    assertFalse(v.accepted(), policy.name() + " with " + bad + ": " + v.describe());
+                    assertTrue(v.reason().contains("not usable"), v.reason());
+                    PixelPolicy.Verdict encoded = PixelPolicy.compare(png(picture()), png(candidate), policy, bad);
+                    assertFalse(encoded.accepted(), policy.name() + " with " + bad + " (encoded): " + encoded.describe());
+                }
+            }
+        }
+    }
+
+    @Test
+    void anUnusableOrMissingGeometryToleratesNothingUnderTheExactPolicyEither() {
+        for (PixelPolicy.Geometry bad : unusableGeometries()) {
+            assertFalse(PixelPolicy.compare(picture(), with(19, 20, 1), PixelPolicy.EXACT, bad).accepted(), String.valueOf(bad));
+        }
+        assertFalse(PixelPolicy.compare(picture(), with(19, 20, 1), PixelPolicy.FOCUS_RING, null).accepted());
+        assertFalse(PixelPolicy.compare(picture(), with(19, 20, 1), PixelPolicy.HOVER_TEXT_EDGE, null).accepted());
+    }
+
+    @Test
+    void exactEqualityStillPassesWithoutAnyUsableGeometry() throws IOException {
+        String same = png(picture());
+        for (PixelPolicy.Policy policy : List.of(PixelPolicy.EXACT, PixelPolicy.FOCUS_RING, PixelPolicy.HOVER_TEXT_EDGE)) {
+            for (PixelPolicy.Geometry bad : unusableGeometries()) {
+                PixelPolicy.Verdict v = PixelPolicy.compare(same, png(picture()), policy, bad);
+                assertTrue(v.accepted() && v.exact(), policy.name() + " with " + bad);
+                // Pictures with no differing pixel are not a difference either, whatever the geometry.
+                PixelPolicy.Verdict pixels = PixelPolicy.compare(picture(), picture(), policy, bad);
+                assertTrue(pixels.accepted(), policy.name() + " with " + bad);
+                assertEquals(0, pixels.differing());
+            }
+            assertTrue(PixelPolicy.compare(same, png(picture()), policy, null).accepted());
+        }
+    }
+
+    @Test
+    void theBrowsersAnswerIsRefusedWhenItIsNotFiveFiniteNonNegativeNumbers() throws IOException {
+        for (String bad : List.of("NaN 14 20 12 2", "20 NaN 20 12 2", "20 14 Infinity 12 2", "20 14 20 -Infinity 2", "20 14 20 12 NaN", "20 14 20 12 Infinity", "-Infinity 14 20 12 2", "20 14 -1 12 2",
+                "20 14 20 -1 2", "20 14 20 12 -1", "1 2 3", "1 2 3 4 5 6", "a b c d e", "", "   ")) {
+            assertNull(PixelPolicy.Geometry.parse(bad), "[" + bad + "]");
+            assertFalse(PixelPolicy.compare(png(picture()), png(with(19, 20, 1)), PixelPolicy.FOCUS_RING, PixelPolicy.Geometry.parse(bad)).accepted(), "[" + bad + "]");
+        }
+    }
+
+    @Test
+    void validFiniteGeometryKeepsItsBehavior() throws IOException {
+        assertEquals(RING, PixelPolicy.Geometry.parse("20 14 20 12 2"));
+        assertEquals(RING, PixelPolicy.Geometry.parse("  20.0 14 20 12 2.0 "));
+        assertEquals(NO_RING, PixelPolicy.Geometry.parse("20 14 20 12 0"));
+        assertTrue(RING.valid() && NO_RING.valid());
+        assertTrue(new PixelPolicy.Geometry(new PixelPolicy.Box(0, 0, 0, 0), 0).valid(), "an empty box at the origin is a valid, if useless, geometry");
+        assertTrue(new PixelPolicy.Geometry(new PixelPolicy.Box(-5.5, -3, 20, 12), 2).valid(), "a negative position is fine; only sizes and the reach must not be negative");
+        // The behaviors the earlier tests pin, once more through parsed geometry.
+        PixelPolicy.Geometry parsed = PixelPolicy.Geometry.parse("20 14 20 12 2");
+        assertTrue(PixelPolicy.compare(png(picture()), png(with(19, 20, 12)), PixelPolicy.FOCUS_RING, parsed).accepted());
+        assertFalse(PixelPolicy.compare(png(picture()), png(with(19, 20, 13)), PixelPolicy.FOCUS_RING, parsed).accepted());
+        assertFalse(PixelPolicy.compare(png(picture()), png(with(2, 2, 1)), PixelPolicy.FOCUS_RING, parsed).accepted());
+        assertTrue(PixelPolicy.compare(png(picture()), png(with(19, 20, 24)), PixelPolicy.HOVER_TEXT_EDGE, parsed).accepted());
+        assertFalse(PixelPolicy.compare(png(picture()), png(with(18, 20, 1)), PixelPolicy.HOVER_TEXT_EDGE, parsed).accepted());
+    }
+
+    @Test
+    void theBandTestFailsClosedOnAnythingThatIsNotANumberBetweenTheLimits() {
+        assertTrue(PixelPolicy.inBand(0.5, -1.0, 3.5));
+        assertTrue(PixelPolicy.inBand(-1.0, -1.0, 3.5), "the limits belong to the band");
+        assertTrue(PixelPolicy.inBand(3.5, -1.0, 3.5));
+        assertFalse(PixelPolicy.inBand(3.6, -1.0, 3.5));
+        assertFalse(PixelPolicy.inBand(-1.1, -1.0, 3.5));
+        for (double bad : NOT_FINITE) {
+            assertFalse(PixelPolicy.inBand(bad, -1.0, 3.5), "distance " + bad);
+        }
+        assertFalse(PixelPolicy.inBand(0.5, Double.NaN, 3.5), "a NaN lower limit");
+        assertFalse(PixelPolicy.inBand(0.5, -1.0, Double.NaN), "a NaN upper limit");
+        assertFalse(PixelPolicy.inBand(0.5, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY), "an empty band at infinity");
     }
 }

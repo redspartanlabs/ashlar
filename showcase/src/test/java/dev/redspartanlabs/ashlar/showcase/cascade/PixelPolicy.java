@@ -49,11 +49,33 @@ final class PixelPolicy {
 
     /** The element whose state is forced, in the picture, and how far its focus ring reaches beyond its border box (0 when it has none). Always the reference (legacy) rendering's. */
     record Geometry(Box box, double ringExtent) {
-        /** The browser's answer, {@code "x y width height ringExtent"} (see {@code TablePixelTest#geometryScript}). */
+        /**
+         * The browser's answer, {@code "x y width height ringExtent"} (see {@code TablePixelTest#geometryScript}), or null when it cannot be used: not five numbers, or any value that is NaN,
+         * infinite or negative where a size or a reach is meant (see {@link #valid()}). A null geometry tolerates nothing.
+         */
         static Geometry parse(String text) {
-            String[] n = text.trim().split(" ");
-            return new Geometry(new Box(Double.parseDouble(n[0]), Double.parseDouble(n[1]), Double.parseDouble(n[2]), Double.parseDouble(n[3])), Double.parseDouble(n[4]));
+            try {
+                String[] n = text.trim().split(" ");
+                if (n.length != 5) {
+                    return null;
+                }
+                Geometry geometry = new Geometry(new Box(Double.parseDouble(n[0]), Double.parseDouble(n[1]), Double.parseDouble(n[2]), Double.parseDouble(n[3])), Double.parseDouble(n[4]));
+                return geometry.valid() ? geometry : null;
+            } catch (RuntimeException e) {
+                return null;
+            }
         }
+
+        /** Every number is finite, and the box has no negative size and the ring no negative reach. Anything else could not describe a permitted region. */
+        boolean valid() {
+            return box != null && Double.isFinite(box.x()) && Double.isFinite(box.y()) && Double.isFinite(box.w()) && Double.isFinite(box.h()) && box.w() >= 0 && box.h() >= 0
+                    && Double.isFinite(ringExtent) && ringExtent >= 0;
+        }
+    }
+
+    /** True only when the distance lies between the limits. Written so that NaN, which compares false with everything, is outside: a band test must fail closed. */
+    static boolean inBand(double distance, double low, double high) {
+        return distance >= low && distance <= high;
     }
 
     /**
@@ -108,8 +130,10 @@ final class PixelPolicy {
         if (reference.getWidth() != candidate.getWidth() || reference.getHeight() != candidate.getHeight()) {
             return new Verdict(false, false, policy.name(), false, -1, -1, -1, -1, "the pictures have different sizes");
         }
+        // A geometry that is missing or not valid describes no region: then no difference at all can be tolerated (pixel-identical pictures still pass).
+        boolean usable = geometry != null && geometry.valid();
         double low = -policy.bandInside();
-        double high = policy.bandOutside() + (policy.addsRingExtent() ? geometry.ringExtent() : 0);
+        double high = policy.bandOutside() + (usable && policy.addsRingExtent() ? geometry.ringExtent() : 0);
         int differing = 0;
         int max = 0;
         int outside = 0;
@@ -125,8 +149,7 @@ final class PixelPolicy {
                 for (int shift = 0; shift <= 16; shift += 8) {
                     max = Math.max(max, Math.abs(((p >> shift) & 0xFF) - ((q >> shift) & 0xFF)));
                 }
-                double distance = geometry.box().signedDistance(x + 0.5, y + 0.5);
-                if (distance < low || distance > high) {
+                if (!usable || !inBand(geometry.box().signedDistance(x + 0.5, y + 0.5), low, high)) {
                     outside++;
                 }
                 if (policy.edgePixelsOnly() && !isEdge(reference, x, y)) {
@@ -134,7 +157,8 @@ final class PixelPolicy {
                 }
             }
         }
-        String reason = differing > policy.maxDifferingPixels() ? differing + " pixels differ, at most " + policy.maxDifferingPixels() + " may"
+        String reason = !usable && differing > 0 ? "the geometry is missing or not usable (not finite, or negative), so no difference can be tolerated: " + geometry
+                : differing > policy.maxDifferingPixels() ? differing + " pixels differ, at most " + policy.maxDifferingPixels() + " may"
                 : max > policy.maxChannelDifference() ? "a channel differs by " + max + ", at most " + policy.maxChannelDifference() + " may"
                 : outside > 0 ? outside + " differing pixel(s) lie outside the permitted band around the element"
                 : notEdge > 0 ? notEdge + " differing pixel(s) are not edge pixels" : "within the policy";
