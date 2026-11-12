@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,7 +101,7 @@ class TablePixelTest {
                         mismatches.add(where + " " + f.id() + " (" + f.spec().key() + ")");
                     }
                     // DIAGNOSTIC ONLY (PR #31 investigation): remember the pair so it can be explained after every comparison is done. Nothing here changes a capture or a verdict.
-                    if (count && PixelDiagnostics.wanted(config.id(), f.spec().key(), !legacy.equals(migrated))) {
+                    if (count && CANDIDATES.size() < 24 && PixelDiagnostics.wanted(config.id(), f.spec().key(), !legacy.equals(migrated))) {
                         CANDIDATES.add(new PixelDiagnostics.Candidate(config.id(), f.id(), f.spec().key(), legacy, migrated, legacyPage, migratedPage, f));
                     }
                     if (distinct != null) {
@@ -170,7 +171,8 @@ class TablePixelTest {
                 + ");var r=t.getBoundingClientRect();var c=getComputedStyle(t);return JSON.stringify({box:[r.x-f.x+6,r.y-f.y+6,r.width,r.height],field:[f.x,f.y,f.width,f.height],dpr:devicePixelRatio,"
                 + "inner:[innerWidth,innerHeight],boxShadow:c.boxShadow,borderRadius:c.borderTopLeftRadius+' '+c.borderTopRightRadius+' '+c.borderBottomRightRadius+' '+c.borderBottomLeftRadius,"
                 + "outline:c.outlineStyle+' '+c.outlineWidth+' '+c.outlineColor,outlineOffset:c.outlineOffset,font:c.fontFamily+' '+c.fontSize+' '+c.fontWeight,focused:t.matches(':focus-visible'),display:c.display,"
-                + "matchesFocus:t.matches(':focus')})})()");
+                + "matchesFocus:t.matches(':focus'),backgroundColor:c.backgroundColor,color:c.color,opacity:c.opacity,cursor:c.cursor,transition:c.transitionProperty+' '+c.transitionDuration+' '+c.transitionDelay,"
+                + "animation:c.animationName+' '+c.animationDuration,targetAnimations:t.getAnimations().length,documentAnimations:document.getAnimations().length,hovered:t.matches(':hover')})})()");
         cdp.force(nodes, List.of());
         return info.substring(0, info.length() - 1) + ",\"platformFonts\":" + PixelDiagnostics.json(fonts) + "}";
     }
@@ -179,6 +181,7 @@ class TablePixelTest {
     private static void diagnose(ParitySession session, CascadeFixtureServer server) {
         try {
             PixelDiagnostics.selfCheck();
+            PixelHoverDiagnostics.selfCheck();
             PixelDiagnostics.line("environment os=" + System.getProperty("os.name") + " " + System.getProperty("os.version") + " java=" + System.getProperty("java.version") + " ci=" + (System.getenv("CI") != null)
                     + " force=" + PixelDiagnostics.FORCE + " candidates=" + CANDIDATES.size() + " mismatchesInTotal=" + MISMATCHES.size());
             if (System.getProperty("os.name", "").toLowerCase().contains("linux")) {
@@ -210,6 +213,8 @@ class TablePixelTest {
                         String migratedUrl = server.registerRaw(c.migratedPage());
                         legacyInfo = probe(cdp, legacyUrl, c.field());
                         migratedInfo = probe(cdp, migratedUrl, c.field());
+                        PixelHoverDiagnostics.pairDetail(c.id(), PixelDiagnostics.decode(c.legacy()), PixelDiagnostics.decode(c.migrated()), PixelDiagnostics.boxOf(migratedInfo));
+                        PixelHoverDiagnostics.styleDiff(c.id(), styles(cdp, legacyUrl, c.field()), styles(cdp, migratedUrl, c.field()));
                         for (int i = 0; i < recaptures; i++) {
                             legacyRepeats &= c.legacy().equals(picture(cdp, legacyUrl, c.field()));
                             migratedRepeats &= c.migrated().equals(picture(cdp, migratedUrl, c.field()));
@@ -265,24 +270,107 @@ class TablePixelTest {
         return png;
     }
 
-    /** Repeated captures of the focus-visible sort button in the configurations that failed in either CI run; reported, never asserted. Never throws. */
+    /** Every computed property and box of the case's subtree with its state forced (see {@link PixelHoverDiagnostics#styleScript}). */
+    private static String styles(DevToolsSession cdp, String url, TableParityTest.Field f) throws Exception {
+        cdp.navigate(url);
+        List<Integer> nodes = cdp.nodes(TableBrowser.target(f.spec(), f.id()));
+        cdp.force(nodes, f.spec().pseudo());
+        String dump = cdp.evaluate(PixelHoverDiagnostics.styleScript(f.id()));
+        cdp.force(nodes, List.of());
+        return dump;
+    }
+
+    /**
+     * Hover round: (1) the two hover cases that differed in CI run 43285178797 are captured many times per rendering and compared as in the focus-ring round; (2) every hover case in every
+     * configuration is captured a few times per side, to show how often a hover picture varies at all. Reported, never asserted. Never throws.
+     */
     private static void repeatDiagnostics(ParitySession session, CascadeFixtureServer server, List<TableParityTest.Field> fields) {
-        if (!PixelRepeatDiagnostics.enabled()) {
+        if (!PixelHoverDiagnostics.enabled()) {
             return;
         }
         try {
-            TableParityTest.Field f = fields.stream().filter(x -> x.spec().key().equals("sort button focus-visible")).findFirst().orElseThrow();
-            PixelRepeatDiagnostics.line("round configs=" + PixelRepeatDiagnostics.configs() + " repeats=" + PixelRepeatDiagnostics.REPEATS + " case=" + f.id() + " (" + f.spec().key() + ")");
-            for (String id : PixelRepeatDiagnostics.configs()) {
+            PixelHoverDiagnostics.line("round pairs=" + PixelHoverDiagnostics.pairs() + " repeats=" + PixelRepeatDiagnostics.REPEATS + " sweepCapturesPerSide=" + PixelHoverDiagnostics.SWEEP_CAPTURES);
+            for (PixelHoverDiagnostics.Pair p : PixelHoverDiagnostics.pairs()) {
                 try {
-                    repeatOne(session, server, f, ParityConfigs.get(id));
+                    TableParityTest.Field f = fields.stream().filter(x -> x.spec().key().equals(p.caseKey())).findFirst().orElseThrow();
+                    repeatOne(session, server, f, ParityConfigs.get(p.config()));
                 } catch (Throwable t) {
-                    PixelRepeatDiagnostics.line(id + " failed: " + t);
+                    PixelHoverDiagnostics.line(p + " failed: " + t);
                 }
             }
+            hoverSweep(session, server, fields);
         } catch (Throwable t) {
-            PixelRepeatDiagnostics.line("repeat diagnostics failed: " + t);
+            PixelHoverDiagnostics.line("hover diagnostics failed: " + t);
         }
+    }
+
+    private static void hoverSweep(ParitySession session, CascadeFixtureServer server, List<TableParityTest.Field> fields) {
+        List<TableParityTest.Field> hovers = fields.stream().filter(x -> x.spec().pseudo().equals(List.of("hover"))).toList();
+        List<String> only = PixelHoverDiagnostics.onlyConfigs();
+        int pairs = 0;
+        int identical = 0;
+        int legacyVaries = 0;
+        int migratedVaries = 0;
+        int sidesDiffer = 0;
+        int sidesNeverEqual = 0;
+        for (ParityConfigs.Config config : ParityConfigs.all()) {
+            if (!only.isEmpty() && !only.contains(config.id())) {
+                continue;
+            }
+            try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+                for (TableParityTest.Field f : hovers) {
+                    try {
+                        String migratedBody = f.markup();
+                        String legacyBody = new IconLegacyMarkup().rewrite(new TableLegacyMarkup().rewrite(migratedBody));
+                        String legacyUrl = server.registerRaw(singlePage(List.of(ParityFrames.generated("table-oracle.css")), config, legacyBody, null));
+                        String migratedUrl = server.registerRaw(singlePage(List.of(ParityFrames.APP), config, migratedBody, null));
+                        List<String> legacy = new ArrayList<>();
+                        List<String> migrated = new ArrayList<>();
+                        for (int i = 0; i < PixelHoverDiagnostics.SWEEP_CAPTURES; i++) {
+                            legacy.add(once(cdp, legacyUrl, f));
+                            migrated.add(once(cdp, migratedUrl, f));
+                        }
+                        pairs++;
+                        Set<String> l = new java.util.LinkedHashSet<>(legacy);
+                        Set<String> m = new java.util.LinkedHashSet<>(migrated);
+                        boolean same = l.size() == 1 && m.size() == 1 && l.equals(m);
+                        identical += same ? 1 : 0;
+                        legacyVaries += l.size() > 1 ? 1 : 0;
+                        migratedVaries += m.size() > 1 ? 1 : 0;
+                        boolean never = l.stream().noneMatch(m::contains);
+                        sidesNeverEqual += never ? 1 : 0;
+                        sidesDiffer += same ? 0 : 1;
+                        if (!same) {
+                            Map<String, String> letters = new LinkedHashMap<>();
+                            StringBuilder seq = new StringBuilder();
+                            for (int i = 0; i < legacy.size(); i++) {
+                                seq.append('L').append(letters.computeIfAbsent(legacy.get(i), k -> String.valueOf((char) ('A' + letters.size())))).append(' ');
+                                seq.append('M').append(letters.computeIfAbsent(migrated.get(i), k -> String.valueOf((char) ('A' + letters.size())))).append(' ');
+                            }
+                            PixelHoverDiagnostics.line("sweep " + config.id() + " " + f.id() + " (" + f.spec().key() + ") sequence " + seq + "distinctLegacy=" + l.size() + " distinctMigrated=" + m.size()
+                                    + " noPictureShared=" + never);
+                            String firstLegacy = legacy.get(0);
+                            for (String png : new LinkedHashSet<>(legacy)) {
+                                if (!png.equals(firstLegacy)) {
+                                    PixelHoverDiagnostics.pairDetail("sweep-" + config.id().replace('/', '-') + "-" + f.id() + "-legacy-variant", PixelDiagnostics.decode(firstLegacy), PixelDiagnostics.decode(png), null);
+                                }
+                            }
+                            for (String png : new LinkedHashSet<>(migrated)) {
+                                if (!png.equals(firstLegacy)) {
+                                    PixelHoverDiagnostics.pairDetail("sweep-" + config.id().replace('/', '-') + "-" + f.id() + "-migrated-vs-first-legacy", PixelDiagnostics.decode(firstLegacy), PixelDiagnostics.decode(png), null);
+                                }
+                            }
+                        }
+                    } catch (Throwable t) {
+                        PixelHoverDiagnostics.line("sweep " + config.id() + " " + f.id() + " failed: " + t);
+                    }
+                }
+            } catch (Throwable t) {
+                PixelHoverDiagnostics.line("sweep " + config.id() + " failed: " + t);
+            }
+        }
+        PixelHoverDiagnostics.line("sweep summary casePairs=" + pairs + " allSixPicturesIdentical=" + identical + " pairsNotAllIdentical=" + sidesDiffer + " legacyVariesWithinItself=" + legacyVaries
+                + " migratedVariesWithinItself=" + migratedVaries + " legacyAndMigratedShareNoPicture=" + sidesNeverEqual);
     }
 
     private static void repeatOne(ParitySession session, CascadeFixtureServer server, TableParityTest.Field f, ParityConfigs.Config config) throws Exception {
@@ -302,9 +390,12 @@ class TablePixelTest {
                 captures.add(new PixelRepeatDiagnostics.Capture("same-session-alternating", 0, i, "legacy", once(cdp, legacyUrl, f)));
                 captures.add(new PixelRepeatDiagnostics.Capture("same-session-alternating", 0, i, "migrated", once(cdp, migratedUrl, f)));
             }
-            for (Map.Entry<String, String> m : PixelRepeatDiagnostics.mutations(PixelRepeatDiagnostics.ring(info)).entrySet()) {
-                broken.put(m.getKey(), once(cdp, server.registerRaw(migratedPage.replace("</head>", "<style>" + m.getValue() + "</style></head>")), f));
+            if (f.spec().pseudo().contains("focus-visible")) { // the broken renderings are about the focus ring; the hover round has none
+                for (Map.Entry<String, String> m : PixelRepeatDiagnostics.mutations(PixelRepeatDiagnostics.ring(info)).entrySet()) {
+                    broken.put(m.getKey(), once(cdp, server.registerRaw(migratedPage.replace("</head>", "<style>" + m.getValue() + "</style></head>")), f));
+                }
             }
+            PixelHoverDiagnostics.styleDiff("hover-" + config.id().replace('/', '-') + "-" + f.id(), styles(cdp, legacyUrl, f), styles(cdp, migratedUrl, f));
         }
         // Another session: all the migrated captures first, then all the legacy ones.
         try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
@@ -330,5 +421,17 @@ class TablePixelTest {
             }
         }
         PixelRepeatDiagnostics.report(config.id(), f.id(), info, captures, broken);
+        // What the report above does not say for a case without a ring: every distinct picture against the legacy modal, pixel by pixel.
+        String id = "hover-" + config.id().replace('/', '-') + "-" + f.id();
+        String legacyModal = PixelRepeatDiagnostics.modal(captures, "legacy");
+        PixelHoverDiagnostics.line(id + " probe " + info);
+        Set<String> seen = new LinkedHashSet<>();
+        for (PixelRepeatDiagnostics.Capture c : captures) {
+            if (c.png().equals(legacyModal) || !seen.add(c.side() + c.png().hashCode())) {
+                continue;
+            }
+            PixelHoverDiagnostics.pairDetail(id + " " + c.side() + "-variant-versus-legacy-modal", PixelDiagnostics.decode(legacyModal), PixelDiagnostics.decode(c.png()), PixelDiagnostics.boxOf(info));
+        }
+        PixelHoverDiagnostics.line(id + " distinctPicturesVersusLegacyModalListed=" + seen.size());
     }
 }

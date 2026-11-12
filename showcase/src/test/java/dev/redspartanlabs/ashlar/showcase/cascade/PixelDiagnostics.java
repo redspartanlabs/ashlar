@@ -39,11 +39,9 @@ final class PixelDiagnostics {
         }
     }
 
+    /** Every differing pair is explained (the hover cases of the last CI run were outside the original target list); FORCE still only adds the focus-visible case of the target configurations. */
     static boolean wanted(String configId, String caseKey, boolean differs) {
-        if (!TARGETS.contains(configId)) {
-            return false;
-        }
-        return differs || (FORCE && caseKey.equals("sort button focus-visible"));
+        return differs || (FORCE && TARGETS.contains(configId) && caseKey.equals("sort button focus-visible"));
     }
 
     // ------------------------------------------------------------------ analysis (pure, self-checked)
