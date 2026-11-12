@@ -415,7 +415,7 @@
    utility class has to be scoped the same way, because the class is present
    regardless of which mode is actually showing.
    ------------------------------------------------------------------------- */
-:root[data-skin="ledger"]:not([data-theme="dark"]) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):is(.bg-white, .ash-field__control) {
+:root[data-skin="ledger"]:not([data-theme="dark"]) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):is(.bg-white, .ash-field__control, .ash-table__search-input) {
     background-color: var(--color-slate-50);
 }
 

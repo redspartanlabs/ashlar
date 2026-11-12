@@ -1,0 +1,66 @@
+/* ash-table-row: one row, a <tr>, and the leading selection cell of a selectable table (the same cell in the heading row, whose <th> carries the select-all checkbox).
+
+   Classes       ash-table__row                the <tr> (it also carries data-table-row and data-row-key)
+                 ash-table__select             the selection cell: the <th scope="col"> in the heading row, the <td> in a body row
+                 ash-table__check              the <label> around a selection checkbox and its visually hidden name
+                 ash-table__checkbox           the checkbox (data-table-select-all in the heading, data-table-select-row in a row)
+   Properties    None of its own. It reads --ash-table-row-hover, --ash-table-row-selected, --ash-table-control-border, --ash-table-control-surface and --ash-table-ring from the
+                 .ash-table it sits in (see table.css).
+
+   State         A row's selected state IS its data-selected attribute, which table.js sets and clears together with the checkbox's checked state. The selected fill is therefore
+                 `[data-selected]`, not a class. A hovered row takes the hover fill, selected or not, as it did: the hover rule comes later at the same specificity. A row the script
+                 hides carries the hidden attribute, which the browser already honours: a row has no display of its own to override it.
+
+   Colour        The row has no resting fill. Hover sits inside @media (hover: hover). The checkbox keeps the browser's own drawing, tinted with accent-color (Tailwind's blue 600
+                 in both themes), and its focus ring is a 2px ring with a 2px white offset on :focus-visible, the outline removed on :focus.
+
+   Self-contained: an <input> has a margin, font, letter spacing, colour and opacity of its own (stated, so a checkbox reads the surrounding font as it always did); the radius is a
+                 fixed 0.25rem. The component adds no global rule. */
+
+.ash-table__row[data-selected] {
+  background-color: var(--ash-table-row-selected);
+}
+
+@media (hover: hover) {
+  .ash-table__row:hover {
+    background-color: var(--ash-table-row-hover);
+  }
+}
+
+.ash-table__select {
+  width: 2.5rem;
+  padding-block: 0.625rem;
+  padding-inline: 1rem;
+}
+
+.ash-table__check {
+  display: flex;
+  align-items: center;
+}
+
+.ash-table__checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  cursor: pointer;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--ash-table-control-border);
+  border-radius: 0.25rem;
+  background-color: var(--ash-table-control-surface);
+  accent-color: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  opacity: 1;
+}
+
+.ash-table__checkbox:focus {
+  outline-style: none;
+}
+
+.ash-table__checkbox:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ash-table-ring);
+}

@@ -57,10 +57,12 @@ class TextEntrySkinsTest {
     @Test
     void ledgerFillsTheNativeControlAndStillFillsTheUnmigratedPickers() throws IOException {
         String ledger = skin("ledger");
-        String selector = ":root[data-skin=\"ledger\"]:not([data-theme=\"dark\"]) :is(input:not([type=\"checkbox\"]):not([type=\"radio\"]), textarea, select):is(.bg-white, .ash-field__control) {\n    background-color: var(--color-slate-50);";
-        assertTrue(ledger.contains(selector), "light-only, both the Tailwind class and the native control, the same fill");
+        String selector = ":root[data-skin=\"ledger\"]:not([data-theme=\"dark\"]) :is(input:not([type=\"checkbox\"]):not([type=\"radio\"]), textarea, select):is(.bg-white, .ash-field__control, .ash-table__search-input) {\n    background-color: var(--color-slate-50);";
+        assertTrue(ledger.contains(selector), "light-only, the Tailwind class, the native control and the Table's native search input, the same fill");
         assertFalse(ledger.contains("select).bg-white {"), "the old single-class selector is gone");
+        assertTrue(ledger.contains(":is(.bg-white, .ash-field__control"), "the Tailwind class and the native field control are still named, in that order, in the same selector");
         assertEquals(1, ledger.split("ash-field__control", -1).length - 1);
+        assertEquals(1, ledger.split("ash-table__search-input", -1).length - 1, "the Table's search input is named once, in that same selector");
     }
 
     @Test

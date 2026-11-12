@@ -397,8 +397,13 @@
    The size drop to 0.8125rem is not a style choice, it is the library's own
    compensation: table-cell.jte pairs `font-mono` with exactly this size
    because a monospace face sets wider at the same nominal size, and
-   matching it keeps column widths where the component intended them. */
-[data-skin="axiom"] :is(table, [data-table]) td.text-right {
+   matching it keeps column widths where the component intended them.
+
+   Two selectors, one rule. `td.text-right` is the Tailwind class a hand-rolled
+   table puts on a numeric cell; `td.ash-table__cell--end` is the same cell in
+   the Table component, which no longer carries a Tailwind class. */
+[data-skin="axiom"] :is(table, [data-table]) td.text-right,
+[data-skin="axiom"] [data-table] td.ash-table__cell--end {
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     font-variant-numeric: tabular-nums;
@@ -413,6 +418,8 @@
    hand-rolled table past the viewport. Components in a numeric cell keep
    the reading face at its own size. */
 [data-skin="axiom"] :is(table, [data-table]) td.text-right
+    :is(button, a, input, select, textarea, [data-badge], [data-btn]),
+[data-skin="axiom"] [data-table] td.ash-table__cell--end
     :is(button, a, input, select, textarea, [data-badge], [data-btn]) {
     font-family: var(--font-sans);
     font-size: 0.875rem;

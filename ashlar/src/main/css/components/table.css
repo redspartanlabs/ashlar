@@ -1,0 +1,371 @@
+/* ash-table: the Table's surface and everything around its rows: the toolbar (the selection bar and the search field), the loading state, the scroller and the <table> it holds,
+   the two empty states, and the footer (the status line and the pager). The columns, rows and cells are table-column.css, table-row.css and table-cell.css.
+
+   Classes       ash-table                     the root <div> (it also carries data-table)
+                 ash-table__toolbar            the row of controls above the table
+                 ash-table__selection          the "N selected" bar (it also carries data-table-selection-bar)
+                 ash-table__clear              the "Clear selection" button (data-table-clear-selection)
+                 ash-table__search             the search <label>
+                 ash-table__search-icon        the <span> that holds the magnifier
+                 ash-table__search-input       the search <input> (data-table-search)
+                 ash-table__loading            the loading state that replaces the table (data-table-loading)
+                 ash-table__scroll             the scroller around the <table> (data-table-scroll)
+                 ash-table__table              the <table>
+                 ash-table__caption            the caption when it is shown; a hidden caption is the shared ash-sr-only utility
+                 ash-table__head               the <thead>
+                 ash-table__body               the <tbody> (data-table-body)
+                 ash-table__empty              either empty state (data-table-empty="none" or "filtered")
+                 ash-table__footer             the row under the table
+                 ash-table__status             the status line, a live region (data-table-status)
+                 ash-table__pager              the Previous / indicator / Next group (data-table-pagination)
+                 ash-table__page-button        Previous and Next (data-table-prev, data-table-next)
+                 ash-table__page-indicator     "Page 1 of 3" (data-table-page-indicator)
+                 ash-table__label              a marker only: it sits beside ash-sr-only on the visually hidden text that names a control, and has no rule of its own
+   Properties    Every colour of the whole family is a property declared on the root, so one declaration on .ash-table (an unlayered rule, an inline style) restyles a table, and the
+                 columns, rows and cells beneath it read what the root declares. Each defaults to a Tailwind palette variable with the exact Tailwind v4 value as the fallback (checked
+                 against Tailwind's own theme by a test) and flips in the dark theme:
+                 --ash-table-surface  --ash-table-border  --ash-table-head  --ash-table-ink  --ash-table-ink-cell  --ash-table-ink-muted  --ash-table-ink-faint  --ash-table-ink-pager
+                 --ash-table-control-border  --ash-table-control-surface  --ash-table-page-ink  --ash-table-page-hover  --ash-table-selection  --ash-table-selection-ink
+                 --ash-table-row-hover  --ash-table-row-selected  --ash-table-sort-hover  --ash-table-sort-active  --ash-table-ring
+                 The surface, the border, the heading ink, the cell ink; the muted ink of the status and loading text; the faint ink of the magnifier, the blank-cell dash and an
+                 unsorted glyph; the page indicator's ink; the border and surface of the search field and the checkboxes; the page buttons' ink and hover fill; the selection bar's
+                 fill and ink; a row's hover and selected fills; the sort button's hover ink and the active glyph's ink; and the focus ring.
+
+   State         Nothing here is a state class and nothing is written by style. The hidden attribute is the state of the selection bar, the scroller and the empty states (the
+                 template renders it and table.js sets it); the stylesheet states display: none for each, because each has a display of its own. Everything else is the native
+                 selectors the Tailwind variants were: :hover (under the hover-capability condition), :focus, :focus-visible and :disabled.
+
+   Responsive    The toolbar and the footer are columns, and rows from 40rem up (Tailwind's sm); the search field is 16rem wide from 40rem up.
+
+   Focus         The controls draw a ring as an outer box-shadow and remove their outline on :focus, as the Tailwind classes did: the clear button and the checkboxes a 2px ring with a
+                 2px white offset on :focus-visible, the sort and page buttons a 2px ring on :focus-visible, and the search field a 2px ring and a ring-coloured border on :focus.
+
+   Self-contained: nothing here relies on Tailwind's preflight. A <table> has collapsed borders and an inherited border colour, a <button> and an <input> have a font, colour, background,
+                 radius and (for a button) an appearance of their own, a <p> and a <label> have margins, and every box has border-box sizing and no stray border; each is stated. The
+                 component adds no global rule. */
+
+.ash-table {
+  --ash-table-surface: var(--color-white, #fff);
+  --ash-table-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-table-head: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-table-ink: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-table-ink-cell: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-table-ink-muted: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-table-ink-faint: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-table-ink-pager: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-table-control-border: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-table-control-surface: var(--color-white, #fff);
+  --ash-table-page-ink: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-table-page-hover: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-table-selection: var(--color-blue-50, oklch(97% 0.014 254.604));
+  --ash-table-selection-ink: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ash-table-row-hover: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-table-row-selected: color-mix(in oklab, var(--color-blue-50, oklch(97% 0.014 254.604)) 60%, transparent);
+  --ash-table-sort-hover: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ash-table-sort-active: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ash-table-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  overflow: hidden;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--ash-table-border);
+  border-radius: var(--radius-xl, 0.75rem);
+  background-color: var(--ash-table-surface);
+}
+
+.ash-table:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-table-surface: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-table-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-table-head: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-table-ink: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-table-ink-cell: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-table-ink-muted: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-table-ink-faint: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-table-ink-pager: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-table-control-border: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-table-control-surface: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-table-page-ink: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-table-page-hover: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-table-selection: var(--color-blue-950, oklch(28.2% 0.091 267.935));
+  --ash-table-selection-ink: var(--color-blue-300, oklch(80.9% 0.105 251.813));
+  --ash-table-row-hover: color-mix(in oklab, var(--color-slate-800, oklch(27.9% 0.041 260.031)) 60%, transparent);
+  --ash-table-row-selected: color-mix(in oklab, var(--color-blue-950, oklch(28.2% 0.091 267.935)) 40%, transparent);
+  --ash-table-sort-hover: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+  --ash-table-sort-active: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+}
+
+/* ---- the toolbar ---- */
+
+.ash-table__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-style: solid;
+  border-width: 0 0 1px;
+  border-color: var(--ash-table-border);
+  padding: 0.75rem;
+}
+
+@media (min-width: 40rem) {
+  .ash-table__toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.ash-table__selection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--ash-radius-md);
+  background-color: var(--ash-table-selection);
+  padding-block: 0.375rem;
+  padding-inline: 0.75rem;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+  color: var(--ash-table-selection-ink);
+}
+
+.ash-table__selection[hidden] {
+  display: none;
+}
+
+.ash-table__clear {
+  margin: 0;
+  border: 0 solid;
+  padding: 0;
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background-color: transparent;
+  opacity: 1;
+  appearance: button;
+  border-radius: 0.25rem;
+  font-weight: var(--font-weight-medium, 500);
+  text-underline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ash-table__clear:hover {
+    text-decoration-line: underline;
+  }
+}
+
+.ash-table__clear:focus {
+  outline-style: none;
+}
+
+.ash-table__clear:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ash-table-ring);
+}
+
+/* ---- the search field ---- */
+
+.ash-table__search {
+  position: relative;
+  display: block;
+}
+
+@media (min-width: 40rem) {
+  .ash-table__search {
+    width: 16rem;
+  }
+}
+
+.ash-table__search-icon {
+  pointer-events: none;
+  position: absolute;
+  inset-block: 0;
+  left: 0.5rem;
+  display: flex;
+  align-items: center;
+  color: var(--ash-table-ink-faint);
+}
+
+.ash-table__search-input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--ash-table-control-border);
+  border-radius: var(--ash-radius-md);
+  background-color: var(--ash-table-control-surface);
+  padding-block: 0.375rem;
+  padding-left: 2rem;
+  padding-right: 0.75rem;
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+  color: var(--ash-table-ink);
+  opacity: 1;
+}
+
+.ash-table__search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+.ash-table__search-input::placeholder {
+  color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  opacity: 1;
+}
+
+.ash-table__search-input:focus {
+  border-color: var(--ash-table-ring);
+  outline-style: none;
+  box-shadow: 0 0 0 2px var(--ash-table-ring);
+}
+
+/* ---- the loading state, the scroller, the table and the empty states ---- */
+
+.ash-table__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-block: 3rem;
+  padding-inline: 1rem;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+  color: var(--ash-table-ink-muted);
+}
+
+.ash-table__scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ash-table__scroll[hidden] {
+  display: none;
+}
+
+.ash-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  border-color: inherit;
+  text-indent: 0;
+  text-align: left;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+}
+
+.ash-table__caption {
+  caption-side: top;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  padding-inline: 1rem;
+  text-align: left;
+  font-size: var(--text-base, 1rem);
+  line-height: var(--text-base--line-height, calc(1.5 / 1));
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--ash-table-ink);
+}
+
+.ash-table__head {
+  background-color: var(--ash-table-head);
+}
+
+/* Tailwind's divide-y, as it was emitted: a rule under every row but the last child, at zero specificity. A row the script hides is still a child, so it counts. */
+:where(.ash-table__body > :not(:last-child)) {
+  border-style: solid;
+  border-width: 0 0 1px;
+  border-color: var(--ash-table-border);
+}
+
+.ash-table__empty {
+  padding-block: 2.5rem;
+  padding-inline: 1rem;
+}
+
+.ash-table__empty[hidden] {
+  display: none;
+}
+
+/* ---- the footer and the pager ---- */
+
+.ash-table__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-style: solid;
+  border-width: 1px 0 0;
+  border-color: var(--ash-table-border);
+  padding-block: 0.75rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .ash-table__footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.ash-table__status {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+  color: var(--ash-table-ink-muted);
+}
+
+.ash-table__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ash-table__page-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--ash-table-control-border);
+  border-radius: var(--ash-radius-md);
+  padding-block: 0.375rem;
+  padding-inline: 0.625rem;
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--ash-table-page-ink);
+  background-color: transparent;
+  opacity: 1;
+  appearance: button;
+}
+
+@media (hover: hover) {
+  .ash-table__page-button:hover {
+    background-color: var(--ash-table-page-hover);
+  }
+}
+
+.ash-table__page-button:focus {
+  outline-style: none;
+}
+
+.ash-table__page-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--ash-table-ring);
+}
+
+.ash-table__page-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ash-table__page-indicator {
+  padding-inline: 0.25rem;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: var(--text-sm--line-height, calc(1.25 / 0.875));
+  color: var(--ash-table-ink-pager);
+}

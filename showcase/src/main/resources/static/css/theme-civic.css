@@ -593,9 +593,8 @@
 
 /* Selection carries an inset leading edge as well as a fill, so it survives
    being looked at quickly - and so it does not depend on colour alone. The
-   script toggles the light and dark fill classes together, so keying off the
-   light one covers both modes. */
-[data-skin="civic"] [data-table-row].bg-blue-50\/60 {
+   script marks a selected row with data-selected, which covers both modes. */
+[data-skin="civic"] [data-table-row][data-selected] {
     box-shadow: inset 3px 0 0 var(--color-blue-600);
 }
 

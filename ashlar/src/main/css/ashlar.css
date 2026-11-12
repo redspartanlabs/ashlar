@@ -73,5 +73,9 @@
 @import "components/radio-group.css" layer(ash.components);
 @import "components/toggle.css" layer(ash.components);
 @import "components/file-upload.css" layer(ash.components);
+@import "components/table.css" layer(ash.components);
+@import "components/table-column.css" layer(ash.components);
+@import "components/table-row.css" layer(ash.components);
+@import "components/table-cell.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
 @import "utilities/truncate.css" layer(ash.utilities);

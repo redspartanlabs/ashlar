@@ -64,29 +64,27 @@
      a sticky header only pays off on a long scroll, which paging removes. --%>
 !{boolean hasFooterContent = footer != null;}
 !{boolean paginated = pageSize > 0;}
-!{String captionClasses = captionVisible
-        ? "caption-top px-4 pt-4 pb-2 text-left text-base font-semibold text-slate-900 dark:text-slate-100"
-        : "sr-only";}
+!{String captionClasses = captionVisible ? "ash-table__caption" : "ash-sr-only";}
 
 <div
         data-table
         data-table-page-size="${pageSize}"
-        class="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+        class="ash-table"
 >
     @if (searchable || selectable)
-        <div class="flex flex-col gap-2 border-b border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+        <div class="ash-table__toolbar">
             <%-- Selection is counted here, not announced. The status region
                  further down is for filter and page changes, which the user
                  did not necessarily cause directly; ticking a box is already
                  confirmed by the checkbox's own state, and routing it through
                  a live region would narrate every click. --%>
             @if (selectable)
-                <div data-table-selection-bar class="hidden items-center gap-2 rounded-md bg-blue-50 px-3 py-1.5 text-sm text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                <div data-table-selection-bar class="ash-table__selection" hidden>
                     <span data-table-selection-count></span>
                     <button
                             type="button"
                             data-table-clear-selection
-                            class="rounded font-medium underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            class="ash-table__clear"
                     >
                         Clear selection
                     </button>
@@ -94,16 +92,16 @@
             @endif
 
             @if (searchable)
-            <label class="relative block sm:w-64">
-                <span class="sr-only">${searchPlaceholder}</span>
-                <span class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-slate-400 dark:text-slate-500" aria-hidden="true">
-                    @template.ashlar.components.icon(icon = Icon.SEARCH, classes = "h-4 w-4")
+            <label class="ash-table__search">
+                <span class="ash-table__label ash-sr-only">${searchPlaceholder}</span>
+                <span class="ash-table__search-icon" aria-hidden="true">
+                    @template.ashlar.components.icon(icon = Icon.SEARCH, classes = "ash-icon--sm")
                 </span>
                 <input
                         type="search"
                         data-table-search
                         placeholder="${searchPlaceholder}"
-                        class="block w-full rounded-md border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                        class="ash-table__search-input"
                 >
             </label>
             @endif
@@ -117,7 +115,7 @@
              have heard "Loading records" twice. Nothing here is a live
              region because nothing changes: the server rendered this state,
              so the text is simply read as page content. --%>
-        <div data-table-loading class="flex items-center justify-center gap-3 px-4 py-12 text-sm text-slate-500 dark:text-slate-400">
+        <div data-table-loading class="ash-table__loading">
             @template.ashlar.components.spinner(size = "Small", label = "")
             <span>Loading records&hellip;</span>
         </div>
@@ -125,10 +123,10 @@
         <%-- The scroller is the only thing allowed to overflow: a wide table
              scrolls inside its own surface instead of pushing the page
              sideways. --%>
-        <div data-table-scroll class="w-full overflow-x-auto ${empty ? "hidden" : ""}">
-            <table class="w-full border-collapse text-left text-sm">
+        <div data-table-scroll class="ash-table__scroll" hidden="${empty}">
+            <table class="ash-table__table">
                 <caption class="${captionClasses}">${caption}</caption>
-                <thead class="bg-slate-50 dark:bg-slate-800">
+                <thead class="ash-table__head">
                     <tr>
                         @if (selectable)
                             <%-- Select-all covers the rows currently on
@@ -136,13 +134,13 @@
                                  paging and a search box in the same toolbar,
                                  "select all" without a scope is a promise the
                                  table cannot keep. --%>
-                            <th scope="col" class="w-10 px-4 py-2.5">
-                                <label class="flex items-center">
-                                    <span class="sr-only">Select all rows on this page</span>
+                            <th scope="col" class="ash-table__select">
+                                <label class="ash-table__check">
+                                    <span class="ash-table__label ash-sr-only">Select all rows on this page</span>
                                     <input
                                             type="checkbox"
                                             data-table-select-all
-                                            class="h-4 w-4 cursor-pointer rounded border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800"
+                                            class="ash-table__checkbox"
                                     >
                                 </label>
                             </th>
@@ -150,7 +148,7 @@
                         ${columns}
                     </tr>
                 </thead>
-                <tbody data-table-body class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tbody data-table-body class="ash-table__body">
                     !{if (selectable) TableContext.enterSelectable();}
                     ${rows}
                     !{TableContext.exit();}
@@ -163,7 +161,7 @@
              situations and the second one is recoverable. Both are the
              library's own Empty State rather than a table-shaped copy of
              it. --%>
-        <div data-table-empty="none" class="${empty ? "" : "hidden"} px-4 py-10">
+        <div data-table-empty="none" class="ash-table__empty" hidden="${!empty}">
             @template.ashlar.components.empty-state(
             icon = Icon.INBOX,
             title = emptyTitle,
@@ -171,7 +169,7 @@
             )
         </div>
 
-        <div data-table-empty="filtered" class="hidden px-4 py-10">
+        <div data-table-empty="filtered" class="ash-table__empty" hidden>
             @template.ashlar.components.empty-state(
             icon = Icon.SEARCH,
             title = "No matching records",
@@ -181,14 +179,14 @@
     @endif
 
     @if (paginated || hasFooterContent || searchable)
-        <div class="flex flex-col gap-3 border-t border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+        <div class="ash-table__footer">
             <%-- The local count is only rendered when the component is the
                  one deciding what is on screen. An application paging on the
                  server knows the real totals and puts its own summary in
                  `footer`; printing "Showing 4 of 4 records" next to "Page 2
                  of 5" would be the component contradicting the truth. --%>
             @if (paginated || searchable)
-                <p data-table-status aria-live="polite" class="text-sm text-slate-500 dark:text-slate-400"></p>
+                <p data-table-status aria-live="polite" class="ash-table__status"></p>
             @endif
 
             @if (hasFooterContent)
@@ -196,25 +194,25 @@
             @endif
 
             @if (paginated)
-                <div data-table-pagination class="flex items-center gap-2">
+                <div data-table-pagination class="ash-table__pager">
                     <button
                             type="button"
                             data-table-prev
-                            class="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+                            class="ash-table__page-button"
                     >
-                        <span aria-hidden="true">@template.ashlar.components.icon(icon = Icon.CHEVRON_LEFT, classes = "h-4 w-4")</span>
+                        <span aria-hidden="true">@template.ashlar.components.icon(icon = Icon.CHEVRON_LEFT, classes = "ash-icon--sm")</span>
                         Previous
                     </button>
 
-                    <span data-table-page-indicator class="px-1 text-sm text-slate-600 dark:text-slate-300"></span>
+                    <span data-table-page-indicator class="ash-table__page-indicator"></span>
 
                     <button
                             type="button"
                             data-table-next
-                            class="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+                            class="ash-table__page-button"
                     >
                         Next
-                        <span aria-hidden="true">@template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "h-4 w-4")</span>
+                        <span aria-hidden="true">@template.ashlar.components.icon(icon = Icon.CHEVRON_RIGHT, classes = "ash-icon--sm")</span>
                     </button>
                 </div>
             @endif
