@@ -49,7 +49,8 @@ final class FacetPixelControls {
             new Control("focus ring colour", "focus-visible on an option", "light/none", "[data-facet] input:focus-visible{box-shadow:0 0 0 2px #fff, 0 0 0 4px " + RED + " !important}"),
             new Control("focus ring without the white offset", "focus-visible on a checked option", "light/none", "[data-facet] input:focus-visible{box-shadow:0 0 0 4px rgb(59, 130, 246) !important}"),
             new Control("long label no longer breaks", "long label without a break", "light/none", "[data-facet] label > span:first-of-type{overflow-wrap:normal !important}"),
-            new Control("long label no longer shrinks", "long label that wraps", "light/none", "[data-facet] label > span:first-of-type{min-width:auto !important;flex:none !important}"));
+            new Control("long label no longer shrinks", "long label that wraps", "light/none", "[data-facet] label > span:first-of-type{min-width:auto !important;flex:none !important}"),
+            new Control("container no longer shrinks as a flex item", "as a flex item with a label that cannot break", "light/none", "[data-faceted-search]{min-width:auto !important}"));
 
     /** Runs every control; the result of each is {@code rejected} (the pictures differ, as they must) or {@code SAME PICTURE}. */
     static void run(ParitySession session, CascadeFixtureServer server, Map<String, String> results) throws Exception {

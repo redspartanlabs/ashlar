@@ -110,8 +110,8 @@ final class FacetBrowser {
 
     // ---------------------------------------------------------------- the parity fixtures
 
-    /** A field: its facets (or one bare option, rendered outside any facet), the width of its column (0: the page's), and the pseudo-classes forced on {@code target} while it is measured. */
-    record Case(String key, List<Fac> facets, Opt bare, int width, List<String> pseudo, String target) {
+    /** A field: its facets (or one bare option, rendered outside any facet), the width of its column (0: the page's), the pseudo-classes forced on {@code target} while it is measured, and whether the column is a flex row (so that the component is a flex item, which is where a zero minimum width matters). */
+    record Case(String key, List<Fac> facets, Opt bare, int width, List<String> pseudo, String target, boolean flexParent) {
     }
 
     static final List<Case> CASES = new ArrayList<>();
@@ -134,7 +134,7 @@ final class FacetBrowser {
     }
 
     private static void add(String key, int width, List<String> pseudo, String target, Fac... facets) {
-        CASES.add(new Case(key, List.of(facets), null, width, pseudo, target));
+        CASES.add(new Case(key, List.of(facets), null, width, pseudo, target, false));
     }
 
     static {
@@ -152,7 +152,7 @@ final class FacetBrowser {
                 Fac.of("Machine", "machine", Opt.of("ACB-01", "acb-01").count(82), Opt.of("ACB-02", "acb-02").count(61)), LONG_FACET());
         add("text that needs escaping", 0, List.of(), null, Fac.of("Ops & \"Support\"", "ops", Opt.of("Tier <1> & 2", "tier").count(3), Opt.of("It's \"quoted\"", "a\"b")));
         add("facet without options", 0, List.of(), null, Fac.of("Empty", "empty"));
-        CASES.add(new Case("option outside any facet", List.of(), Opt.of("Orphan", "orphan").count(5), 0, List.of(), null));
+        CASES.add(new Case("option outside any facet", List.of(), Opt.of("Orphan", "orphan").count(5), 0, List.of(), null, false));
         add("hover on an option", 0, List.of("hover"), row("ready"), states());
         add("hover on a checked option", 0, List.of("hover"), row("running"), states());
         add("hover on a disabled option", 0, List.of("hover"), row("maintenance"), states());
@@ -162,6 +162,8 @@ final class FacetBrowser {
         add("focus-visible on a checked option", 0, List.of("focus", "focus-visible"), input("running"), states());
         add("focus-visible on a disabled option", 0, List.of("focus", "focus-visible"), input("maintenance"), states());
         add("focus only", 0, List.of("focus"), input("ready"), states());
+        // The component as a flex item, in a 200px row, with a label that cannot break: without a zero minimum width the item would refuse to be narrower than that label.
+        CASES.add(new Case("as a flex item with a label that cannot break", List.of(Fac.of("Machine", "machine", UNBROKEN, Opt.of("ACB-01", "acb-01").count(82))), null, 200, List.of(), null, true));
     }
 
     private static Fac LONG_FACET() {
@@ -171,7 +173,8 @@ final class FacetBrowser {
     /** The field's markup: the real templates, in a column of the case's width (a raw element: it carries no class and is not part of the comparison). */
     static String build(Case c, String id) {
         String inner = c.bare() != null ? option(c.bare()) : facetedSearch(c.facets());
-        String width = c.width() > 0 ? " style=\"width:" + c.width() + "px\"" : "";
+        String style = (c.flexParent() ? "display:flex;" : "") + (c.width() > 0 ? "width:" + c.width() + "px" : "");
+        String width = style.isEmpty() ? "" : " style=\"" + style + "\"";
         return "<div data-field=\"" + id + "\" data-parity=\"raw\"" + width + ">" + inner + "</div>\n";
     }
 

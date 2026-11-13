@@ -221,6 +221,8 @@ class FacetParityTest {
         assertEquals("6px", nth(l, resting, "legend", 0, "margin-bottom"));
         assertEquals("20px", nth(l, id("several facets"), "div", 1, "row-gap"), "the gap between facets");
         assertEquals("break-word", nth(l, id("long label without a break"), "span", 0, "overflow-wrap"));
+        assertEquals("200", nth(l, id("as a flex item with a label that cannot break"), "div", 1, "@w"), "as a flex item the container shrinks to its row instead of keeping the label's width");
+        assertEquals("0px", nth(l, id("as a flex item with a label that cannot break"), "div", 1, "min-width"), "because its minimum width is zero");
         assertEquals("absolute", nth(l, resting, "span", 2, "position"), "the announced count is visually hidden");
     }
 
