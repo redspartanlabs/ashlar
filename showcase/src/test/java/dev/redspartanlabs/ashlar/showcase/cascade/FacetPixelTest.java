@@ -20,7 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * process, in all 22 configurations, and requires identical bytes. Nothing here is the Table family's tolerance: {@link PixelPolicy} is not used, and a difference of one pixel fails.
  *
  * <p>No golden image is stored: native painting differs by operating system and browser version, so only a rendering of the same page in the same browser is a fair reference. The
- * fields are captured with forced states (hover, active, focus, focus-visible) exactly as the parity suite forces them.
+ * fields are captured with forced states (hover, active, focus, focus-visible) exactly as the parity suite forces them. A second comparison, in five configurations, is of the scoped
+ * legacy rendering against the migrated one with Ashlar's stylesheet alone, both with the same page environment.
  */
 class FacetPixelTest {
 
@@ -28,10 +29,12 @@ class FacetPixelTest {
     private static final int CHUNK = 11;
 
     private static final List<String> MISMATCHES = new ArrayList<>();
+    private static final List<String> FREE_MISMATCHES = new ArrayList<>();
     private static final Set<String> DISTINCT_LIGHT = new HashSet<>();
     private static final Set<String> DISTINCT_DARK = new HashSet<>();
     private static final Map<String, String> CONTROL_RESULTS = new LinkedHashMap<>();
     private static int compared;
+    private static int freeCompared;
 
     static String shot(DevToolsSession cdp, String fieldId) throws Exception {
         cdp.evaluate("(function(){document.querySelector('[data-field=\"" + fieldId + "\"]').scrollIntoView({block:\"center\"});return \"ok\"})()");
@@ -96,6 +99,16 @@ class FacetPixelTest {
                     }
                 });
             }
+            // Without Tailwind: the scoped legacy rendering against the migrated one with Ashlar's stylesheet alone, both with the same page environment (the showcase's own dark colour
+            // scheme included). This is what shows that the properties the Tailwind-free computed comparison leaves out (the input's inherited text colour, its zero-width border colours)
+            // paint nothing.
+            String environment = ParityFrames.environment(session.generatedDir());
+            for (String id : List.of("light/none", "dark/none", "light/ledger", "dark/axiom", "dark/foundry")) {
+                ParityConfigs.Config config = ParityConfigs.get(id);
+                String legacyUrl = server.registerRaw(TextEntryBrowser.page(List.of(ParityFrames.generated("facet-legacy-scoped.css")), config, "", bodies[1], "").replace("</head>", "<style>" + environment + "</style></head>"));
+                String migratedUrl = server.registerRaw(TextEntryBrowser.page(List.of(ParityFrames.ASHLAR), config, "", bodies[0], "").replace("</head>", "<style>" + environment + "</style></head>"));
+                compareChunks(session, legacyUrl, migratedUrl, fields, id, FREE_MISMATCHES, (f, png) -> freeCompared++);
+            }
             FacetPixelControls.run(session, server, CONTROL_RESULTS);
         }
     }
@@ -104,6 +117,12 @@ class FacetPixelTest {
     void everyFieldIsTheSamePictureInTheLegacyAndTheMigratedRenderingInAll22Configurations() {
         assertEquals(22 * FacetBrowser.CASES.size(), compared);
         assertEquals(List.of(), MISMATCHES.stream().limit(40).toList(), MISMATCHES.size() + " of " + compared + " fields differ");
+    }
+
+    @Test
+    void withoutTailwindEveryFieldIsStillTheSamePictureAsTheLegacyFieldWithoutPageWideTailwind() {
+        assertEquals(5 * FacetBrowser.CASES.size(), freeCompared);
+        assertEquals(List.of(), FREE_MISMATCHES.stream().limit(40).toList(), FREE_MISMATCHES.size() + " of " + freeCompared + " fields differ");
     }
 
     @Test

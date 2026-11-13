@@ -1,0 +1,39 @@
+/* ash-facet: one filtering dimension: a <fieldset> with a <legend> and a column of options.
+
+   Classes       ash-facet                     the <fieldset>; no margin, padding, border or minimum width
+                 ash-facet__legend             the <legend> (the facet's accessible name): 0.875rem on a 1.25 / 0.875 line, weight 600, 0.375rem below it
+                 ash-facet__options            the options: a plain column (no gap; each option carries its own padding)
+
+   Colour        The legend is slate-900 (slate-100 in dark). Every colour reads Tailwind's palette variable with the exact Tailwind v4 value as the fallback, so a skin that overrides
+                 the palette flows through. Dark mode follows data-theme="dark" with the zero-specificity :where() form.
+
+   Self-contained: a <fieldset> has a margin, a padding, a border and a minimum width of its own, and a <legend> has padding; each is stated (the border's width is cleared, its style left
+                 alone, as radio-group.css does). A <div> has none. The line height is kept as a ratio in an internal property, set on the rule that needs it, so a minifier cannot fold
+                 it: it is not a customization property, nothing reads it from outside and nothing sets it. The component adds no global rule. */
+
+.ash-facet {
+  margin: 0;
+  border-width: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.ash-facet__legend {
+  --ash-facet-leading: calc(1.25 / 0.875);
+  display: block;
+  margin: 0 0 0.375rem;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: var(--ash-facet-leading);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+}
+
+.ash-facet__legend:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+}
+
+.ash-facet__options {
+  display: flex;
+  flex-direction: column;
+}

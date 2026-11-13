@@ -26,10 +26,10 @@
      form controls, not a list of content, and a <ul> here would have a
      screen reader announce "list, 3 items" over the top of the fieldset
      that already says what this is. --%>
-<fieldset data-facet data-facet-name="${name}" class="min-w-0">
-    <legend class="mb-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">${title}</legend>
+<fieldset data-facet data-facet-name="${name}" class="ash-facet">
+    <legend class="ash-facet__legend">${title}</legend>
 
-    <div class="flex flex-col">
+    <div class="ash-facet__options">
         !{FacetContext.enter(name);}
         ${content}
         !{FacetContext.exit();}

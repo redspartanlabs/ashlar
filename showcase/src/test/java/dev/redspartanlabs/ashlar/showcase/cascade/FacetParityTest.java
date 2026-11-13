@@ -34,6 +34,7 @@ class FacetParityTest {
     private static int configurations;
     private static int measuredFields;
     private static int measuredValues;
+    private static boolean rewritten;
 
     record Field(String id, FacetBrowser.Case spec, String markup) {
     }
@@ -91,6 +92,7 @@ class FacetParityTest {
         ParitySession session = ParitySession.open("facet-parity");
         List<Field> fields = fields();
         String[] bodies = bodies(fields);
+        rewritten = !bodies[0].equals(bodies[1]);
         try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
             for (ParityConfigs.Config config : ParityConfigs.all()) {
                 String legacyUrl = server.registerRaw(TextEntryBrowser.page(List.of(ParityFrames.generated("facet-oracle.css")), config, "", bodies[1], ""));
@@ -167,6 +169,11 @@ class FacetParityTest {
     }
 
     @Test
+    void theLegacyRenderingIsReallyADifferentMarkupFromTheMigratedOne() {
+        assertTrue(rewritten, "the two sides must not be the same markup, or the comparison would compare a page with itself");
+    }
+
+    @Test
     void theMeasurementCoversEveryFixtureAndIsLargeEnoughToMeanSomething() {
         assertEquals(22 * FacetBrowser.CASES.size(), measuredFields);
         assertTrue(FacetBrowser.CASES.size() >= 22, "fixtures: " + FacetBrowser.CASES.size());
@@ -219,6 +226,7 @@ class FacetParityTest {
 
     @Test
     void onlyInvisibleShadowLayersWereNormalisedAndOnlyOnTheFocusRing() {
-        assertTrue(List.of("invisible-shadow-layers").containsAll(APPLIED.keySet()), "no other normalisation exists: " + APPLIED);
+        assertEquals(List.of("invisible-shadow-layers"), List.copyOf(APPLIED.keySet()), "no other normalisation exists: " + APPLIED);
+        assertTrue(APPLIED.get("invisible-shadow-layers") > 20, "Tailwind's unused transparent ring layers are what the migrated rule leaves out: " + APPLIED);
     }
 }

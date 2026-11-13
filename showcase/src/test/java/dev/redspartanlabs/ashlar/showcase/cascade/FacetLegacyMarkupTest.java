@@ -94,6 +94,24 @@ class FacetLegacyMarkupTest {
     }
 
     @Test
+    void theRealTemplatesRenderOnlyAshlarClassesAndTheRewriteHasSomethingToRewriteInEveryFixture() throws Exception {
+        FacetLegacyMarkup l = new FacetLegacyMarkup();
+        for (FacetBrowser.Case c : FacetBrowser.CASES) {
+            String rendered = c.bare() != null ? FacetBrowser.option(c.bare()) : FacetBrowser.facetedSearch(c.facets());
+            Matcher classes = Pattern.compile("class=\"([^\"]*)\"").matcher(rendered);
+            int found = 0;
+            while (classes.find()) {
+                found++;
+                for (String token : classes.group(1).trim().split("\\s+")) {
+                    assertTrue(token.startsWith("ash-"), c.key() + ": a class that is not Ashlar's: " + token);
+                }
+            }
+            assertTrue(found >= 3, c.key() + ": classes written: " + found);
+            assertTrue(!l.rewrite(rendered).equals(rendered), c.key() + ": the rewrite changed something");
+        }
+    }
+
+    @Test
     void theRealPageProbeNamesNoFacetsElement() throws Exception {
         String probe = new String(FacetLegacyMarkupTest.class.getResourceAsStream("/cascade/real-page-probe.js").readAllBytes(), StandardCharsets.UTF_8);
         assertFalse(probe.contains("ash-facet"), "the probe is unchanged by this migration and names no Facets element");
