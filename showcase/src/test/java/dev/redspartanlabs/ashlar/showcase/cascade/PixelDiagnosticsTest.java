@@ -329,6 +329,72 @@ class PixelDiagnosticsTest {
     }
 
     @Test
+    void onlyTheFirstManyPairsAreDescribedRejectedOnesFirstAndTheFirstLineStillCountsEveryPair() throws IOException {
+        List<PixelDiagnostics.Capture> captures = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            captures.add(capture("tolerated " + i, with(19, 20, 0xEEEEEE + 5), true));
+        }
+        for (int i = 0; i < 3; i++) {
+            captures.add(capture("rejected " + i, with(30 + i, 20, 0x404041), false));
+        }
+        String text = run(captures, null);
+        assertTrue(text.contains("T diagnostics: 153 pair(s) not byte-identical, 150 tolerated, 3 rejected\n"), text);
+        assertEquals(3, text.lines().filter(l -> l.startsWith("T REJECTED [")).count(), "every rejected pair is described even though it was taken last");
+        assertEquals(PixelDiagnostics.MAX_LISTED - 3, text.lines().filter(l -> l.startsWith("T tolerated [")).count());
+        assertTrue(text.contains("T listed: " + PixelDiagnostics.MAX_LISTED + " of 153 pairs (rejected first); 53 not listed"), text);
+        assertTrue(text.indexOf("T REJECTED [150]") < text.indexOf("T tolerated [0]"), "rejected pairs come before tolerated ones");
+    }
+
+    private static BufferedImage noise(int size, long seed) {
+        java.util.Random random = new java.util.Random(seed);
+        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                image.setRGB(x, y, random.nextInt(0x1000000));
+            }
+        }
+        return image;
+    }
+
+    private static PixelDiagnostics.Capture noisy(String label, int size, long seed) throws IOException {
+        return new PixelDiagnostics.Capture(label, Map.of(), png(noise(size, seed)), png(noise(size, seed + 1)), false, "the pictures differ and this case is compared exactly", null);
+    }
+
+    private static List<String> printedPictures(String text) {
+        return text.lines().filter(l -> l.startsWith("T image [") && !l.contains(" omitted: ")).map(l -> l.split(" ", 5)[4]).toList();
+    }
+
+    @Test
+    void aPictureLongerThanTheLimitIsNamedAndLeftOutOfTheOutput() throws IOException {
+        PixelDiagnostics.Capture big = noisy("big", 600, 7);
+        assertTrue(big.reference().length() > PixelDiagnostics.MAX_IMAGE_CHARS, "precondition: the picture is longer than the limit: " + big.reference().length());
+        String text = run(List.of(big), null);
+        assertTrue(text.contains("T image [0] reference omitted: " + big.reference().length() + " characters, at most " + PixelDiagnostics.MAX_IMAGE_CHARS), text);
+        assertTrue(text.contains("T image [0] candidate omitted: "), text);
+        assertTrue(text.lines().allMatch(l -> l.length() < PixelDiagnostics.MAX_IMAGE_CHARS + 200), "no line of the output is longer than a picture may be");
+        assertTrue(text.contains("T REJECTED [0] big: differing="), "the numbers are still printed");
+    }
+
+    @Test
+    void thePicturesPrintedTogetherNeverPassTheTotalAndTheRestAreNamedAndLeftOut() throws IOException {
+        List<PixelDiagnostics.Capture> captures = new ArrayList<>();
+        long all = 0;
+        for (int i = 0; i < PixelDiagnostics.MAX_IMAGES; i++) {
+            PixelDiagnostics.Capture c = noisy("noisy " + i, 160, 100L * i);
+            assertTrue(c.reference().length() < PixelDiagnostics.MAX_IMAGE_CHARS, "precondition: one picture alone is within the limit: " + c.reference().length());
+            all += c.reference().length() + c.candidate().length();
+            captures.add(c);
+        }
+        assertTrue(all > PixelDiagnostics.MAX_IMAGE_TOTAL_CHARS, "precondition: together they are more than the total: " + all);
+        String text = run(captures, null);
+        long printed = printedPictures(text).stream().mapToLong(String::length).sum();
+        assertTrue(printed <= PixelDiagnostics.MAX_IMAGE_TOTAL_CHARS, "printed " + printed);
+        assertTrue(printed > 0, "some pictures are printed");
+        assertTrue(text.contains(" omitted: printing its "), text);
+        assertEquals(PixelDiagnostics.MAX_IMAGES, text.lines().filter(l -> l.startsWith("T REJECTED [")).count(), "every pair keeps its numbers");
+    }
+
+    @Test
     void aPairThatCannotBeMeasuredIsSaidSoAndTheOthersAreStillReported(@TempDir Path directory) throws IOException {
         PixelDiagnostics.Capture broken = new PixelDiagnostics.Capture("broken", Map.of("case", "broken"), "not a picture", "also not", false, "the pictures differ", null);
         String text = run(List.of(broken, capture("fine", with(30, 20, 0x404041), false)), directory);

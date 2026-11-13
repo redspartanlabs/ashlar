@@ -285,7 +285,7 @@ class TablePixelTest {
                 captures.add(new PixelDiagnostics.Capture(s.label(), context, s.legacyPng(), s.migratedPng(), s.verdict().accepted(), s.verdict().describe(), s.geometry()));
             }
             PixelDiagnostics.report("TABLE-PIXELS", captures, Path.of("build", "pixel-diagnostics", "table"), System.out, PixelDiagnostics.environment(session.chrome().executable()));
-        } catch (Exception e) {
+        } catch (Exception | Error e) {
             System.out.println("TABLE-PIXELS diagnostics unavailable: " + e);
         }
     }
