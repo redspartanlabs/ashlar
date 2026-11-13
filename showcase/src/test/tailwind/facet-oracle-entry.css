@@ -1,0 +1,8 @@
+/* TEST-ONLY (Facets family migration oracle: Faceted Search, Facet and Facet Option). Cumulative: the Table oracle, imported unchanged (which is the File Upload oracle, the Toggle
+   oracle, the Choice Controls oracle, ... down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes the Facets family
+   used before it moved to the ash-faceted-search, ash-facet and ash-facet-option classes.
+
+   Those classes are no longer emitted by the templates, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps them compiled, which keeps
+   the legacy rendering executable: the parity tests render the same facets with these classes and with the ash- classes, in the same browser, and compare. */
+@import "./table-oracle-entry.css";
+@source "../resources/parity/facet/facet-legacy.html";
