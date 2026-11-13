@@ -38,8 +38,13 @@ final class PixelDiagnostics {
 
     /** Differing pixels listed individually per pair. */
     static final int MAX_SAMPLES = 12;
-    /** Rejected pairs whose pictures are printed (the numbers are printed for every pair). */
+    /** Rejected pairs whose pictures are printed (the numbers are printed for the first {@link #MAX_LISTED} pairs). */
     static final int MAX_IMAGES = 4;
+    /** Pairs described individually, rejected ones first. The first line always counts every pair. At about a kilobyte each, this is a ceiling of about 100 KB of text. */
+    static final int MAX_LISTED = 100;
+    /** The longest base64 text printed for one picture, and the most printed for all of them together. Larger pictures are named and left out; their files are still written locally. */
+    static final int MAX_IMAGE_CHARS = 150_000;
+    static final int MAX_IMAGE_TOTAL_CHARS = 600_000;
     /** Pixels kept around the difference in the enlarged view. */
     static final int ZOOM_MARGIN = 6;
     private static final int MAGENTA = 0xFFFF00FF;
@@ -264,8 +269,26 @@ final class PixelDiagnostics {
         long rejected = captures.stream().filter(c -> !c.accepted()).count();
         out.println(prefix + " diagnostics: " + captures.size() + " pair(s) not byte-identical, " + (captures.size() - rejected) + " tolerated, " + rejected + " rejected");
         out.println(prefix + " environment: " + environment);
-        int imaged = 0;
+        // Rejected pairs first, then tolerated ones, each in the order they were taken; at most MAX_LISTED of them are described, so that the output has a ceiling.
+        List<Integer> order = new ArrayList<>();
         for (int n = 0; n < captures.size(); n++) {
+            if (!captures.get(n).accepted()) {
+                order.add(n);
+            }
+        }
+        for (int n = 0; n < captures.size(); n++) {
+            if (captures.get(n).accepted()) {
+                order.add(n);
+            }
+        }
+        int imaged = 0;
+        int listed = 0;
+        long imageChars = 0;
+        for (int n : order) {
+            if (listed >= MAX_LISTED) {
+                break;
+            }
+            listed++;
             Capture c = captures.get(n);
             String head = prefix + " " + (c.accepted() ? "tolerated" : "REJECTED") + " [" + n + "] " + c.label();
             try {
@@ -275,11 +298,11 @@ final class PixelDiagnostics {
                 out.println(head + ": " + d.describe() + " | " + context(c.context()) + " | policy said: " + c.verdict() + " | geometry=" + c.geometry());
                 if (!c.accepted() && imaged < MAX_IMAGES) {
                     imaged++;
-                    out.println(prefix + " image [" + n + "] reference " + c.reference());
-                    out.println(prefix + " image [" + n + "] candidate " + c.candidate());
+                    imageChars = image(out, prefix, n, "reference", c.reference(), imageChars);
+                    imageChars = image(out, prefix, n, "candidate", c.candidate(), imageChars);
                     BufferedImage zoom = zoom(reference, candidate, d);
                     if (zoom != null) {
-                        out.println(prefix + " image [" + n + "] zoom " + png(zoom));
+                        imageChars = image(out, prefix, n, "zoom", png(zoom), imageChars);
                     }
                     if (directory != null) {
                         try {
@@ -294,8 +317,25 @@ final class PixelDiagnostics {
             }
         }
         if (rejected > MAX_IMAGES) {
-            out.println(prefix + " images: shown for the first " + MAX_IMAGES + " of " + rejected + " rejected pairs; the numbers above cover all of them");
+            out.println(prefix + " images: shown for the first " + MAX_IMAGES + " of " + rejected + " rejected pairs");
         }
+        if (captures.size() > listed) {
+            out.println(prefix + " listed: " + listed + " of " + captures.size() + " pairs (rejected first); " + (captures.size() - listed) + " not listed, the counts in the first line cover all of them");
+        }
+    }
+
+    /** Prints one picture as base64 unless it is longer than {@link #MAX_IMAGE_CHARS} or would take the pictures printed so far past {@link #MAX_IMAGE_TOTAL_CHARS}; returns the new total. */
+    private static long image(PrintStream out, String prefix, int n, String kind, String base64, long used) {
+        if (base64.length() > MAX_IMAGE_CHARS) {
+            out.println(prefix + " image [" + n + "] " + kind + " omitted: " + base64.length() + " characters, at most " + MAX_IMAGE_CHARS + " are printed for one picture");
+            return used;
+        }
+        if (used + base64.length() > MAX_IMAGE_TOTAL_CHARS) {
+            out.println(prefix + " image [" + n + "] " + kind + " omitted: printing its " + base64.length() + " characters would pass the total of " + MAX_IMAGE_TOTAL_CHARS);
+            return used;
+        }
+        out.println(prefix + " image [" + n + "] " + kind + " " + base64);
+        return used + base64.length();
     }
 
     private static void write(Path folder, Capture c, BufferedImage reference, BufferedImage candidate, Difference d, BufferedImage zoom) throws IOException {
