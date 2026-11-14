@@ -1,0 +1,18 @@
+/* ash-faceted-search: the container for a set of facets, and deliberately little else.
+
+   Classes       ash-faceted-search            the container: a column of facets with 1.25rem between them
+
+   Layout        A flex column, so the facets stack with a 1.25rem gap, and a zero minimum width so a long option label wraps inside a narrow column instead of pushing the layout sideways
+                 (a flex or grid item otherwise refuses to be narrower than its content).
+
+   No surface    No border, no background, no shadow and no padding: the page supplies the surface, because a facet list sits in a sidebar on one page, inside a Card on another and
+                 inside a Drawer on a phone. It owns no <form>, no submit or reset control and no result count either; those belong to the page.
+
+   Self-contained: a <div> has no margin or padding of its own. The component adds no global rule. */
+
+.ash-faceted-search {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}

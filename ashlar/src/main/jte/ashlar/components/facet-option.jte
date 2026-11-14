@@ -16,11 +16,14 @@
      same id and three labels pointing at the first one. Working around that
      means asking every caller for a unique id per option, which is exactly
      the repetition this API is trying to avoid. It also has nowhere to put a
-     count, and carries `mb-4` form-field spacing that would space a filter
-     list out like a form. So the control is implemented here instead, using
-     checkbox.jte's own classes for the box itself - `accent-*` so the
-     browser keeps drawing the check, just tinted - which is what keeps the
-     two looking like the same library rather than two checkbox styles.
+     count, and wraps the control in the Checkbox's own wrapper, which carries
+     a 1rem margin below it that would space a filter list out like a form. So
+     the control is implemented here instead, as a native checkbox tinted with
+     `accent-color` (see facet-option.css), which is what keeps the browser
+     drawing the check and keeps the two looking like the same library rather
+     than two checkbox styles. It does not reuse the ash-choice__input class
+     either: that class dims a disabled control on its own and moves it off the
+     line, and this row is already dimmed as a whole.
 
      THE COUNT IS ANNOUNCED, NOT JUST SHOWN. The visible number is
      aria-hidden and a screen reader is given "42 results" instead, because
@@ -31,28 +34,25 @@
 
      Disabled state is resolved here rather than with a `has-[:disabled]`
      variant, because whether this option is disabled is already known at
-     render time - the server can simply write the right classes. --%>
+     render time - the server can simply write the right class. --%>
 !{boolean hasCount = count != null;}
 !{String countLabel = hasCount ? (count == 1 ? "1 result" : count + " results") : "";}
-!{String rowState = disabled
-        ? "cursor-not-allowed opacity-60"
-        : "cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800";}
-!{String boxCursor = disabled ? "" : " cursor-pointer";}
+!{String rowClasses = disabled ? "ash-facet-option ash-facet-option--disabled" : "ash-facet-option";}
 
-<label class="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm ${rowState}">
+<label class="${rowClasses}">
     <input
             type="checkbox"
             name="${FacetContext.currentName()}"
             value="${value}"
             checked="${checked}"
             disabled="${disabled}"
-            class="h-4 w-4 shrink-0 rounded border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800${boxCursor}"
+            class="ash-facet-option__input"
     >
 
-    <span class="min-w-0 flex-1 break-words text-slate-700 dark:text-slate-300">${label}</span>
+    <span class="ash-facet-option__label">${label}</span>
 
     @if (hasCount)
-        <span aria-hidden="true" class="shrink-0 text-xs tabular-nums text-slate-500 dark:text-slate-400">${count}</span>
-        <span class="sr-only">${countLabel}</span>
+        <span aria-hidden="true" class="ash-facet-option__count">${count}</span>
+        <span class="ash-sr-only">${countLabel}</span>
     @endif
 </label>

@@ -22,9 +22,9 @@
      three. The consuming page supplies the surface, the same way it does for
      List, Timeline and Key-Value List.
 
-     The only opinion here is vertical rhythm between facets, and `min-w-0`
-     so a long option label wraps inside a narrow column instead of pushing
-     the layout sideways. --%>
-<div data-faceted-search class="flex min-w-0 flex-col gap-5">
+     The only opinion here is vertical rhythm between facets, and a zero
+     minimum width (see faceted-search.css) so a long option label wraps
+     inside a narrow column instead of pushing the layout sideways. --%>
+<div data-faceted-search class="ash-faceted-search">
     ${content}
 </div>

@@ -1,0 +1,34 @@
+/* TEST-ONLY (Facets family migration oracle, scoped). The legacy Faceted Search, Facet and Facet Option's own Tailwind utilities and nothing else: no page-wide preflight, no utilities
+   for any other element on the page.
+
+   The full oracle is the whole former showcase stylesheet, so linking it into a page also restyles everything AROUND the facets. That is right for "Tailwind present". For "Tailwind
+   removed" the surroundings must be the same unstyled page on both sides, so the legacy facets are rendered here with only what they themselves used.
+
+   Only the preflight rules the facets depended on are kept, and only for the elements the fixture marks (every measured element carries data-parity): border-box sizing with no default
+   margin, padding or border width (a 0 solid border), and the form-control reset an <input> had (inherited font and letter spacing, inherited colour, no radius, a transparent
+   background, an opacity of 1). Notably NOT kept, because Preflight does not do it: appearance, so a checkbox stays native. The Tailwind-removed comparison in FacetTailwindFreeTest and
+   the equality in FacetParityTest are what make this scoped rendering a faithful stand-in. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../resources/parity/facet/facet-legacy.html";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+    [data-parity]:not([data-parity="raw"]) {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: 0 solid;
+    }
+
+    input[data-parity]:not([data-parity="raw"]) {
+        font: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        border-radius: 0;
+        background-color: transparent;
+        opacity: 1;
+    }
+}

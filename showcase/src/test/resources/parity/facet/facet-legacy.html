@@ -1,0 +1,17 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Faceted Search, Facet and Facet Option, read verbatim from the templates at commit 9c59c12 (the commit before the Facets
+     migration): faceted-search.jte line 28, facet.jte lines 29-32, facet-option.jte lines 37-52. It is never served. Tailwind compiles this file (see facet-oracle-entry.css and
+     facet-legacy-scoped-entry.css) so the legacy rendering stays reproducible, and the tests read the class strings back out of it: one source of truth for what "legacy" means.
+     Variants the template chose from its parameters: an option's row (enabled or disabled, chosen from the `disabled` parameter) and its checkbox (the enabled string ends with
+     cursor-pointer, which facet-option.jte appended only when the option was not disabled). -->
+<span data-legacy-role="faceted-search" class="flex min-w-0 flex-col gap-5"></span>
+<span data-legacy-role="facet" class="min-w-0"></span>
+<span data-legacy-role="legend" class="mb-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100"></span>
+<span data-legacy-role="options" class="flex flex-col"></span>
+<span data-legacy-role="row" class="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"></span>
+<span data-legacy-role="row-disabled" class="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm cursor-not-allowed opacity-60"></span>
+<span data-legacy-role="input" class="h-4 w-4 shrink-0 rounded border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800 cursor-pointer"></span>
+<span data-legacy-role="input-disabled" class="h-4 w-4 shrink-0 rounded border border-slate-300 bg-white accent-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-800"></span>
+<span data-legacy-role="label" class="min-w-0 flex-1 break-words text-slate-700 dark:text-slate-300"></span>
+<span data-legacy-role="count" class="shrink-0 text-xs tabular-nums text-slate-500 dark:text-slate-400"></span>
+<span data-legacy-role="announced-count" class="sr-only"></span>
