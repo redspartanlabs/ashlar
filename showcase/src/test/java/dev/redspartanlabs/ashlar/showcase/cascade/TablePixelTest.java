@@ -3,7 +3,14 @@ package dev.redspartanlabs.ashlar.showcase.cascade;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,9 +65,17 @@ class TablePixelTest {
     private static String controlBrokenAccent;
     private static String schemeOn;
     private static String schemeOff;
+    /** Every pair that was not byte-identical, kept for the diagnostics that are printed once all pictures have been taken (see {@link PixelDiagnostics}). They decide nothing. */
+    private static final List<Seen> SEEN = new ArrayList<>();
+    private static long started;
 
     /** A picture, with the geometry of the forced element in it when the case forces a state (null otherwise). */
     private record Picture(String png, PixelPolicy.Geometry geometry) {
+    }
+
+    /** What a comparison saw, kept as it is: references to pictures already taken, and the verdict already reached. */
+    private record Seen(String label, ParityConfigs.Config config, TableParityTest.Field field, String where, String legacyPng, String migratedPng, PixelPolicy.Geometry geometry,
+                        PixelPolicy.Verdict verdict, long nanos) {
     }
 
     private static String shot(DevToolsSession cdp, String fieldId) throws Exception {
@@ -130,6 +146,9 @@ class TablePixelTest {
                     } else if (!verdict.exact()) {
                         TOLERATED.add(label + " " + verdict.describe());
                     }
+                    if (!verdict.exact()) {
+                        SEEN.add(new Seen(label, config, f, where, legacy.png(), migrated.png(), legacy.geometry(), verdict, System.nanoTime()));
+                    }
                     if (distinct != null) {
                         distinct.add(legacy.png());
                     }
@@ -199,6 +218,7 @@ class TablePixelTest {
 
     @BeforeAll
     static void run() throws Exception {
+        started = System.nanoTime();
         ParitySession session = ParitySession.open("table-pixels");
         List<TableParityTest.Field> fields = TableParityTest.fields();
         try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
@@ -237,6 +257,37 @@ class TablePixelTest {
         System.out.println("TABLE-PIXELS: " + compared + " tables compared, " + TOLERATED.size() + " tolerated under the named policies, " + MISMATCHES.size() + " rejected; " + freeCompared
                 + " without Tailwind, " + FREE_MISMATCHES.size() + " rejected; " + controlsRun + " broken renderings tried against the policies, " + CONTROL_FAILURES.size() + " wrongly accepted");
         TOLERATED.forEach(t -> System.out.println("TABLE-PIXELS tolerated: " + t));
+        reportDiagnostics(session, fields);
+    }
+
+    /**
+     * How every pair that was not byte-identical differs, printed after every picture has been taken and every verdict reached. It reads what was kept and changes nothing: whatever
+     * happens here, the verdicts, the assertions and the policies are what they were.
+     */
+    private static void reportDiagnostics(ParitySession session, List<TableParityTest.Field> fields) {
+        try {
+            List<PixelDiagnostics.Capture> captures = new ArrayList<>();
+            for (Seen s : SEEN) {
+                TableBrowser.Case spec = s.field().spec();
+                int index = fields.indexOf(s.field());
+                Map<String, String> context = new LinkedHashMap<>();
+                context.put("configuration", s.config().id());
+                context.put("theme", s.config().theme());
+                context.put("skin", s.config().skin() == null ? "none" : s.config().skin());
+                context.put("run", s.where());
+                context.put("fixture", s.field().id());
+                context.put("case", spec.key());
+                context.put("state", spec.pseudo().isEmpty() ? "none" : String.join("+", spec.pseudo()));
+                context.put("target", spec.target() == null ? "-" : spec.target());
+                context.put("policy", s.verdict().policy());
+                context.put("browser", index < 0 ? "?" : (index / CHUNK) + "." + (index % CHUNK));
+                context.put("seconds", String.valueOf((s.nanos() - started) / 1_000_000_000L));
+                captures.add(new PixelDiagnostics.Capture(s.label(), context, s.legacyPng(), s.migratedPng(), s.verdict().accepted(), s.verdict().describe(), s.geometry()));
+            }
+            PixelDiagnostics.report("TABLE-PIXELS", captures, Path.of("build", "pixel-diagnostics", "table"), System.out, PixelDiagnostics.environment(session.chrome().executable()));
+        } catch (Exception | Error e) {
+            System.out.println("TABLE-PIXELS diagnostics unavailable: " + e);
+        }
     }
 
     @Test
@@ -265,6 +316,38 @@ class TablePixelTest {
     @Test
     void theColourSchemeChangesHowTheBrowserDrawsTheCheckboxSoBothSidesMustShareIt() {
         assertNotEquals(schemeOn, schemeOff, "a dark page draws the native mark differently with the dark colour scheme");
+    }
+
+    @Test
+    void aKnownVisualDifferenceIsStillRejectedAndTheDiagnosticsMeasureItFromTheSamePictures() throws Exception {
+        // Two real pictures of one browser that differ in the checkbox tint: the exact policy rejects them, and the diagnostics say how, without changing that.
+        PixelPolicy.Verdict verdict = PixelPolicy.compare(controlOriginal, controlBrokenAccent, PixelPolicy.EXACT, null);
+        assertFalse(verdict.accepted(), "the exact policy rejects the recolored checkboxes");
+        assertFalse(verdict.exact());
+        PixelDiagnostics.Difference d = PixelDiagnostics.measure(controlOriginal, controlBrokenAccent);
+        assertTrue(d.sameSize() && d.any(), d.describe());
+        assertTrue(d.minX() >= 0 && d.minY() >= 0 && d.maxX() < d.referenceWidth() && d.maxY() < d.referenceHeight() && d.minX() <= d.maxX() && d.minY() <= d.maxY(), d.describe());
+        assertTrue(d.maxChannel() > 0, d.describe());
+
+        Path directory = Files.createTempDirectory("table-pixel-diagnostics");
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            PixelDiagnostics.report("CONTROL", List.of(new PixelDiagnostics.Capture("accent", Map.of("case", "accent"), controlOriginal, controlBrokenAccent, false, verdict.describe(), null)),
+                    directory, new PrintStream(bytes, true, StandardCharsets.UTF_8), "test");
+            String text = bytes.toString(StandardCharsets.UTF_8);
+            assertTrue(text.contains("CONTROL REJECTED [0] accent: differing=" + d.differing() + " maxChannel=" + d.maxChannel()), text);
+            assertTrue(text.contains("CONTROL image [0] reference " + controlOriginal + "\n") || text.contains("CONTROL image [0] reference " + controlOriginal + "\r\n"), "the reference picture is printed as taken");
+            assertTrue(text.contains("CONTROL image [0] candidate " + controlBrokenAccent), "the candidate picture is printed as taken");
+            for (String file : List.of("reference.png", "candidate.png", "diff.png", "zoom.png", "report.txt")) {
+                assertTrue(Files.exists(directory.resolve("0-accent").resolve(file)), file);
+            }
+        } finally {
+            try (var walk = Files.walk(directory)) {
+                walk.sorted(Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+            } catch (IOException ignored) {
+                // a leftover temporary directory is not worth a failure
+            }
+        }
     }
 
     @Test
