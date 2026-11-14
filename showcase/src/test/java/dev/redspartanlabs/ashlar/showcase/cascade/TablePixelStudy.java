@@ -311,7 +311,7 @@ final class TablePixelStudy {
         for (String condition : distinct(captures, Capture::condition)) {
             List<Capture> cc = captures.stream().filter(c -> c.condition().equals(condition)).toList();
             Map<Integer, Boolean> forcedByProcess = new LinkedHashMap<>();
-            cc.forEach(c -> forcedByProcess.put(c.process(), c.forced()));
+            cc.forEach(c -> forcedByProcess.merge(c.process(), c.forced(), Boolean::logicalOr)); // a process is a forced-state process when any of its captures forces a state
             long forcedProcesses = forcedByProcess.values().stream().filter(b -> b).count();
             List<Capture> deviations = cc.stream().filter(c -> !c.first().equals(common.get(cell(c)))).toList();
             Set<Integer> deviatingProcesses = deviations.stream().map(Capture::process).collect(Collectors.toCollection(LinkedHashSet::new));
