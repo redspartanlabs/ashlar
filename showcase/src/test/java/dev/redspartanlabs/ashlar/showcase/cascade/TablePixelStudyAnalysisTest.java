@@ -48,7 +48,36 @@ class TablePixelStudyAnalysisTest {
     }
 
     private static TablePixelStudy.Capture c(String caseKey, boolean forced, String variant, int process, int round, int slot, String first, String second, String third) {
-        return new TablePixelStudy.Capture(caseKey, "tb1", forced, "light/x", variant, process, round, slot, first, second, third);
+        return c(caseKey, forced, variant, process, round, slot, first, second, third, "cold");
+    }
+
+    private static TablePixelStudy.Capture c(String caseKey, boolean forced, String variant, int process, int round, int slot, String first, String second, String third, String condition) {
+        return new TablePixelStudy.Capture(caseKey, "tb1", forced, "light/x", variant, process, round, slot, first, second, third, condition, 10L * slot);
+    }
+
+    @Test
+    void theConditionsAreCountedAgainstTheSamePictureAndTheDeviationsAreLocatedBySlot() {
+        List<TablePixelStudy.Capture> captures = new ArrayList<>();
+        // cold: process 1 deviates on slot 1 (b), process 2 does not; warm: processes 3 and 4 never deviate; a control process 5 (cold) never deviates
+        captures.add(c("hover", true, "L", 1, 0, 1, b, b, b, "cold"));
+        captures.add(c("hover", true, "L", 1, 1, 2, a, a, a, "cold"));
+        captures.add(c("hover", true, "L", 2, 0, 1, a, a, a, "cold"));
+        captures.add(c("hover", true, "L", 2, 1, 2, a, a, b, "cold"));
+        captures.add(c("hover", true, "L", 3, 0, 1, a, a, a, "warm"));
+        captures.add(c("hover", true, "L", 3, 1, 2, a, a, a, "warm"));
+        captures.add(c("hover", true, "L", 4, 0, 1, a, a, a, "warm"));
+        captures.add(c("hover", true, "L", 4, 1, 2, a, a, a, "warm"));
+        captures.add(c("plain", false, "L", 5, 0, 1, a, a, a, "cold"));
+        List<TablePixelStudy.Process> processes = List.of(new TablePixelStudy.Process(1, "cold", "hover", "light/x", 300, 0, "-"),
+                new TablePixelStudy.Process(2, "cold", "hover", "light/x", 500, 0, "-"), new TablePixelStudy.Process(3, "warm", "hover", "light/x", 400, 90, "complete fonts=loaded"),
+                new TablePixelStudy.Process(4, "warm", "hover", "light/x", 400, 110, "complete fonts=loaded"), new TablePixelStudy.Process(5, "cold", "plain", "light/x", 350, 0, "-"));
+        String text = TablePixelStudy.conditions(captures, processes, new TablePixelStudy.Measurements(pictures));
+        assertTrue(text.contains("cold: 5 navigations in 3 processes (2 forced-state, 1 control); 1 deviations in 1 processes (1 forced-state, 0 control); deviations by slot {1=1}; 2nd shot != 1st: 0; 3rd shot != 1st: 1"), text);
+        assertTrue(text.contains("warm: 4 navigations in 2 processes (2 forced-state, 0 control); 0 deviations in 0 processes (0 forced-state, 0 control); deviations by slot {};"), text);
+        assertTrue(text.contains("process 1 slot 1: hover light/x L: " + TablePixelStudy.id(a) + " vs " + TablePixelStudy.id(b) + ": differing=1"), text);
+        assertTrue(text.contains("launch: median 350 ms (min 300, max 500, n=3)"), text);
+        assertTrue(text.contains("warm-up: median 110 ms (min 90, max 110, n=2); readiness results: [complete fonts=loaded]"), text);
+        assertTrue(text.contains("navigation, slot 1: median 10 ms"), text);
     }
 
     @Test
@@ -123,6 +152,6 @@ class TablePixelStudyAnalysisTest {
         List<TablePixelStudy.Capture> captures = List.of(c("hover", true, "L", 1, 0, 1, a, a, b), c("plain", false, "Mm", 1, 0, 2, a, a, a));
         String csv = TablePixelStudy.csv(captures);
         assertEquals(3, csv.lines().count());
-        assertTrue(csv.contains("\"hover\",tb1,true,light/x,L,1,0,1," + TablePixelStudy.id(a) + "," + TablePixelStudy.id(a) + "," + TablePixelStudy.id(b)), csv);
+        assertTrue(csv.contains("\"hover\",tb1,true,light/x,L,1,0,1," + TablePixelStudy.id(a) + "," + TablePixelStudy.id(a) + "," + TablePixelStudy.id(b) + ",cold,10"), csv);
     }
 }

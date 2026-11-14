@@ -44,7 +44,14 @@ class TablePixelStudyTest {
     static final List<String> CONFIGS = List.of("light/foundry", "dark/fathom", "light/sterling", "dark/harbor");
     static final int PROCESSES_PER_CELL = 5;
     static final int ROUNDS = 4;
-    static final long SEED = 20261113L;
+    static final long SEED = 20261114L;
+    /** A: the browser's first page is the first measured page. B: the browser first loads a neutral page and waits until it is ready (see {@link #READY}). */
+    static final List<String> CONDITIONS = List.of("cold", "warm");
+    /** The neutral warm-up page: no stylesheet, no Table markup, one line of text in the study's font stack. */
+    static final String WARMUP_PAGE = "<!doctype html><html><head><meta charset=\"utf-8\"><title>warm-up</title></head><body><p style=\"font-family:Arial,Helvetica,sans-serif\">warm-up</p></body></html>";
+    /** Readiness after the load event (which navigate() already waits for): document.fonts.ready has resolved and two animation frames have run. Returns what it saw. */
+    static final String READY = "new Promise(function(r){(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){requestAnimationFrame(function(){requestAnimationFrame(function(){"
+            + "r(document.readyState+' fonts='+(document.fonts?document.fonts.status:'n/a'))})})})})";
 
     // ---- copied verbatim from TablePixelTest (private there), so that the capture is the same
 
@@ -68,8 +75,10 @@ class TablePixelStudyTest {
     // ----
 
     private static TablePixelStudy.Capture capture(DevToolsSession cdp, String url, TableParityTest.Field f, String config, String variant, int process, int round, int slot,
-                                                   TablePixelStudy.Pictures pictures) throws Exception {
+                                                   TablePixelStudy.Pictures pictures, String condition) throws Exception {
+        long t = System.nanoTime();
         cdp.navigate(url);
+        long navigateMillis = (System.nanoTime() - t) / 1_000_000L;
         List<String> pseudo = f.spec().pseudo();
         List<Integer> nodes = pseudo.isEmpty() ? List.of() : cdp.nodes(TableBrowser.target(f.spec(), f.id()));
         if (!pseudo.isEmpty()) {
@@ -88,7 +97,18 @@ class TablePixelStudyTest {
             cdp.force(nodes, List.of());
         }
         return new TablePixelStudy.Capture(f.spec().key(), f.id(), !pseudo.isEmpty(), config, variant, process, round, slot, pictures.add(first), pictures.add(second),
-                pictures.add(third));
+                pictures.add(third), condition, navigateMillis);
+    }
+
+    /** Loads the warm-up page and waits for {@link #READY}; returns what the readiness check returned. */
+    private static String warmUp(DevToolsSession cdp, String url) throws Exception {
+        cdp.navigate(url);
+        String response = cdp.call("Runtime.evaluate", "{\"expression\":" + DevToolsSession.quote(READY) + ",\"awaitPromise\":true,\"returnByValue\":true}");
+        Matcher v = Pattern.compile("\"value\":\"([^\"]*)\"").matcher(response);
+        if (!v.find()) {
+            throw new IllegalStateException("the warm-up page did not report ready: " + response);
+        }
+        return v.group(1);
     }
 
     private static Map<String, String> manifest(Path file) throws Exception {
@@ -130,6 +150,7 @@ class TablePixelStudyTest {
         List<TablePixelStudy.Capture> captures = new ArrayList<>();
         TablePixelStudy.Pictures pictures = new TablePixelStudy.Pictures();
         Set<String> processEnvironments = new LinkedHashSet<>();
+        List<TablePixelStudy.Process> processRecords = new ArrayList<>();
         long began = System.nanoTime();
         try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
             String probe = server.registerRaw("<!doctype html>");
@@ -149,18 +170,28 @@ class TablePixelStudyTest {
             assertEquals(expected.get("L.css"), builtLegacy, "the frozen L is not this branch's legacy stylesheet");
             assertEquals(expected.get("Mm.css"), builtApp, "the frozen Mm is not this branch's app.css");
 
-            // ---- the schedule: every block is one browser process; blocks in a seeded random order
-            List<int[]> blocks = new ArrayList<>();
+            // ---- the schedule: every block (case, configuration, repetition) is run once in each condition, the two back to back in a seeded random order, so that the
+            // conditions see the same cases, configurations and times; the blocks themselves in a seeded random order. Every run is one browser process.
+            List<int[]> cells = new ArrayList<>();
             for (int ci = 0; ci < CONFIGS.size(); ci++) {
                 for (int ki = 0; ki < CASES.size(); ki++) {
                     for (int b = 0; b < PROCESSES_PER_CELL; b++) {
-                        blocks.add(new int[] {ci, ki, b});
+                        cells.add(new int[] {ci, ki, b});
                     }
                 }
             }
-            Collections.shuffle(blocks, new Random(SEED));
+            Collections.shuffle(cells, new Random(SEED));
+            Random coin = new Random(SEED + 7);
+            List<Object[]> blocks = new ArrayList<>();
+            for (int[] b : cells) {
+                List<String> pair = coin.nextBoolean() ? CONDITIONS : List.of(CONDITIONS.get(1), CONDITIONS.get(0));
+                pair.forEach(cond -> blocks.add(new Object[] {b, cond}));
+            }
+            String warmupUrl = server.registerRaw(WARMUP_PAGE);
             int process = 0;
-            for (int[] block : blocks) {
+            for (Object[] run : blocks) {
+                int[] block = (int[]) run[0];
+                String condition = (String) run[1];
                 process++;
                 ParityConfigs.Config config = ParityConfigs.get(CONFIGS.get(block[0]));
                 String caseKey = CASES.get(block[1]);
@@ -171,13 +202,24 @@ class TablePixelStudyTest {
                     urls.put(v, server.registerRaw(TextEntryBrowser.page(List.of("/generated/study-" + v + ".css"), config, "", body, TableBrowser.INDETERMINATE)));
                 }
                 Random order = new Random(SEED * 31 + process);
+                long launchStart = System.nanoTime();
                 try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+                    long launchMillis = (System.nanoTime() - launchStart) / 1_000_000L;
+                    long warmupMillis = 0;
+                    String ready = "-";
+                    if (condition.equals("warm")) {
+                        long w = System.nanoTime();
+                        ready = warmUp(cdp, warmupUrl);
+                        warmupMillis = (System.nanoTime() - w) / 1_000_000L;
+                    }
+                    processRecords.add(new TablePixelStudy.Process(process, condition, caseKey, config.id(), launchMillis, warmupMillis, ready));
+                    // ---- the measured sequence: the same in both conditions
                     int slot = 0;
                     for (int round = 0; round < ROUNDS; round++) {
                         List<String> variants = new ArrayList<>(TablePixelStudy.VARIANTS);
                         Collections.shuffle(variants, order);
                         for (String v : variants) {
-                            captures.add(capture(cdp, urls.get(v), f, config.id(), v, process, round, ++slot, pictures));
+                            captures.add(capture(cdp, urls.get(v), f, config.id(), v, process, round, ++slot, pictures, condition));
                         }
                     }
                     // After the captures, so that they are not affected: what this process renders with.
@@ -193,11 +235,17 @@ class TablePixelStudyTest {
 
         // ---- the report
         header.insert(0, "TABLE PIXEL STUDY (temporary local diagnostic)\nenvironment: " + PixelDiagnostics.environment(session.chrome().executable()) + "\n"
-                + "seed=" + SEED + " cases=" + CASES + " configs=" + CONFIGS + " processes per case and configuration=" + PROCESSES_PER_CELL + " rounds per process=" + ROUNDS
-                + " (each round: L, Mm, Mp in a seeded random order)\nduration: " + seconds + " s\n"
+                + "seed=" + SEED + " conditions=" + CONDITIONS + " cases=" + CASES + " configs=" + CONFIGS + " processes per case, configuration and condition=" + PROCESSES_PER_CELL
+                + " rounds per process=" + ROUNDS + " (each round: L, Mm, Mp in a seeded random order)\nwarm-up page: " + WARMUP_PAGE + "\nwarm-up readiness: load event, then " + READY
+                + "\nduration: " + seconds + " s\n"
                 + "what the browser processes reported (distinct values): " + processEnvironments + "\n");
         TablePixelStudy.Measurements m = new TablePixelStudy.Measurements(pictures);
-        String report = header + "\n" + TablePixelStudy.report(captures, pictures, m);
+        StringBuilder body = new StringBuilder(TablePixelStudy.conditions(captures, processRecords, m));
+        for (String condition : CONDITIONS) {
+            List<TablePixelStudy.Capture> cc = captures.stream().filter(c -> c.condition().equals(condition)).toList();
+            body.append("\n\n######## CONDITION ").append(condition).append(" ########\n").append(TablePixelStudy.report(cc, pictures, m));
+        }
+        String report = header + "\n" + body;
         Files.writeString(out.resolve("report.txt"), report);
         Files.writeString(out.resolve("captures.csv"), TablePixelStudy.csv(captures));
         for (Map.Entry<String, String> p : pictures.all().entrySet()) {
@@ -215,6 +263,6 @@ class TablePixelStudyTest {
         }
         System.out.println(report);
         System.out.println("TABLE PIXEL STUDY written to " + out.toAbsolutePath());
-        assertEquals(CONFIGS.size() * CASES.size() * PROCESSES_PER_CELL * ROUNDS * TablePixelStudy.VARIANTS.size(), captures.size(), "every planned navigation was made");
+        assertEquals(CONDITIONS.size() * CONFIGS.size() * CASES.size() * PROCESSES_PER_CELL * ROUNDS * TablePixelStudy.VARIANTS.size(), captures.size(), "every planned navigation was made");
     }
 }

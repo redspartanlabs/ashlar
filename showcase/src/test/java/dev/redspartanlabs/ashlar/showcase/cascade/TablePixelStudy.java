@@ -36,7 +36,12 @@ final class TablePixelStudy {
      * the three screenshots as picture ids: the first and second taken one after the other once the state is forced (as {@link TablePixelTest} takes them), the third after the state
      * was removed and forced again with no navigation in between (for a case that forces no state: simply a third screenshot).
      */
-    record Capture(String caseKey, String fieldId, boolean forced, String config, String variant, int process, int round, int slot, String first, String second, String third) {
+    record Capture(String caseKey, String fieldId, boolean forced, String config, String variant, int process, int round, int slot, String first, String second, String third,
+                   String condition, long navigateMillis) {
+    }
+
+    /** One browser process: its condition, what it captured, how long the launch and the warm-up (if any) took, and what the warm-up's readiness check returned. */
+    record Process(int process, String condition, String caseKey, String config, long launchMillis, long warmupMillis, String warmup) {
     }
 
     /** Every distinct picture, once, by the SHA-256 of its base64 text. */
@@ -253,12 +258,82 @@ final class TablePixelStudy {
 
     /** One line per navigation. */
     static String csv(List<Capture> captures) {
-        StringBuilder sb = new StringBuilder("case,field,forced,config,variant,process,round,slot,first,second,third\n");
+        StringBuilder sb = new StringBuilder("case,field,forced,config,variant,process,round,slot,first,second,third,condition,navigateMillis\n");
         for (Capture c : captures) {
             sb.append('"').append(c.caseKey()).append("\",").append(c.fieldId()).append(',').append(c.forced()).append(',').append(c.config()).append(',').append(c.variant()).append(',')
                     .append(c.process()).append(',').append(c.round()).append(',').append(c.slot()).append(',').append(id(c.first())).append(',').append(id(c.second())).append(',')
-                    .append(id(c.third())).append('\n');
+                    .append(id(c.third())).append(',').append(c.condition()).append(',').append(c.navigateMillis()).append('\n');
         }
         return sb.toString();
+    }
+
+    private static String cell(Capture c) {
+        return c.caseKey() + "|" + c.config() + "|" + c.variant();
+    }
+
+    /**
+     * For each cell (case, configuration, variant), the first shot seen most often across ALL conditions (ties: the one seen first). A common reference so that the conditions are
+     * counted the same way; it is a description of what was seen most, not a claim that it is the correct picture.
+     */
+    static Map<String, String> commonPictures(List<Capture> captures) {
+        Map<String, Map<String, Integer>> counts = new LinkedHashMap<>();
+        captures.forEach(c -> counts.computeIfAbsent(cell(c), k -> new LinkedHashMap<>()).merge(c.first(), 1, Integer::sum));
+        Map<String, String> common = new LinkedHashMap<>();
+        counts.forEach((k, v) -> {
+            String best = null;
+            int n = -1;
+            for (Map.Entry<String, Integer> e : v.entrySet()) {
+                if (e.getValue() > n) {
+                    best = e.getKey();
+                    n = e.getValue();
+                }
+            }
+            common.put(k, best);
+        });
+        return common;
+    }
+
+    private static String spread(List<Long> values) {
+        if (values.isEmpty()) {
+            return "-";
+        }
+        List<Long> sorted = values.stream().sorted().toList();
+        return "median " + sorted.get(sorted.size() / 2) + " ms (min " + sorted.get(0) + ", max " + sorted.get(sorted.size() - 1) + ", n=" + sorted.size() + ")";
+    }
+
+    /**
+     * The conditions side by side: for each, the browser processes (forced-state and control), the navigations whose first shot is not the cell's common picture ("deviations"),
+     * where in their process they fell, every deviation itself, the 2nd- and 3rd-shot differences, and the timings.
+     */
+    static String conditions(List<Capture> captures, List<Process> processes, Measurements m) {
+        Map<String, String> common = commonPictures(captures);
+        StringBuilder out = new StringBuilder("== Conditions side by side (deviation = a first shot that is not the most common first shot of its cell over all conditions) ==\n");
+        for (String condition : distinct(captures, Capture::condition)) {
+            List<Capture> cc = captures.stream().filter(c -> c.condition().equals(condition)).toList();
+            Map<Integer, Boolean> forcedByProcess = new LinkedHashMap<>();
+            cc.forEach(c -> forcedByProcess.put(c.process(), c.forced()));
+            long forcedProcesses = forcedByProcess.values().stream().filter(b -> b).count();
+            List<Capture> deviations = cc.stream().filter(c -> !c.first().equals(common.get(cell(c)))).toList();
+            Set<Integer> deviatingProcesses = deviations.stream().map(Capture::process).collect(Collectors.toCollection(LinkedHashSet::new));
+            long forcedDeviatingProcesses = deviatingProcesses.stream().filter(forcedByProcess::get).count();
+            Map<Integer, Long> bySlot = deviations.stream().collect(Collectors.groupingBy(Capture::slot, java.util.TreeMap::new, Collectors.counting()));
+            long secondShot = cc.stream().filter(c -> !c.second().equals(c.first())).count();
+            long thirdShot = cc.stream().filter(c -> !c.third().equals(c.first())).count();
+            out.append(String.format("%s: %d navigations in %d processes (%d forced-state, %d control); %d deviations in %d processes (%d forced-state, %d control); deviations by slot %s;"
+                            + " 2nd shot != 1st: %d; 3rd shot != 1st: %d%n", condition, cc.size(), forcedByProcess.size(), forcedProcesses, forcedByProcess.size() - forcedProcesses,
+                    deviations.size(), deviatingProcesses.size(), forcedDeviatingProcesses, deviatingProcesses.size() - forcedDeviatingProcesses, bySlot, secondShot, thirdShot));
+            for (Capture c : deviations) {
+                out.append(String.format("    process %d slot %d: %s %s %s: %s%n", c.process(), c.slot(), c.caseKey(), c.config(), c.variant(), m.describe(common.get(cell(c)), c.first())));
+            }
+            List<Process> ps = processes.stream().filter(p -> p.condition().equals(condition)).toList();
+            out.append("    launch: ").append(spread(ps.stream().map(Process::launchMillis).toList())).append('\n');
+            if (ps.stream().anyMatch(p -> p.warmupMillis() > 0)) {
+                out.append("    warm-up: ").append(spread(ps.stream().map(Process::warmupMillis).toList())).append("; readiness results: ")
+                        .append(ps.stream().map(Process::warmup).distinct().toList()).append('\n');
+            }
+            out.append("    navigation, slot 1: ").append(spread(cc.stream().filter(c -> c.slot() == 1).map(Capture::navigateMillis).toList())).append('\n');
+            out.append("    navigation, slots 2-12: ").append(spread(cc.stream().filter(c -> c.slot() > 1).map(Capture::navigateMillis).toList())).append('\n');
+        }
+        return out.toString();
     }
 }
