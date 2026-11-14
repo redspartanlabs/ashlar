@@ -146,6 +146,16 @@ class TablePixelRetryStudyAnalysisTest {
         assertTrue(report.contains("RECLASSIFY as a sensitivity probe: the current policy accepted 1 of 2 primary pairs"), report);
     }
 
+    @Test
+    void wallTimesAreSummarizedPerKindOfProcess() {
+        TablePixelRetryStudyTest.Counts counts = new TablePixelRetryStudyTest.Counts();
+        for (long ms : new long[] {3000, 1000, 2000}) {
+            counts.time("retry block-replay", ms);
+        }
+        counts.time("retry case-only", 600);
+        assertEquals("retry block-replay: median 2000 ms (min 1000, max 3000, n=3, total 6 s); retry case-only: median 600 ms (min 600, max 600, n=1, total 0 s)", counts.timings());
+    }
+
     // ---------------------------------------------------------------- the planned counts
 
     private static int index(String caseKey) {
@@ -159,12 +169,15 @@ class TablePixelRetryStudyAnalysisTest {
 
     @Test
     void thePlannedCountsFollowFromTheImplementedMatrices() {
-        // primary: 100 attempts of a full block (12 cases, legacy and migrated)
+        // primary: 200 attempts of a full block (12 cases, legacy and migrated); the two cells that produced rejections in Stage 2 have 64 each
         int attempts = TablePixelRetryStudyTest.MATRIX.stream().mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum();
-        assertEquals(100, attempts);
-        assertEquals(44, TablePixelRetryStudyTest.MATRIX.stream().filter(c -> c.block() == 0).mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum());
-        assertEquals(56, TablePixelRetryStudyTest.MATRIX.stream().filter(c -> c.block() == 1).mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum());
-        assertEquals(2_400, attempts * 2 * TablePixelRetryStudyTest.BLOCK);
+        assertEquals(200, attempts);
+        assertEquals(92, TablePixelRetryStudyTest.MATRIX.stream().filter(c -> c.block() == 0).mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum());
+        assertEquals(108, TablePixelRetryStudyTest.MATRIX.stream().filter(c -> c.block() == 1).mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum());
+        assertEquals(64, TablePixelRetryStudyTest.MATRIX.stream().filter(c -> c.block() == 0 && c.config().equals("light/foundry")).mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum());
+        assertEquals(64, TablePixelRetryStudyTest.MATRIX.stream().filter(c -> c.block() == 1 && c.config().equals("dark/fathom")).mapToInt(TablePixelRetryStudyTest.Cell::attempts).sum());
+        assertEquals(16, TablePixelRetryStudyTest.MATRIX.size(), "every Stage 2 cell is still there");
+        assertEquals(4_800, attempts * 2 * TablePixelRetryStudyTest.BLOCK);
         // the affected cases are where the design says they are
         assertEquals(5, index("sort button hover") % 12);
         assertEquals(0, index("sort button hover") / 12);

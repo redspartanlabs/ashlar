@@ -238,10 +238,12 @@ class TablePixelRetryControlStudyTest {
                 String unit = spec.control().id() + " " + configId + " execution " + e;
                 int process = counts.process("control primary");
                 TablePixelRetryStudy.Pair primary;
+                long started = System.nanoTime();
                 try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
                     primary = TablePixelRetryStudyTest.replay(cdp, server, chunk, block, config, chunk.size() - 1, f.spec().key(), d.css(), pictures, counts, "control primary", unit,
                             "primary", 0, process, true).get(0);
                 }
+                counts.time("control primary", (System.nanoTime() - started) / 1_000_000L);
                 plannedNavigations += 2 * chunk.size();
                 List<TablePixelRetryStudy.Pair> retries = List.of();
                 if (!baselineOnly) {
@@ -271,7 +273,8 @@ class TablePixelRetryControlStudyTest {
         defects.forEach((k, d) -> defectList.append("  ").append(k).append(": ").append(d.css()).append('\n'));
         String header = "TABLE PIXEL RETRY STUDY, controls (temporary diagnostic)" + (baselineOnly ? " - BASELINE ONLY (one execution each, no retries)" : "") + "\nenvironment: "
                 + PixelDiagnostics.environment(session.chrome().executable()) + "\nseed=" + SEED + " executions per control and configuration=" + executions + "\ndefects:\n" + defectList
-                + "planned: " + plannedNavigations + " navigations, " + 2 * plannedNavigations + " screenshots\nactual: " + counts.describe() + "\nduration: " + seconds + " s\n";
+                + "planned: " + plannedNavigations + " navigations, " + 2 * plannedNavigations + " screenshots\nactual: " + counts.describe() + "\nwall time per process: "
+                + counts.timings() + "\nduration: " + seconds + " s\n";
         String report = header + "\n" + TablePixelRetryStudy.controlReport(runs, pictures);
         long bytes = TablePixelRetryStudyTest.finish(out, report, pictures);
         System.out.println("TABLE-RETRY-STUDY report bytes: " + bytes);

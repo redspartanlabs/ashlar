@@ -39,9 +39,10 @@ class TablePixelRetryStudyTest {
     }
 
     static final List<Cell> MATRIX = List.of(
-            new Cell(0, "light/foundry", 16), new Cell(0, "dark/fathom", 4), new Cell(0, "light/sterling", 4), new Cell(0, "dark/harbor", 4),
+            // the two cells that produced rejections in Stage 2 are sampled more (16 -> 64 and 12 -> 64); every other cell is kept as in Stage 2
+            new Cell(0, "light/foundry", 64), new Cell(0, "dark/fathom", 4), new Cell(0, "light/sterling", 4), new Cell(0, "dark/harbor", 4),
             new Cell(0, "light/none", 4), new Cell(0, "dark/none", 4), new Cell(0, "light/axiom", 4), new Cell(0, "dark/summit", 4),
-            new Cell(1, "light/foundry", 4), new Cell(1, "dark/fathom", 12), new Cell(1, "light/sterling", 12), new Cell(1, "dark/harbor", 12),
+            new Cell(1, "light/foundry", 4), new Cell(1, "dark/fathom", 64), new Cell(1, "light/sterling", 12), new Cell(1, "dark/harbor", 12),
             new Cell(1, "light/none", 4), new Cell(1, "dark/none", 4), new Cell(1, "light/axiom", 4), new Cell(1, "dark/summit", 4));
 
     // ---------------------------------------------------------------- shared with the control study
@@ -70,6 +71,24 @@ class TablePixelRetryStudyTest {
         String describe() {
             StringBuilder sb = new StringBuilder(String.format("%d processes, %d navigations, %d screenshots", processes, navigations, screenshots));
             byKind.forEach((k, c) -> sb.append(String.format("; %s: %d processes, %d navigations, %d screenshots", k, c[0], c[1], c[2])));
+            return sb.toString();
+        }
+
+        /** Wall time of each process (launch to its last capture), by kind of process. */
+        final Map<String, List<Long>> millis = new java.util.LinkedHashMap<>();
+
+        void time(String kind, long ms) {
+            millis.computeIfAbsent(kind, k -> new ArrayList<>()).add(ms);
+        }
+
+        String timings() {
+            StringBuilder sb = new StringBuilder();
+            millis.forEach((k, l) -> {
+                List<Long> s = l.stream().sorted().toList();
+                long total = s.stream().mapToLong(Long::longValue).sum();
+                sb.append(sb.length() == 0 ? "" : "; ").append(String.format("%s: median %d ms (min %d, max %d, n=%d, total %d s)", k, s.get(s.size() / 2), s.get(0), s.get(s.size() - 1),
+                        s.size(), total / 1000));
+            });
             return sb.toString();
         }
     }
@@ -191,6 +210,7 @@ class TablePixelRetryStudyTest {
             for (String mode : modes) {
                 String kind = kindPrefix + mode;
                 int process = counts.process(kind);
+                long started = System.nanoTime();
                 try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
                     if (mode.equals("case-only")) {
                         TableParityTest.Field f = chunk.get(index);
@@ -204,6 +224,7 @@ class TablePixelRetryStudyTest {
                         out.addAll(pairs);
                     }
                 }
+                counts.time(kind, (System.nanoTime() - started) / 1_000_000L);
             }
         }
         return out;
@@ -251,9 +272,11 @@ class TablePixelRetryStudyTest {
                 List<TableParityTest.Field> chunk = block(fields, c.block());
                 int process = counts.process("primary");
                 List<TablePixelRetryStudy.Pair> pairs;
+                long started = System.nanoTime();
                 try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
                     pairs = replay(cdp, server, chunk, c.block(), config, chunk.size() - 1, null, null, pictures, counts, "primary", "attempt " + attempt, "primary", 0, process, false);
                 }
+                counts.time("primary", (System.nanoTime() - started) / 1_000_000L);
                 primary.addAll(pairs);
                 for (TablePixelRetryStudy.Pair pair : pairs) {
                     if (TablePixelRetryStudy.judge(pictures, pair).accepted()) {
@@ -276,8 +299,8 @@ class TablePixelRetryStudyTest {
         String header = "TABLE PIXEL RETRY STUDY, primary (temporary diagnostic)\nenvironment: " + PixelDiagnostics.environment(session.chrome().executable()) + "\nseed=" + SEED
                 + " matrix=" + MATRIX + " procedure cap=" + MAX_PROCEDURES + "\nplanned: primary " + attempts + " processes, " + attempts * 2 * BLOCK + " navigations, "
                 + attempts * 4 * BLOCK + " screenshots; retries for the " + procedures.size() + " procedures that ran: " + procedures.size() * 2 * TablePixelRetryStudy.MAX_RETRIES
-                + " processes, " + plannedRetryNavigations + " navigations, " + 2 * plannedRetryNavigations + " screenshots\nactual: " + counts.describe() + "\nduration: " + seconds
-                + " s, distinct pictures: " + pictures.size() + "\n";
+                + " processes, " + plannedRetryNavigations + " navigations, " + 2 * plannedRetryNavigations + " screenshots\nactual: " + counts.describe() + "\nwall time per process: "
+                + counts.timings() + "\nduration: " + seconds + " s, distinct pictures: " + pictures.size() + "\n";
         String report = header + "\n" + TablePixelRetryStudy.primaryReport(primary, procedures, pictures, beyondCap);
         long bytes = finish(out, report, pictures);
         System.out.println("TABLE-RETRY-STUDY report bytes: " + bytes);
