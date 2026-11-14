@@ -273,7 +273,7 @@ class TablePixelTest {
                 Map<String, String> context = new LinkedHashMap<>();
                 context.put("configuration", s.config().id());
                 context.put("theme", s.config().theme());
-                context.put("skin", s.config().skin() == null ? "none" : s.config().skin());
+                context.put("skin", s.config().skin());
                 context.put("run", s.where());
                 context.put("fixture", s.field().id());
                 context.put("case", spec.key());
