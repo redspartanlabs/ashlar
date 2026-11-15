@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -35,11 +36,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>No golden image is stored: native painting differs by operating system and browser version, so only a rendering of the same page in the same browser is a fair reference. The cases
  * are captured with the same forced states as {@link TableParityTest}. Controls show that the comparison can fail: a wrong accent colour changes the picture, and so does the dark
  * {@code color-scheme}.
+ *
+ * <p>On Linux CI the same page has also been measured to render, now and then, with a few different anti-aliased pixels in four cases (issue #34). A first-pass rejection whose whole
+ * difference matches one of those measured patterns exactly ({@link TablePixelNoiseEnvelopes}) gets ONE retry after the whole first pass, in a fresh browser that replays its block up to
+ * it, judged by the same {@link PixelPolicy} ({@link TablePixelRetry}). At most two comparisons per run are retried; a third such rejection fails the run's budget. A comparison that
+ * passes on its retry is reported as unstable with both captures, never silently; every other rejection fails as before. The first pass itself is unchanged.
  */
 class TablePixelTest {
 
     /** Cases per browser: at most twice this many pages in one session (a browser asked for sixty or more screenshots in one session has not shut down cleanly here). */
-    private static final int CHUNK = 12;
+    static final int CHUNK = 12;
     private static final List<String> TAILWIND_FREE = List.of("light/none", "dark/none", "light/ledger", "dark/axiom", "dark/foundry");
     /** Configurations that failed in CI before the policy existed, for the controls that the policy still rejects broken renderings. */
     private static final List<String> CONTROL_CONFIGS = List.of("light/ledger", "dark/veridian");
@@ -57,9 +63,12 @@ class TablePixelTest {
     private static String controlBrokenAccent;
     private static String schemeOn;
     private static String schemeOff;
+    /** Every first-pass comparison of both parity runs, in capture order, and their final states after the retry (one ledger, one budget, per run). */
+    private static final TablePixelRetry.Ledger LEDGER = new TablePixelRetry.Ledger();
+    private static final List<String> OVER_BUDGET = new ArrayList<>();
 
     /** A picture, with the geometry of the forced element in it when the case forces a state (null otherwise). */
-    private record Picture(String png, PixelPolicy.Geometry geometry) {
+    record Picture(String png, PixelPolicy.Geometry geometry) {
     }
 
     private static String shot(DevToolsSession cdp, String fieldId) throws Exception {
@@ -82,7 +91,7 @@ class TablePixelTest {
     }
 
     /** The picture of one table page, with its state forced, captured twice: the two must be identical (see the class comment). */
-    private static Picture picture(DevToolsSession cdp, String url, TableParityTest.Field f) throws Exception {
+    static Picture picture(DevToolsSession cdp, String url, TableParityTest.Field f) throws Exception {
         cdp.navigate(url);
         List<String> pseudo = f.spec().pseudo();
         List<Integer> nodes = pseudo.isEmpty() ? List.of() : cdp.nodes(TableBrowser.target(f.spec(), f.id()));
@@ -101,18 +110,23 @@ class TablePixelTest {
         return new Picture(first, geometry);
     }
 
-    private static String singlePage(List<String> sheets, ParityConfigs.Config config, String body, String environment) {
+    static String singlePage(List<String> sheets, ParityConfigs.Config config, String body, String environment) {
         String page = TextEntryBrowser.page(sheets, config, "", body, TableBrowser.INDETERMINATE);
         return environment == null ? page : page.replace("</head>", "<style>" + environment + "</style></head>");
     }
 
-    /** Both renderings of every case, chunk by chunk, each chunk in a browser of its own that captures BOTH renderings, so a comparison is always between two pictures of one process. */
+    /**
+     * Both renderings of every case, chunk by chunk, each chunk in a browser of its own that captures BOTH renderings, so a comparison is always between two pictures of one process.
+     * Every comparison is recorded, with its verdict, in the ledger; the rejected ones are resolved after the whole first pass (see {@link TablePixelRetry}).
+     */
     private static void compare(ParitySession session, CascadeFixtureServer server, List<TableParityTest.Field> fields, List<String> legacySheets, List<String> migratedSheets,
-                                ParityConfigs.Config config, String environment, String where, List<String> mismatches, Set<String> distinct, boolean count) throws Exception {
+                                ParityConfigs.Config config, String environment, String where, Set<String> distinct, boolean count) throws Exception {
+        TablePixelNoiseEnvelopes.Mode mode = count ? TablePixelNoiseEnvelopes.Mode.WITH_TAILWIND : TablePixelNoiseEnvelopes.Mode.TAILWIND_FREE;
         for (int from = 0; from < fields.size(); from += CHUNK) {
             List<TableParityTest.Field> chunk = fields.subList(from, Math.min(fields.size(), from + CHUNK));
             try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
-                for (TableParityTest.Field f : chunk) {
+                for (int position = 0; position < chunk.size(); position++) {
+                    TableParityTest.Field f = chunk.get(position);
                     String migratedBody = f.markup();
                     String legacyBody = new IconLegacyMarkup().rewrite(new TableLegacyMarkup().rewrite(migratedBody));
                     Picture legacy = picture(cdp, server.registerRaw(singlePage(legacySheets, config, legacyBody, environment)), f);
@@ -125,9 +139,11 @@ class TablePixelTest {
                     // Exact first; a tolerance only for the named cases, within the band the browser computed for the legacy (reference) rendering.
                     PixelPolicy.Verdict verdict = PixelPolicy.compare(legacy.png(), migrated.png(), PixelPolicy.forCase(f.spec().key()), legacy.geometry());
                     String label = where + " " + f.id() + " (" + f.spec().key() + ")";
-                    if (!verdict.accepted()) {
-                        mismatches.add(label + " " + verdict.describe());
-                    } else if (!verdict.exact()) {
+                    // Recorded as it was judged; a rejection is resolved after the whole first pass (one retry at most, only inside a measured noise envelope).
+                    LEDGER.record(new TablePixelRetry.Comparison(LEDGER.size(), mode, config.id(), f.id(), f.spec().key(), label, verdict,
+                            verdict.accepted() ? null : new TablePixelRetry.Capture(legacy.png(), migrated.png(), legacy.geometry()),
+                            new TablePixelRetry.ReplaySpec(config.id(), legacySheets, migratedSheets, environment, from, position)));
+                    if (verdict.accepted() && !verdict.exact()) {
                         TOLERATED.add(label + " " + verdict.describe());
                     }
                     if (distinct != null) {
@@ -135,6 +151,34 @@ class TablePixelTest {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * A fresh browser replays a comparison's block from its first case up to and including the compared case exactly as {@link #compare} captures it (each case's legacy page, then its
+     * migrated page, with the same stylesheets and environment) and returns the compared case's pictures. {@code migratedPage} may change the compared case's migrated page: the retry
+     * passes it unchanged; the retry mechanism's controls inject their defects with it.
+     */
+    static TablePixelRetry.Capture replayBlock(ParitySession session, CascadeFixtureServer server, List<TableParityTest.Field> fields, TablePixelRetry.ReplaySpec spec,
+                                               UnaryOperator<String> migratedPage) throws Exception {
+        ParityConfigs.Config config = ParityConfigs.get(spec.configId());
+        List<TableParityTest.Field> chunk = fields.subList(spec.blockStart(), Math.min(fields.size(), spec.blockStart() + CHUNK));
+        try (DevToolsSession cdp = new DevToolsSession(session.chrome().executable())) {
+            Picture legacy = null;
+            Picture migrated = null;
+            for (int position = 0; position <= spec.position(); position++) {
+                TableParityTest.Field f = chunk.get(position);
+                String migratedBody = f.markup();
+                String legacyBody = new IconLegacyMarkup().rewrite(new TableLegacyMarkup().rewrite(migratedBody));
+                Picture l = picture(cdp, server.registerRaw(singlePage(spec.legacySheets(), config, legacyBody, spec.environment())), f);
+                String page = singlePage(spec.migratedSheets(), config, migratedBody, spec.environment());
+                Picture m = picture(cdp, server.registerRaw(position == spec.position() ? migratedPage.apply(page) : page), f);
+                if (position == spec.position()) {
+                    legacy = l;
+                    migrated = m;
+                }
+            }
+            return new TablePixelRetry.Capture(legacy.png(), migrated.png(), legacy.geometry());
         }
     }
 
@@ -204,14 +248,14 @@ class TablePixelTest {
         try (CascadeFixtureServer server = new CascadeFixtureServer(session.generatedDir())) {
             for (ParityConfigs.Config config : ParityConfigs.all()) {
                 boolean plain = config.id().equals("light/none") || config.id().equals("dark/none");
-                compare(session, server, fields, List.of(ParityFrames.generated("table-oracle.css")), List.of(ParityFrames.APP), config, null, config.id(), MISMATCHES,
+                compare(session, server, fields, List.of(ParityFrames.generated("table-oracle.css")), List.of(ParityFrames.APP), config, null, config.id(),
                         plain ? (config.theme().equals("light") ? DISTINCT_LIGHT : DISTINCT_DARK) : null, true);
             }
             // Without Tailwind: the scoped legacy rendering against the migrated one with Ashlar's stylesheet alone, both in the same page environment (the showcase's own dark colour scheme included).
             String environment = ParityFrames.environment(session.generatedDir());
             for (String id : TAILWIND_FREE) {
                 compare(session, server, fields, List.of(ParityFrames.generated("table-legacy-scoped.css")), List.of(ParityFrames.ASHLAR), ParityConfigs.get(id), environment, id + " (Tailwind removed)",
-                        FREE_MISMATCHES, null, false);
+                        null, false);
             }
             // Controls: the comparison can fail, and the colour scheme matters.
             ParityConfigs.Config light = ParityConfigs.get("light/none");
@@ -233,10 +277,25 @@ class TablePixelTest {
             control(session, server, fields, "sort button focus-visible", brokenRings());
             control(session, server, fields, "sort button hover", brokenHovers());
             control(session, server, fields, "active sort button hover", brokenHovers());
+            // After the whole first pass and every control: each rejection gets its final state (at most two retries, only inside a measured noise envelope).
+            LEDGER.resolve(TablePixelNoiseEnvelopes.PRODUCTION, c -> replayBlock(session, server, fields, c.spec(), UnaryOperator.identity()));
+        }
+        for (TablePixelRetry.Outcome o : LEDGER.outcomes()) {
+            if (o.state().fails()) {
+                String line = o.comparison().label() + " " + o.comparison().verdict().describe() + " [" + o.state() + ": " + o.reason() + "]";
+                (o.comparison().mode() == TablePixelNoiseEnvelopes.Mode.WITH_TAILWIND ? MISMATCHES : FREE_MISMATCHES).add(line);
+                if (o.state() == TablePixelRetry.State.BUDGET_EXCEEDED) {
+                    OVER_BUDGET.add(line);
+                }
+            }
         }
         System.out.println("TABLE-PIXELS: " + compared + " tables compared, " + TOLERATED.size() + " tolerated under the named policies, " + MISMATCHES.size() + " rejected; " + freeCompared
                 + " without Tailwind, " + FREE_MISMATCHES.size() + " rejected; " + controlsRun + " broken renderings tried against the policies, " + CONTROL_FAILURES.size() + " wrongly accepted");
         TOLERATED.forEach(t -> System.out.println("TABLE-PIXELS tolerated: " + t));
+        System.out.print(LEDGER.report("TABLE-PIXELS", new PixelDiagnostics.PictureBudget()));
+        if (LEDGER.slotsUsed() > 0 || LEDGER.outcomes().stream().anyMatch(o -> o.state().fails())) {
+            System.out.println("TABLE-PIXELS environment: " + PixelDiagnostics.environment(session.chrome().executable()));
+        }
     }
 
     @Test
@@ -265,6 +324,12 @@ class TablePixelTest {
     @Test
     void theColourSchemeChangesHowTheBrowserDrawsTheCheckboxSoBothSidesMustShareIt() {
         assertNotEquals(schemeOn, schemeOff, "a dark page draws the native mark differently with the dark colour scheme");
+    }
+
+    @Test
+    void theRecoveredComparisonsStayWithinTheInstabilityBudget() {
+        assertEquals(List.of(), OVER_BUDGET, "eligible rejections beyond the " + TablePixelRetry.RETRY_SLOTS + " retry slots of this run (" + LEDGER.summary() + ")");
+        assertTrue(LEDGER.withState(TablePixelRetry.State.RECOVERED).size() <= TablePixelRetry.RETRY_SLOTS, LEDGER.summary());
     }
 
     @Test
