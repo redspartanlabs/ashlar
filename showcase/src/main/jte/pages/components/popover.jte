@@ -5,13 +5,13 @@
 
 @param String contextPath
 
-<%-- A GENUINE, confirmed cross-component finding (by direct comparison
-     with Dropdown Menu's own Escape handling): Popover's Escape listener
-     is bound to document, like Modal's and Drawer's, and does NOT call
-     stopPropagation - so a Popover opened inside an open Modal or
-     Drawer closes both on one Escape press. Dropdown Menu's root-scoped
-     listener genuinely prevents this; Popover's does not. Documented in
-     Pitfalls below, not fixed here. --%>
+<%-- Escape inside an enclosing Modal or Drawer: Popover's Escape listener
+     is bound to document and does NOT call stopPropagation (Dropdown
+     Menu's root-scoped listener does). The enclosing Modal or Drawer
+     recognises the open Popover inside it (its anchor's aria-expanded, in
+     the data-popover-trigger slot) and leaves that Escape to it, so one Escape
+     closes the Popover and a second the overlay. Documented in Pitfalls
+     below. --%>
 !{String backtick = "`";}
 !{String quickStartCode = "@template.ashlar.components.popover(\n"
         + "    title = \"Storage limit\",\n"
@@ -309,7 +309,7 @@ content = @`
                 <ul class="list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">A placement with no room never flips to the opposite side.</strong> Choosing Left for a trigger already against the left edge clips on that side rather than flipping to Right - the same deliberate limitation as Tooltip's, inherent to staying CSS-anchored instead of becoming a positioning engine.</li>
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">A Popover inside an <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">overflow-hidden</code> ancestor is clipped by it</strong> - including Table's own horizontal scroller. There is no portal here either.</li>
-                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">A Popover opened inside an open Modal or Drawer closes both of them on one Escape press.</strong> Popover's Escape listener (like Modal's and Drawer's) is bound to the whole document and doesn't stop propagation - unlike Dropdown Menu, whose root-scoped listener genuinely isolates itself, nothing here prevents an Escape meant for the Popover from also reaching an enclosing Modal/Drawer's own listener on the same keypress.</li>
+                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">Inside an open Modal or Drawer, the first Escape closes only the Popover.</strong> Popover's own Escape listener is bound to the whole document and doesn't stop propagation (unlike Dropdown Menu, whose root-scoped listener isolates itself); the enclosing Modal or Drawer sees that a Popover inside it is open and leaves that Escape to it, so a second Escape is needed to close the overlay.</li>
                 </ul>
             `
             )
@@ -332,7 +332,7 @@ content = @`
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
                             <li>A real interactive trigger element when possible - a plain &lt;span&gt; still works via the synthetic role/tabindex fallback, but a real &lt;button&gt; needs no fallback at all.</li>
-                            <li>Awareness of the Escape-propagation limitation above if you ever nest a Popover inside a Modal or Drawer.</li>
+                            <li>Nothing extra inside a Modal or Drawer: the enclosing overlay leaves the Escape that closes the Popover to it (see Pitfalls).</li>
                         </ul>
                     </div>
                 </div>

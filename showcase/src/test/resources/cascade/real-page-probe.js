@@ -24,8 +24,11 @@
     var cls = (el.getAttribute("class") || "").trim().split(/\s+/).slice(0, 3).join(".");
     // "~badge" marks a Badge, a Button (data-btn) or a Tabs badge (.ash-tabs__badge, the one pill inside a tab; the legacy rendering keeps that class
     // as an inert hook, since the migrated component has no data attribute for it) and anything inside one, so a comparison can apply the parity
-    // normalizations to exactly those migrated components' elements and to nothing else. (The suffix keeps its first name.)
-    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "") + (el.closest("[data-badge], [data-btn], .ash-tabs__badge") ? "~badge" : "");
+    // normalizations to exactly those migrated components' elements and to nothing else. (The suffix keeps its first name.) A Modal's dialog and a Drawer's
+    // panel themselves (data-modal-dialog, data-drawer-panel), and NOT what is inside them, are marked too: Tailwind composed their shadow-xl from fully
+    // transparent zero-size layers the migrated rule does not write (rule H1); everything in the surface is still compared exactly.
+    return el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (cls ? "." + cls : "")
+        + (el.closest("[data-badge], [data-btn], .ash-tabs__badge") || el.matches("[data-modal-dialog], [data-drawer-panel]") ? "~badge" : "");
   }
 
   function layerOrder() {

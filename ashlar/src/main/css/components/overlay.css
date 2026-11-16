@@ -1,0 +1,183 @@
+/* ash-overlay: the INTERNAL primitives Modal and Drawer share - the viewport-covering root, its backdrop, the dialog surface and the surface's header, title, close button,
+   body and footer. It is not a component of its own and has no template: modal.css and drawer.css add each component's layout and motion, and a page should not use these
+   classes directly.
+
+   Classes       ash-overlay                   the root of a Modal or a Drawer (data-modal / data-drawer), fixed over the whole viewport; display: none while it carries hidden
+                 ash-overlay__backdrop         the dimmed layer behind the surface (data-modal-backdrop / data-drawer-backdrop)
+                 ash-overlay__surface          the dialog itself (role="dialog", data-modal-dialog / data-drawer-panel): a column with the header, the body and the footer
+                 ash-overlay__header           the title bar: the title, then the close button, a rule below
+                 ash-overlay__title            the <h2> that names the dialog (aria-labelledby points at it)
+                 ash-overlay__close            the header's close <button> (data-modal-close / data-drawer-close)
+                 ash-overlay__body             the scrolling region between the header and the footer
+                 ash-overlay__footer           the optional actions bar, a rule above
+   Properties    --ash-overlay-bg              the surface's background
+                 --ash-overlay-border          the rules of the header and footer (and the Drawer panel's inward edge)
+                 --ash-overlay-title           the title's colour
+                 --ash-overlay-text            the body's colour
+                 --ash-overlay-footer-bg       the footer's background
+                 --ash-overlay-close           the close button's resting colour; --ash-overlay-close-hover and --ash-overlay-close-hover-bg its hovered colours
+                 --ash-overlay-ring            the close button's keyboard focus ring
+                 --ash-overlay-backdrop        the backdrop's colour
+                 --ash-overlay-shadow          the surface's drop shadow
+                 These are a customisation surface, set on the root (inline style, an unlayered rule, or a rule in a layer above ash.components). They are inherited by
+                 the parts.
+
+   State         hidden on the root is the closed, not-rendered overlay. data-state on the root is the visual state the parts transition between: "closed" (the backdrop
+                 transparent, the surface in its entry position) and "open". The scripts set data-state; the CSS never infers it. modal.css and drawer.css say what each
+                 state looks like for their surface; the backdrop's two states are here.
+
+   Stacking      The root sits at z-index 40, the overlay band between Popover (30) and the toast region (50). While several overlays are visible, overlay.js writes
+                 --ash-overlay-stack (1 to 9) on every overlay above the bottom one, so the overlay opened last paints on top whatever the document order. The offset is
+                 capped at 9, so no overlay ever reaches the toast region. The root is position: fixed with a z-index, so it is a stacking context of its own, and two
+                 overlays are ordered against each other only when they share a parent stacking context: an overlay rendered inside an element that makes its own
+                 stacking context (a z-indexed position: relative wrapper, a transform, an opacity below 1, ...) is drawn inside that element's level.
+
+   Hooks         data-modal-dialog and data-drawer-panel are what a skin targets: the showcase skins set the surface's box-shadow there, unlayered, so it replaces
+                 --ash-overlay-shadow. The shadow is therefore never given an important priority here.
+
+   Motion        The backdrop fades for 200ms, ease-out. Under prefers-reduced-motion: reduce the transition PROPERTY becomes none, which is what
+                 motion-reduce:transition-none computed to; overlay.js reads the computed transition to know how long an exit lasts, so a zero-length transition
+                 (reduced motion included) finishes at once.
+
+   Colour        Every colour reads Tailwind's palette variables with the exact Tailwind v4 value as the fallback, so a skin that overrides --color-slate-* or
+                 --color-white recolours the overlay, and with no Tailwind and no skin it looks the same. The backdrop is slate-900 at half strength mixed in oklab, which
+                 is what Tailwind's bg-slate-900/50 computed to (color-mix with the palette variable), so a skin that recolours slate-900 recolours the backdrop as it
+                 always did. Dark mode follows data-theme="dark" with the zero-specificity :where() form the Tailwind dark: variant used. Hover sits inside
+                 @media (hover: hover), as Tailwind's hover: variant did.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The heading's margin, size, line-height and weight are stated, the close button states the form-control
+   reset it had (inherited font and letter spacing, no margin, border, radius or background of its own beyond what it draws), and the header and footer rules are declared
+   as a zero-width solid border in the rule colour with one 1px side, as card.css does. The sizes are what Tailwind's text-base (1rem, line-height 1.5) and text-sm
+   (0.875rem, line-height 1.25 / 0.875) were. The component adds no global rule. */
+
+.ash-overlay {
+  --ash-overlay-bg: var(--color-white, #fff);
+  --ash-overlay-border: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-overlay-title: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-overlay-text: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-overlay-footer-bg: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-overlay-close: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-overlay-close-hover: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-overlay-close-hover-bg: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-overlay-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-overlay-backdrop: color-mix(in oklab, var(--color-slate-900, oklch(20.8% 0.042 265.755)) 50%, transparent);
+  --ash-overlay-shadow: 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;
+  --ash-overlay-body-leading: calc(1.25 / 0.875);
+  position: fixed;
+  inset: 0;
+  z-index: calc(40 + var(--ash-overlay-stack, 0));
+  display: flex;
+}
+
+.ash-overlay:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-overlay-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-overlay-border: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-overlay-title: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-overlay-text: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-overlay-footer-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-overlay-close-hover: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-overlay-close-hover-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+}
+
+.ash-overlay[hidden] {
+  display: none;
+}
+
+.ash-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--ash-overlay-backdrop);
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-overlay[data-state="open"] > .ash-overlay__backdrop {
+  opacity: 1;
+}
+
+.ash-overlay__surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ash-overlay-bg);
+  box-shadow: var(--ash-overlay-shadow);
+}
+
+.ash-overlay__surface:focus {
+  outline-style: none;
+}
+
+.ash-overlay__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ash-space-4);
+  border: 0 solid var(--ash-overlay-border);
+  border-bottom-width: 1px;
+  padding: var(--ash-space-4) var(--ash-space-6);
+}
+
+.ash-overlay__title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--ash-overlay-title);
+}
+
+.ash-overlay__close {
+  margin: 0;
+  border: 0 solid;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  padding: 0.25rem;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  color: var(--ash-overlay-close);
+  appearance: button;
+}
+
+@media (hover: hover) {
+  .ash-overlay__close:hover {
+    background-color: var(--ash-overlay-close-hover-bg);
+    color: var(--ash-overlay-close-hover);
+  }
+}
+
+.ash-overlay__close:focus {
+  outline-style: none;
+}
+
+.ash-overlay__close:focus-visible {
+  box-shadow: 0 0 0 2px var(--ash-overlay-ring);
+}
+
+.ash-overlay__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ash-space-4) var(--ash-space-6);
+  font-size: 0.875rem;
+  line-height: var(--ash-overlay-body-leading);
+  color: var(--ash-overlay-text);
+}
+
+.ash-overlay__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ash-space-3);
+  border: 0 solid var(--ash-overlay-border);
+  border-top-width: 1px;
+  background-color: var(--ash-overlay-footer-bg);
+  padding: var(--ash-space-4) var(--ash-space-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-overlay__backdrop {
+    transition-property: none;
+  }
+}

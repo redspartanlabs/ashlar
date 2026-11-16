@@ -18,11 +18,18 @@ public enum ModalSize {
         }
     }
 
+    /**
+     * The dialog's size modifier, styled by {@code components/modal.css} in the
+     * generated {@code ashlar.css}: at most 24rem, 32rem or 42rem wide, the
+     * widths Tailwind's max-w-sm, max-w-lg and max-w-2xl gave it before. The
+     * name is kept from when it returned those Tailwind classes; the classes are
+     * now Ashlar's own and no longer depend on Tailwind.
+     */
     public String maxWidthClass() {
         return switch (this) {
-            case SMALL -> "max-w-sm";
-            case MEDIUM -> "max-w-lg";
-            case LARGE -> "max-w-2xl";
+            case SMALL -> "ash-modal__dialog--sm";
+            case MEDIUM -> "ash-modal__dialog--md";
+            case LARGE -> "ash-modal__dialog--lg";
         };
     }
 }

@@ -41,61 +41,69 @@
      here because nothing in this component needs it - see the showcase page
      for the cases this actually has to serve.
 
-     Sizing is `w-screen max-w-md`: full-bleed on a phone, a fixed column on
-     anything wider. That's the one rule that keeps a drawer usable at
-     narrow widths without a second mobile layout. --%>
+     Sizing is the viewport's width up to 28rem (components/drawer.css):
+     full-bleed on a phone, a fixed column on anything wider. That's the one
+     rule that keeps a drawer usable at narrow widths without a second mobile
+     layout.
+
+     The styling is Ashlar's own: the shared overlay primitives
+     (components/overlay.css) plus the Drawer's edge, size, border and slide
+     (components/drawer.css). Closed by default: the root carries `hidden`
+     and data-state="closed"; drawer.js removes `hidden`, flips data-state to
+     "open", and restores `hidden` once the exit has finished. The placement
+     is a class on the root and on the panel, so the closed position needs no
+     class handed to the script: the former data-drawer-closed-class
+     attribute is gone (see the CHANGELOG). --%>
 !{DrawerPlacement resolvedPlacement = DrawerPlacement.from(placement);}
 !{String titleId = id + "-title";}
-!{String closedTransform = DrawerStyles.closedTransform(resolvedPlacement);}
 
 <div
         id="${id}"
         data-drawer
-        data-drawer-closed-class="${closedTransform}"
-        class="fixed inset-0 z-40 hidden ${DrawerStyles.alignment(resolvedPlacement)}"
+        data-state="closed"
+        class="ash-overlay ash-drawer ${DrawerStyles.alignment(resolvedPlacement)}"
+        hidden
 >
-    <div
-            data-drawer-backdrop
-            class="absolute inset-0 bg-slate-900/50 opacity-0 transition-opacity duration-200 ease-out motion-reduce:transition-none"
-    ></div>
+    <div data-drawer-backdrop class="ash-overlay__backdrop"></div>
 
-    <%-- `relative` puts the panel above its own backdrop sibling, which is
-         what makes a click on the panel structurally unable to be mistaken
-         for a backdrop click - the backdrop simply never receives it. --%>
+    <%-- `position: relative` (on every overlay surface) puts the panel above its
+         own backdrop sibling, which is what makes a click on the panel
+         structurally unable to be mistaken for a backdrop click - the backdrop
+         simply never receives it. --%>
     <div
             data-drawer-panel
             role="dialog"
             aria-modal="true"
             aria-labelledby="${titleId}"
             tabindex="-1"
-            class="relative flex h-full w-screen max-w-md flex-col bg-white shadow-xl transition-transform duration-200 ease-out focus:outline-none motion-reduce:transition-none ${DrawerStyles.border(resolvedPlacement)} border-slate-200 ${closedTransform} dark:border-slate-700 dark:bg-slate-900"
+            class="ash-overlay__surface ash-drawer__panel ${DrawerStyles.border(resolvedPlacement)}"
     >
-        <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-            <h2 id="${titleId}" class="text-base font-semibold text-slate-900 dark:text-slate-100">${title}</h2>
+        <div class="ash-overlay__header">
+            <h2 id="${titleId}" class="ash-overlay__title">${title}</h2>
 
             <button
                     type="button"
                     data-drawer-close="${id}"
                     aria-label="Close"
-                    class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                    class="ash-overlay__close"
             >
-                @template.ashlar.components.icon(icon = Icon.CLOSE, classes = "h-5 w-5")
+                @template.ashlar.components.icon(icon = Icon.CLOSE)
             </button>
         </div>
 
         <%-- The panel is a flex column, so this is the only part that
              scrolls: the header and footer stay put while long content
-             moves under them. `overscroll-contain` stops a touch scroll
-             that reaches the end of this region from chaining into the page
+             moves under them. ash-drawer__body stops a touch scroll that
+             reaches the end of this region from chaining into the page
              behind the drawer. --%>
-        <div class="flex-1 overflow-y-auto overscroll-contain px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+        <div class="ash-overlay__body ash-drawer__body">
             @if (body != null)
                 ${body}
             @endif
         </div>
 
         @if (footer != null)
-            <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
+            <div class="ash-overlay__footer">
                 ${footer}
             </div>
         @endif

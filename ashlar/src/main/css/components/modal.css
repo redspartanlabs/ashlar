@@ -1,0 +1,64 @@
+/* ash-modal: a dialog centred over the page, on the shared overlay primitives (overlay.css). This file adds only what is the Modal's own: the centring, the dialog's
+   size, shape and entry motion.
+
+   Classes       ash-modal                     on the root, with ash-overlay (it also carries data-modal): centres the dialog, 1rem from every viewport edge
+                 ash-modal__dialog             on the surface, with ash-overlay__surface (it also carries data-modal-dialog): full width up to its size, at most the
+                                               viewport's height, its own content clipped to the rounded corners
+                 ash-modal__dialog--sm         size Small, at most 24rem wide
+                 ash-modal__dialog--md         size Medium (the default), at most 32rem wide
+                 ash-modal__dialog--lg         size Large, at most 42rem wide
+                 ModalSize.maxWidthClass() returns the size modifier, so these three names are part of the Java contract as well.
+
+   State         Closed (data-state="closed", the state the root is rendered in): the dialog is transparent, 0.25rem higher and at 95%. Open: opaque, in place and at full
+                 size. The values are what Tailwind's opacity-0, -translate-y-1 and scale-95 (and opacity-100, translate-y-0 and scale-100) computed to, written the
+                 same way (individual translate and scale properties, not transform).
+
+   Motion        The dialog animates opacity, translate and scale for 200ms, ease-out, all three with the same duration and delay, so the exit is over when all of
+                 them are (overlay.js waits for every transition that runs, and reads this computed duration for its fallback). Tailwind's transition utility listed
+                 twenty-three properties; only these three ever change, so only these are listed. Under prefers-reduced-motion: reduce the property becomes none.
+
+   Sizes         The widths read Tailwind's container variables with their v4 values as the fallback (--container-sm 24rem, --container-lg 32rem, --container-2xl
+                 42rem), and the radius reads --radius-xl (0.75rem), so a skin that sets either changes the dialog as it always did. */
+
+.ash-modal {
+  align-items: center;
+  justify-content: center;
+  padding: var(--ash-space-4);
+}
+
+.ash-modal__dialog {
+  max-height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-xl, 0.75rem);
+  opacity: 0;
+  translate: 0 calc(0.25rem * -1);
+  scale: 95% 95%;
+  transition-property: opacity, translate, scale;
+  transition-duration: 0.2s;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-modal__dialog--sm {
+  max-width: var(--container-sm, 24rem);
+}
+
+.ash-modal__dialog--md {
+  max-width: var(--container-lg, 32rem);
+}
+
+.ash-modal__dialog--lg {
+  max-width: var(--container-2xl, 42rem);
+}
+
+.ash-modal[data-state="open"] > .ash-modal__dialog {
+  opacity: 1;
+  translate: 0 0px;
+  scale: 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-modal__dialog {
+    transition-property: none;
+  }
+}
