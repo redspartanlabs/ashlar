@@ -14,25 +14,28 @@
 !{ModalSize resolvedSize = ModalSize.from(size);}
 !{String titleId = id + "-title";}
 
-<%-- Closed by default. JS toggles "hidden" <-> "flex" together (never both
-     at once) to show/hide this, the same pattern used by every other
-     show/hide element in this project. --%>
+<%-- Closed by default: the root carries `hidden` (not rendered at all) and
+     data-state="closed". modal.js removes `hidden` to show it, flips
+     data-state to "open" a frame later so the entry transition runs, and on
+     close flips it back and restores `hidden` once the exit has finished.
+     The styling is Ashlar's own: the shared overlay primitives
+     (components/overlay.css) plus the Modal's centring, size and motion
+     (components/modal.css). --%>
 <div
         id="${id}"
         data-modal
         data-close-on-backdrop="${closeOnBackdrop}"
         data-close-on-escape="${closeOnEscape}"
-        class="fixed inset-0 z-40 hidden items-center justify-center p-4"
+        data-state="closed"
+        class="ash-overlay ash-modal"
+        hidden
 >
-    <%-- Backdrop/dialog both start in their "closed" visual state (transparent,
-         dialog slightly raised and shrunk). JS toggles opacity-*/scale-*/
-         translate-* in matched pairs to animate between this and the "open"
-         state; motion-reduce: drops the animation to an instant snap without
-         any JavaScript needing to know about that preference. --%>
-    <div
-            data-modal-backdrop
-            class="absolute inset-0 bg-slate-900/50 opacity-0 transition-opacity duration-200 ease-out motion-reduce:transition-none"
-    ></div>
+    <%-- Backdrop and dialog both start in their "closed" visual state
+         (transparent, the dialog slightly raised and shrunk); data-state on the
+         root selects the "open" one, and the CSS transitions between the two.
+         Under prefers-reduced-motion the transitions are off, so the change is an
+         instant snap without any JavaScript needing to know that preference. --%>
+    <div data-modal-backdrop class="ash-overlay__backdrop"></div>
 
     <div
             data-modal-dialog
@@ -40,31 +43,31 @@
             aria-modal="true"
             aria-labelledby="${titleId}"
             tabindex="-1"
-            class="relative flex max-h-full w-full ${resolvedSize.maxWidthClass()} -translate-y-1 scale-95 flex-col overflow-hidden rounded-xl bg-white opacity-0 shadow-xl transition duration-200 ease-out focus:outline-none motion-reduce:transition-none dark:bg-slate-900"
+            class="ash-overlay__surface ash-modal__dialog ${resolvedSize.maxWidthClass()}"
     >
-        <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-            <h2 id="${titleId}" class="text-base font-semibold text-slate-900 dark:text-slate-100">${title}</h2>
+        <div class="ash-overlay__header">
+            <h2 id="${titleId}" class="ash-overlay__title">${title}</h2>
 
             @if (showCloseButton)
                 <button
                         type="button"
                         data-modal-close="${id}"
                         aria-label="Close"
-                        class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                        class="ash-overlay__close"
                 >
-                    @template.ashlar.components.icon(icon = Icon.CLOSE, classes = "h-5 w-5")
+                    @template.ashlar.components.icon(icon = Icon.CLOSE)
                 </button>
             @endif
         </div>
 
-        <div class="flex-1 overflow-y-auto px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+        <div class="ash-overlay__body">
             @if (body != null)
                 ${body}
             @endif
         </div>
 
         @if (footer != null)
-            <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
+            <div class="ash-overlay__footer">
                 ${footer}
             </div>
         @endif

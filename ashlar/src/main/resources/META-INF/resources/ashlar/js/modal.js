@@ -1,3 +1,5 @@
+import { lockScroll, lower, raise, releaseKeyboard, restoreFocus, settle, takeKeyboard, unlockScroll } from "./overlay.js";
+
 const FOCUSABLE_SELECTOR = [
     "a[href]",
     "button:not([disabled])",
@@ -7,48 +9,6 @@ const FOCUSABLE_SELECTOR = [
     '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
-// Matches the duration-200 Tailwind class on the backdrop/dialog. Kept in
-// one place so the JS wait time and the CSS transition can't quietly drift
-// apart.
-const TRANSITION_DURATION_MS = 200;
-
-function prefersReducedMotion() {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-// Runs `callback` once the element's CSS transition has visibly finished.
-// Falls back to a timer so a transition that never fires transitionend
-// (interrupted, or reduced-motion produces a genuinely zero-length
-// transition that fires no event at all) can't leave the modal stuck
-// mid-close. Under reduced motion there is nothing to wait for, so the
-// callback runs immediately - this is the only place JS looks at the
-// media query, purely to avoid an artificial delay; the animation itself
-// is suppressed entirely by CSS regardless of what JS does here.
-function afterTransition(element, callback) {
-    if (prefersReducedMotion()) {
-        callback();
-        return;
-    }
-
-    let finished = false;
-    function finish() {
-        if (finished) {
-            return;
-        }
-        finished = true;
-        element.removeEventListener("transitionend", onTransitionEnd);
-        callback();
-    }
-    function onTransitionEnd(event) {
-        if (event.target === element) {
-            finish();
-        }
-    }
-
-    element.addEventListener("transitionend", onTransitionEnd);
-    window.setTimeout(finish, TRANSITION_DURATION_MS + 50);
-}
-
 function initModal(root) {
     const backdrop = root.querySelector("[data-modal-backdrop]");
     const dialog = root.querySelector("[data-modal-dialog]");
@@ -56,45 +16,44 @@ function initModal(root) {
     const closeOnBackdrop = root.dataset.closeOnBackdrop === "true";
     const closeOnEscape = root.dataset.closeOnEscape === "true";
 
-    // The state this component needs: who to give focus back to, what the
-    // page's scroll behavior looked like before this modal changed it, and
-    // whether a close is already animating out. All three are private to
-    // this instance - nothing here is shared with any other modal on the
-    // page.
+    // The state this component needs: who to give focus back to, whether a
+    // close is already animating out, and which open or close is the current
+    // one. All private to this instance. What overlays share - the paint
+    // order, the keyboard, the page's scroll lock - is coordinated by
+    // overlay.js, which this instance joins on open and leaves only when its
+    // exit has finished (see closeModal).
     let lastOpener = null;
-    let previousBodyOverflow = null;
     let isClosing = false;
+    // Every open and close takes a new number; a deferred step (the entry
+    // frame, the end of the exit) does nothing if another open or close has
+    // happened since it was scheduled.
+    let generation = 0;
 
+    const overlay = {
+        root,
+        escape: handleEscape,
+        tab: trapTabKey,
+        focusInitial: focusInitialElement,
+        focusFirst() {
+            const [first] = getFocusableElements();
+            (first || dialog).focus();
+        },
+    };
+
+    // Shown is not-hidden, exactly as it was when this read the "hidden"
+    // class: the modal stays mounted for the whole exit, so an opener click
+    // during those 200ms still sees an open modal and does nothing.
     function isOpen() {
-        return !root.classList.contains("hidden");
+        return !root.hidden;
     }
 
-    // Toggles backdrop/dialog between their "closed" and "open" visual
-    // states in matched pairs (never a mix of both), so the CSS
-    // transitions declared in the template animate between exactly two
-    // known states. The footer/body never get their own classes here -
-    // they're plain children of the dialog, so they move as part of the
-    // same single surface.
+    // Moves backdrop and dialog between their "closed" and "open" visual
+    // states (never a mix of both): the CSS transitions declared for
+    // data-state animate between exactly two known states. The footer/body
+    // never get their own state - they're plain children of the dialog, so
+    // they move as part of the same single surface.
     function setEntered(isEntered) {
-        backdrop.classList.toggle("opacity-100", isEntered);
-        backdrop.classList.toggle("opacity-0", !isEntered);
-
-        dialog.classList.toggle("opacity-100", isEntered);
-        dialog.classList.toggle("opacity-0", !isEntered);
-        dialog.classList.toggle("scale-100", isEntered);
-        dialog.classList.toggle("scale-95", !isEntered);
-        dialog.classList.toggle("translate-y-0", isEntered);
-        dialog.classList.toggle("-translate-y-1", !isEntered);
-    }
-
-    function lockBodyScroll() {
-        previousBodyOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-    }
-
-    function unlockBodyScroll() {
-        document.body.style.overflow = previousBodyOverflow;
-        previousBodyOverflow = null;
+        root.dataset.state = isEntered ? "open" : "closed";
     }
 
     function getFocusableElements() {
@@ -118,18 +77,24 @@ function initModal(root) {
 
     function openModal(opener) {
         isClosing = false;
+        const current = ++generation;
         lastOpener = opener || document.activeElement;
-        root.classList.remove("hidden");
-        root.classList.add("flex");
+        root.hidden = false;
         setEntered(false);
+        raise(overlay);
+        takeKeyboard(overlay);
 
         // Force the browser to register the "closed" state above before the
-        // next frame flips it to "open" - without this, both class changes
-        // would land in the same paint and no transition would be visible.
+        // next frame flips it to "open" - without this, both changes would
+        // land in the same paint and no transition would be visible.
         void dialog.offsetWidth;
-        requestAnimationFrame(() => setEntered(true));
+        requestAnimationFrame(() => {
+            if (current === generation) {
+                setEntered(true);
+            }
+        });
 
-        lockBodyScroll();
+        lockScroll(overlay);
         focusInitialElement();
     }
 
@@ -138,25 +103,33 @@ function initModal(root) {
             return;
         }
         isClosing = true;
+        const current = ++generation;
 
-        // Play the exit transition first. The modal stays mounted (still
-        // "flex", not yet "hidden") for the duration of the fade, which is
-        // deliberate: it's what makes the fade visible at all, and it keeps
-        // the focus trap and Escape/backdrop handling correctly engaged for
-        // that entire window - nothing here should be reachable again once
-        // the callback below actually runs.
+        // Play the exit transition first. The modal stays mounted (not yet
+        // hidden) for the duration of the fade, which is deliberate: it's what
+        // makes the fade visible at all, and it keeps the focus trap and
+        // Escape/backdrop handling correctly engaged for that entire window -
+        // nothing here should be reachable again once the callback below
+        // actually runs. It keeps the scroll lock until then, too.
         setEntered(false);
 
-        afterTransition(dialog, () => {
-            root.classList.add("hidden");
-            root.classList.remove("flex");
+        settle([dialog, backdrop], () => current === generation, () => {
+            root.hidden = true;
             isClosing = false;
-            unlockBodyScroll();
-            if (lastOpener && typeof lastOpener.focus === "function") {
-                lastOpener.focus();
-            }
+            lower(overlay);
+            releaseKeyboard(overlay);
+            unlockScroll(overlay);
+            const opener = lastOpener;
             lastOpener = null;
+            restoreFocus(opener);
         });
+    }
+
+    function handleEscape(event) {
+        if (closeOnEscape) {
+            event.preventDefault();
+            closeModal();
+        }
     }
 
     function trapTabKey(event) {
@@ -184,17 +157,9 @@ function initModal(root) {
         }
     });
 
-    document.addEventListener("keydown", (event) => {
-        if (!isOpen()) {
-            return;
-        }
-        if (event.key === "Escape" && closeOnEscape) {
-            event.preventDefault();
-            closeModal();
-        } else if (event.key === "Tab") {
-            trapTabKey(event);
-        }
-    });
+    // Escape and Tab arrive through overlay.js, which offers them only to the
+    // topmost overlay that owns the keyboard (this one, while it is open and
+    // on top).
 
     // A page opens/closes this specific modal via any element carrying
     // data-modal-open/data-modal-close with this modal's id - a plain

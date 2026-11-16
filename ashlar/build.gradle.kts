@@ -48,8 +48,8 @@ sourceSets {
  * Ships Ashlar's complete Tailwind class vocabulary inside the jar.
  *
  * Ashlar's utility classes do not all live in templates. Variant maps sit in
- * Java (`ButtonStyles`, `ModalSize`, ...) and runtime state classes sit in the
- * JavaScript modules (`drawer.js` toggles `opacity-100` and `translate-x-0`,
+ * Java (`ToastStyles`, `TooltipStyles`, ...) and runtime state classes sit in the
+ * JavaScript modules (`popover.js` toggles `opacity-100` and `scale-100`,
  * ...). A consumer's Tailwind build scans the staged
  * `ashlar/` template root - and nothing else - so classes held anywhere other
  * than a template never reach its stylesheet. Compiled classes and jars are

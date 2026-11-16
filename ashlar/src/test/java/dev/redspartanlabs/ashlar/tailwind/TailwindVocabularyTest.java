@@ -59,7 +59,7 @@ class TailwindVocabularyTest {
             "pointer-events-auto",     // ToastStyles: a class held only in Java, which a templates-only scan loses
             "hover:bg-blue-700",        // ButtonStyles: state variant
             "data-[toast-state=hidden]:hidden", // ToastStyles: a state variant held only in Java
-            "-translate-x-full",        // negative utility; a "looks like a class" filter dropped these
+            "-translate-x-1/2",         // TooltipStyles: negative utility; a "looks like a class" filter dropped these
     })
     void capturesJavaHeldClasses(String token) {
         assertTrue(lines.contains(token), token + " is missing from the vocabulary");
@@ -67,8 +67,8 @@ class TailwindVocabularyTest {
 
     @ParameterizedTest(name = "JavaScript-held class {0}")
     @ValueSource(strings = {
-            "opacity-100",   // drawer.js open state
-            "translate-x-0", // drawer.js open state
+            "opacity-100",   // popover.js and tooltip.js open state
+            "scale-100",     // popover.js and tooltip.js open state
     })
     void capturesJavaScriptHeldClasses(String token) {
         assertTrue(lines.contains(token), token + " is missing from the vocabulary");

@@ -1,5 +1,59 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Modal and Drawer are styled by Ashlar's own CSS (`components/overlay.css`, the
+  internal primitives they share, plus `modal.css` and `drawer.css`) instead of
+  Tailwind utility classes. Their template parameters and defaults, markup
+  structure, ARIA and `data-*` hooks are unchanged, except as listed below. Each
+  was compared against its previous Tailwind rendering in headless Chrome, in
+  all 22 showcase configurations, with Tailwind present and removed: computed
+  styles, motion, skin hooks, and pixels (exactly).
+- `ModalSize.maxWidthClass()`, `DrawerStyles.alignment()`, `border()` and
+  `closedTransform()` keep their names and signatures and now return Ashlar
+  classes (`ash-modal__dialog--sm|md|lg`, `ash-drawer--left|right`,
+  `ash-drawer__panel--left|right`).
+- The open and closed state is no longer expressed with classes. A closed root
+  carries the `hidden` attribute (it was the `hidden` class), and `data-state`
+  (`closed` or `open`) on the root selects the visual state (the scripts used
+  to toggle `opacity-*`, `scale-*` and `translate-*` classes). Code that read
+  those classes to tell whether an overlay is open should read `hidden` or
+  `data-state` instead.
+- Modal and Drawer now coordinate through an internal module, `overlay.js`,
+  served next to `modal.js` and `drawer.js` (which import it). When several
+  overlays are open: the one opened last paints on top (an inline
+  `--ash-overlay-stack` raises it, capped below the toast region); Escape and
+  Tab go to the topmost one only, so one Escape closes one overlay and a
+  topmost Modal that does not close on Escape is not bypassed; the page stays
+  locked until the last overlay closes and its own inline `overflow` is then
+  restored exactly; and restoring focus never moves it behind an overlay that
+  is still open. An Escape that belongs to an open Popover, Tooltip, Dropdown
+  Menu, Select, Combobox or Date Picker inside the topmost overlay closes only
+  that popup.
+- A Drawer now restores an inline `overflow` the page itself had set on
+  `<body>` when it closes (it used to remove the property).
+- An exit is over when every one of its transitions has finished, with a
+  fallback read from the computed CSS instead of a fixed 200ms. A Modal closed
+  before its first frame is hidden at once instead of staying mounted,
+  invisible, for 250ms.
+
+### Fixed
+
+- Closing a Drawer under a Modal no longer unlocks the page while the Modal is
+  open, and closing the Modal afterwards no longer leaves the page locked.
+- Two stacked Modals closed by Escape no longer close together, and no longer
+  can leave the page locked.
+- A Drawer opened from a Modal no longer paints underneath it when it comes
+  earlier in the document.
+
+### Removed
+
+- `data-drawer-closed-class` on the Drawer root. It carried the Tailwind class
+  of the closed position for `drawer.js` to read back; the placement modifiers
+  now carry it, and nothing reads the attribute.
+
 ## 0.2.0 - 2026-10-17
 
 The first release with Ashlar's own CSS. Ashlar now ships a stylesheet, and five

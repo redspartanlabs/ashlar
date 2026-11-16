@@ -136,14 +136,14 @@ content = @`
                 id = "smallModal",
                 title = "Small Modal",
                 size = "Small",
-                body = @`<p>This dialog uses the Small size (max-w-sm).</p>`
+                body = @`<p>This dialog uses the Small size (at most 24rem wide).</p>`
                 )
 
                 @template.ashlar.components.modal(
                 id = "largeModal",
                 title = "Large Modal",
                 size = "Large",
-                body = @`<p>This dialog uses the Large size (max-w-2xl), useful for richer content such as tables or multi-column forms.</p>`
+                body = @`<p>This dialog uses the Large size (at most 42rem wide), useful for richer content such as tables or multi-column forms.</p>`
                 )
 
                 @template.ashlar.components.modal(
@@ -212,7 +212,7 @@ content = @`
                     <div>
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Avoid</p>
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                            <li>Opening a Modal from inside another Modal or Drawer - nested overlays fight over focus and Escape.</li>
+                            <li>Stacking more overlays than the task needs. A Modal opened from another Modal or a Drawer works - it goes on top, one Escape closes only it, and the page stays locked until the last one closes - but every extra layer is one more thing a keyboard user has to keep track of.</li>
                             <li>Turning off both <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">showCloseButton</code> and <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">closeOnEscape</code> without a footer action - that leaves only the backdrop as a way out.</li>
                         </ul>
                     </div>
@@ -228,7 +228,7 @@ content = @`
                 <ul class="list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">Two different ids triggering the same confusion.</strong> <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">data-modal-open</code>'s value must match the modal's own <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">id</code> exactly - a mismatch fails silently rather than erroring, since any element can carry that attribute.</li>
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">A disabled close button with no other way out.</strong> See "Avoid" above - verify a footer action exists before turning off the header close button and Escape together.</li>
-                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">A Modal containing an open Drawer or Popover closes both of them on one Escape press.</strong> This component's own Escape listener is bound to the whole document with no stopPropagation, the same shape as <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a>'s and <a href="${contextPath}/components/popover" class="text-blue-700 hover:underline dark:text-blue-400">Popover</a>'s own listeners - nothing here isolates an Escape meant for a nested one of those from also reaching this Modal's.</li>
+                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">Escape closes the topmost overlay only.</strong> With a <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a> or another Modal open on top of this one, one Escape closes that one and a second reaches this Modal. An open <a href="${contextPath}/components/popover" class="text-blue-700 hover:underline dark:text-blue-400">Popover</a>, Tooltip, Dropdown Menu, Select, Combobox or Date Picker inside it takes the first Escape itself. A topmost Modal with <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">closeOnEscape</code> off ignores Escape, and nothing behind it closes instead.</li>
                 </ul>
             `
             )

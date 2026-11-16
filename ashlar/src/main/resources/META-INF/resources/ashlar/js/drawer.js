@@ -1,3 +1,5 @@
+import { lockScroll, lower, raise, releaseKeyboard, restoreFocus, settle, takeKeyboard, unlockScroll } from "./overlay.js";
+
 const FOCUSABLE_SELECTOR = [
     "a[href]",
     "button:not([disabled])",
@@ -7,82 +9,41 @@ const FOCUSABLE_SELECTOR = [
     '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
-// Matches drawer.jte's `duration-200` on the backdrop and panel.
-const TRANSITION_DURATION_MS = 200;
-
-function prefersReducedMotion() {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-// Runs `callback` once the element's CSS transition has visibly finished,
-// with a timer fallback so an interrupted or reduced-motion (genuinely
-// zero-length) transition can't leave the drawer stuck mid-close. Same
-// technique as modal.js/select.js/popover.js's own copy of this helper.
-function afterTransition(element, callback) {
-    if (prefersReducedMotion()) {
-        callback();
-        return;
-    }
-
-    let finished = false;
-    function finish() {
-        if (finished) {
-            return;
-        }
-        finished = true;
-        element.removeEventListener("transitionend", onTransitionEnd);
-        callback();
-    }
-    function onTransitionEnd(event) {
-        if (event.target === element) {
-            finish();
-        }
-    }
-
-    element.addEventListener("transitionend", onTransitionEnd);
-    window.setTimeout(finish, TRANSITION_DURATION_MS + 50);
-}
-
 function initDrawer(root) {
     const backdrop = root.querySelector("[data-drawer-backdrop]");
     const panel = root.querySelector("[data-drawer-panel]");
-    // Which way "closed" is, handed over by the template so this and
-    // DrawerStyles can't disagree about it.
-    const closedClass = root.dataset.drawerClosedClass;
 
     // Open/closed is tracked as intent, flipped synchronously, rather than
-    // read back off the `hidden` class. That class lags by the length of
-    // the exit transition, so deriving state from it would mean a click on
+    // read back off the `hidden` attribute. That attribute lags by the length
+    // of the exit transition, so deriving state from it would mean a click on
     // the trigger during those 200ms saw a drawer that was still "open" and
-    // did nothing - the user's click would vanish. Everything below asks
-    // this flag, never the DOM.
+    // did nothing - the user's click would vanish. Everything below asks this
+    // flag, never the DOM.
     let opened = false;
     let lastOpener = null;
+    // Every open and close takes a new number; the end of an exit does
+    // nothing if the drawer has been opened (or closed again) since.
+    let generation = 0;
 
+    const overlay = {
+        root,
+        escape(event) {
+            event.preventDefault();
+            close();
+        },
+        tab: trapTabKey,
+        focusInitial: focusInitialElement,
+        focusFirst() {
+            const [first] = getFocusableElements();
+            (first || panel).focus();
+        },
+    };
+
+    // Which way "closed" is comes from the placement classes the template
+    // wrote on the root and the panel (DrawerStyles), so nothing has to be
+    // handed over here and the two can't disagree about it.
     function setEntered(isEntered) {
-        backdrop.classList.toggle("opacity-100", isEntered);
-        backdrop.classList.toggle("opacity-0", !isEntered);
-        panel.classList.toggle("translate-x-0", isEntered);
-        panel.classList.toggle(closedClass, !isEntered);
-    }
-
-    // Deliberately idempotent: set the lock, and on the way out just remove
-    // the property again. The obvious alternative - remember the previous
-    // inline value and put it back - looks more careful but has a much worse
-    // failure mode. Its "previous value" is captured at open time, so if
-    // anything else has already locked the body (another drawer whose
-    // deferred unlock hasn't run yet, say) it faithfully restores "hidden"
-    // and the page is stuck unscrollable for good. Removing the property
-    // can't get stuck: closing always unlocks, however many times it was
-    // locked. The cost is that an inline `overflow` the application itself
-    // set on <body> would be dropped, which is a far cheaper mistake than a
-    // page that can never scroll again.
-    function lockBodyScroll() {
-        document.body.style.overflow = "hidden";
-    }
-
-    function unlockBodyScroll() {
-        document.body.style.removeProperty("overflow");
+        root.dataset.state = isEntered ? "open" : "closed";
     }
 
     // getClientRects() rather than offsetParent: a panel that is itself
@@ -112,11 +73,13 @@ function initDrawer(root) {
             return;
         }
         opened = true;
+        ++generation;
         lastOpener = opener || document.activeElement;
 
-        root.classList.remove("hidden");
-        root.classList.add("flex");
+        root.hidden = false;
         setEntered(false);
+        raise(overlay);
+        takeKeyboard(overlay);
 
         // Force the browser to commit that "closed" state, then flip to
         // "open" in the same task. Reading offsetWidth flushes layout, which
@@ -130,7 +93,7 @@ function initDrawer(root) {
         void panel.offsetWidth;
         setEntered(true);
 
-        lockBodyScroll();
+        lockScroll(overlay);
         focusInitialElement();
     }
 
@@ -139,33 +102,28 @@ function initDrawer(root) {
             return;
         }
         opened = false;
+        const current = ++generation;
         setEntered(false);
+
+        // The keyboard goes with the intent: from now on Escape and Tab are
+        // the next overlay's, if one is open.
+        releaseKeyboard(overlay);
 
         // Focus goes back now, not when the slide-out finishes. The drawer
         // is already closed as far as intent goes, and waiting would leave
         // focus sitting on a control that's visibly sliding off screen.
         const opener = lastOpener;
         lastOpener = null;
-        if (opener && typeof opener.focus === "function") {
-            opener.focus();
-        }
+        restoreFocus(opener);
 
-        // Unlocked now, for the same reason focus moves now, and because
-        // deferring it lets one drawer's exit stomp another's lock: close
-        // this drawer, open a second one inside the 200ms exit window, and
-        // the first drawer's late callback would unlock the page while the
-        // second is still modal over it. Doing it synchronously means the
-        // lock always reflects the most recent intent.
-        unlockBodyScroll();
+        // Released now, for the same reason focus moves now. overlay.js keeps
+        // the page locked while any other overlay still holds the lock, and
+        // restores the page's own overflow only when the last one lets go.
+        unlockScroll(overlay);
 
-        afterTransition(panel, () => {
-            // Reopened while this exit was still running - it is mounted and
-            // locked again already, and the new open() owns that state now.
-            if (opened) {
-                return;
-            }
-            root.classList.add("hidden");
-            root.classList.remove("flex");
+        settle([panel, backdrop], () => current === generation, () => {
+            root.hidden = true;
+            lower(overlay);
         });
     }
 
@@ -205,17 +163,9 @@ function initDrawer(root) {
         }
     });
 
-    document.addEventListener("keydown", (event) => {
-        if (!opened) {
-            return;
-        }
-        if (event.key === "Escape") {
-            event.preventDefault();
-            close();
-        } else if (event.key === "Tab") {
-            trapTabKey(event);
-        }
-    });
+    // Escape and Tab arrive through overlay.js, which offers them only to the
+    // topmost overlay that owns the keyboard (this one, while it is open and
+    // on top).
 
     // Any element on the page carrying this drawer's id opens or closes it,
     // so one drawer can be opened from several places. Each instance only

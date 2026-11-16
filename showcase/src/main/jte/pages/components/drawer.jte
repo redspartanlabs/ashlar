@@ -13,11 +13,11 @@
      component by DrawerPlacement's own doc comment, not a missing
      variant of this one).
 
-     THE SAME ESCAPE-PROPAGATION GAP FOUND FOR POPOVER applies here too,
-     confirmed independently: Drawer's own Escape listener is bound to
-     document with no stopPropagation, identical in shape to Modal's
-     and Popover's - a Drawer opened inside an open Modal (or vice
-     versa) closes both on one Escape press. Documented in Pitfalls. --%>
+     ESCAPE AND STACKING are coordinated with Modal through overlay.js,
+     the internal module both scripts import: only the topmost overlay is
+     offered Escape and Tab, the overlay opened last paints on top, and the
+     page's scroll lock is released by the last overlay to close.
+     Documented in Pitfalls. --%>
 !{String backtick = "`";}
 !{String quickStartCode = "@template.ashlar.components.button(text = \"Open drawer\", attributes = \"data-drawer-open=\\\"exampleDrawer\\\"\")\n\n"
         + "@template.ashlar.components.drawer(\n"
@@ -193,7 +193,7 @@ content = @`
                     <div>
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Avoid</p>
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                            <li>Nesting a Drawer inside an open <a href="${contextPath}/components/modal" class="text-blue-700 hover:underline dark:text-blue-400">Modal</a> (or vice versa) - one Escape press closes both; see Pitfalls.</li>
+                            <li>Stacking a Drawer and a <a href="${contextPath}/components/modal" class="text-blue-700 hover:underline dark:text-blue-400">Modal</a> deeper than the task needs - it works (see Pitfalls), but every extra layer is one more thing a keyboard user has to keep track of.</li>
                             <li>Expecting a Top/Bottom placement - only Left and Right exist, by design.</li>
                         </ul>
                     </div>
@@ -207,7 +207,7 @@ content = @`
             title = "Pitfalls & Troubleshooting",
             content = @`
                 <ul class="list-disc space-y-2 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">A Drawer opened inside an open Modal closes both of them on one Escape press.</strong> Drawer's Escape listener (like Modal's and Popover's) is bound to the whole document and doesn't stop propagation, so nothing prevents an Escape meant for one from also reaching the other's own listener on the same keypress - the same architectural gap documented on Popover's page.</li>
+                    <li><strong class="font-medium text-slate-700 dark:text-slate-300">Escape closes the topmost overlay only.</strong> A Drawer opened over a Modal, or under one, shares the page with it: one Escape closes whichever is on top, the page stays locked until the last one closes, and focus never goes back to something an open overlay still covers. A Drawer rendered inside an element that makes its own stacking context (a z-indexed <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">position: relative</code> wrapper, a transform) is drawn within that element's level, so render a Drawer outside such wrappers if it may be stacked with other overlays.</li>
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">Escape and the close button can't be turned off.</strong> Unlike Modal, there is no parameter for either - both are hard-coded on, since a keyboard user inside a focus-trapped Drawer always needs a way out.</li>
                     <li><strong class="font-medium text-slate-700 dark:text-slate-300">There is no Top/Bottom placement.</strong> Only Left and Right exist; a sheet-style panel sliding from the top or bottom is a different component with a different sizing and gesture model, not a missing value here.</li>
                 </ul>
@@ -231,7 +231,7 @@ content = @`
                     <div>
                         <p class="text-sm font-medium text-slate-700 dark:text-slate-300">You provide</p>
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
-                            <li>Awareness of the Escape-propagation limitation above if you ever nest a Drawer inside a Modal, or vice versa.</li>
+                            <li>A place for the Drawer outside any element that makes its own stacking context, if it may be stacked with other overlays (see Pitfalls).</li>
                         </ul>
                     </div>
                 </div>

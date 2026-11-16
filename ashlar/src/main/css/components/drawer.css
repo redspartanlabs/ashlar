@@ -1,0 +1,63 @@
+/* ash-drawer: a full-height panel against one edge of the viewport, on the shared overlay primitives (overlay.css). This file adds only what is the Drawer's own: the
+   edge, the panel's size, its inward border and its slide.
+
+   Classes       ash-drawer                    on the root, with ash-overlay (it also carries data-drawer)
+                 ash-drawer--left              placement Left: the panel against the left edge
+                 ash-drawer--right             placement Right (the default): the panel against the right edge
+                 ash-drawer__panel             on the surface, with ash-overlay__surface (it also carries data-drawer-panel): the full height, the viewport's width up to
+                                               28rem
+                 ash-drawer__panel--left       the left panel: the border on its right (inward) edge, closed off the left edge
+                 ash-drawer__panel--right      the right panel: the border on its left (inward) edge, closed off the right edge
+                 ash-drawer__body              on the body, with ash-overlay__body: a scroll that reaches the end of the body does not chain into the page behind
+                 DrawerStyles.alignment() returns the root's placement modifier; DrawerStyles.border() and DrawerStyles.closedTransform() both return the panel's,
+                 which now carries the inward border and the closed position together. These names are part of the Java contract as well.
+
+   State         Closed (data-state="closed", the state the root is rendered in): the panel is translated its own width off its edge. Open: in place. The values are
+                 what Tailwind's -translate-x-full / translate-x-full and translate-x-0 computed to, written the same way (the individual translate property).
+
+   Motion        The panel slides (translate) for 200ms, ease-out; the backdrop fades for the same 200ms (overlay.css). Tailwind's transition-transform listed transform,
+                 translate, scale and rotate; only translate ever changes, so only it is listed. Under prefers-reduced-motion: reduce the property becomes none.
+
+   Sizes         The width reads --container-md with its v4 value (28rem) as the fallback, as Tailwind's max-w-md did. */
+
+.ash-drawer--left {
+  justify-content: flex-start;
+}
+
+.ash-drawer--right {
+  justify-content: flex-end;
+}
+
+.ash-drawer__panel {
+  height: 100%;
+  width: 100vw;
+  max-width: var(--container-md, 28rem);
+  border: 0 solid var(--ash-overlay-border);
+  translate: 100% 0;
+  transition-property: translate;
+  transition-duration: 0.2s;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-drawer__panel--left {
+  border-right-width: 1px;
+  translate: -100% 0;
+}
+
+.ash-drawer__panel--right {
+  border-left-width: 1px;
+}
+
+.ash-drawer[data-state="open"] > .ash-drawer__panel {
+  translate: 0px 0;
+}
+
+.ash-drawer__body {
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-drawer__panel {
+    transition-property: none;
+  }
+}

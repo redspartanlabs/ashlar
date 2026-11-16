@@ -22,7 +22,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   <li>{@code /css/*} - the showcase's real built resources ({@code app.css}, skins);</li>
  *   <li>{@code /generated/*} - the Path A builds compiled by the real Tailwind CLI;</li>
  *   <li>{@code /cascade/*} - the test-only probe stylesheets;</li>
- *   <li>{@code /page/N} - the ladder fixture with a scenario's links and attributes.</li>
+ *   <li>{@code /page/N} - the ladder fixture with a scenario's links and attributes;</li>
+ *   <li>{@code /ashlar/js/*} - Ashlar's REAL scripts, from the library on the test classpath, at the path the showcase serves them from, so an ES module's
+ *       relative import (overlay.js, imported by modal.js and drawer.js) resolves exactly as it does in the application;</li>
+ *   <li>{@code /scripts/N/*} - a registered set of script files (a legacy copy, or a deliberately broken variant of the real scripts), served side by side
+ *       so their relative imports resolve within the set (a set registered over Ashlar's scripts serves the real script for any name it does not hold).</li>
  * </ul>
  */
 final class CascadeFixtureServer implements AutoCloseable {
@@ -32,6 +36,9 @@ final class CascadeFixtureServer implements AutoCloseable {
     private final String template;
     private final Map<Integer, String> pages = new ConcurrentHashMap<>();
     private final AtomicInteger nextPage = new AtomicInteger();
+    private final Map<Integer, Map<String, String>> scriptSets = new ConcurrentHashMap<>();
+    private final AtomicInteger nextScriptSet = new AtomicInteger();
+    private final java.util.Set<Integer> overAshlar = ConcurrentHashMap.newKeySet();
 
     CascadeFixtureServer(Path generatedDir) throws IOException {
         this.generatedDir = generatedDir;
@@ -42,6 +49,8 @@ final class CascadeFixtureServer implements AutoCloseable {
         server.createContext("/generated/", this::serveGenerated);
         server.createContext("/ashlar-real/", this::serveRealAshlarCss);
         server.createContext("/page/", this::servePage);
+        server.createContext("/ashlar/js/", this::serveAshlarScript);
+        server.createContext("/scripts/", this::serveScriptSet);
         server.start();
     }
 
@@ -65,6 +74,64 @@ final class CascadeFixtureServer implements AutoCloseable {
         int id = nextPage.incrementAndGet();
         pages.put(id, html);
         return "http://127.0.0.1:" + server.getAddress().getPort() + "/page/" + id;
+    }
+
+    /**
+     * Registers a set of script files (name to source) and returns the URL of the folder they are served from, ending in "/". A module in the set imports
+     * another one of the set with a relative specifier ("./overlay.js").
+     */
+    String registerScripts(Map<String, String> files) {
+        int id = nextScriptSet.incrementAndGet();
+        scriptSets.put(id, Map.copyOf(files));
+        return "http://127.0.0.1:" + server.getAddress().getPort() + "/scripts/" + id + "/";
+    }
+
+    /**
+     * As {@link #registerScripts}, but every name the set does not hold is served from Ashlar's REAL scripts: a variant of a few scripts, on a page that also loads other
+     * components (a Popover inside a Modal, say), whose own scripts must be there for the page to work at all.
+     */
+    String registerScriptsOverAshlar(Map<String, String> overrides) {
+        int id = nextScriptSet.incrementAndGet();
+        scriptSets.put(id, Map.copyOf(overrides));
+        overAshlar.add(id);
+        return "http://127.0.0.1:" + server.getAddress().getPort() + "/scripts/" + id + "/";
+    }
+
+    /** The URL a page uses for Ashlar's real script {@code name}, as the showcase serves it. */
+    String ashlarScript(String name) {
+        return "http://127.0.0.1:" + server.getAddress().getPort() + "/ashlar/js/" + name;
+    }
+
+    private void serveAshlarScript(HttpExchange ex) throws IOException {
+        String name = ex.getRequestURI().getPath().substring("/ashlar/js/".length());
+        if (!simpleName(name) || !name.endsWith(".js")) {
+            respond(ex, 404, "text/plain", new byte[0]);
+            return;
+        }
+        try {
+            respond(ex, 200, "text/javascript; charset=utf-8", resource("/META-INF/resources/ashlar/js/" + name));
+        } catch (IOException missing) {
+            respond(ex, 404, "text/plain", new byte[0]);
+        }
+    }
+
+    private void serveScriptSet(HttpExchange ex) throws IOException {
+        String[] parts = ex.getRequestURI().getPath().substring("/scripts/".length()).split("/", 2);
+        Map<String, String> set = parts.length == 2 && parts[0].matches("[0-9]+") ? scriptSets.get(Integer.parseInt(parts[0])) : null;
+        String source = set == null || !simpleName(parts[1]) ? null : set.get(parts[1]);
+        if (source == null && set != null && simpleName(parts[1]) && parts[1].endsWith(".js") && overAshlar.contains(Integer.parseInt(parts[0]))) {
+            try {
+                respond(ex, 200, "text/javascript; charset=utf-8", resource("/META-INF/resources/ashlar/js/" + parts[1]));
+            } catch (IOException missing) {
+                respond(ex, 404, "text/plain", new byte[0]);
+            }
+            return;
+        }
+        if (source == null) {
+            respond(ex, 404, "text/plain", new byte[0]);
+            return;
+        }
+        respond(ex, 200, "text/javascript; charset=utf-8", source.getBytes(StandardCharsets.UTF_8));
     }
 
     /** Serves the REAL generated ashlar.css (the file packaged into the jar) at {@code /ashlar-real/ashlar.css}. */

@@ -1,0 +1,9 @@
+/* TEST-ONLY (Modal and Drawer migration oracle). Cumulative: the Facets oracle, imported unchanged (which is the Table oracle, the File Upload oracle, ... down to the
+   Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes Modal and Drawer used before they moved to the ash-overlay,
+   ash-modal and ash-drawer classes, including the classes modal.js and drawer.js toggled at run time.
+
+   Those classes are no longer emitted by the templates or the scripts, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps them
+   compiled, which keeps the legacy rendering executable: the parity tests render the same dialogs and panels with these classes and with the ash- classes, in the same browser,
+   and compare. */
+@import "./facet-oracle-entry.css";
+@source "../resources/parity/overlay/overlay-legacy.html";
