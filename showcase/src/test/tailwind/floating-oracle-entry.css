@@ -1,0 +1,9 @@
+/* TEST-ONLY (Tooltip and Popover migration oracle). Cumulative: the Modal and Drawer oracle, imported unchanged (which is the Facets oracle, the Table oracle, ... down to the
+   Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes Tooltip and Popover used before they moved to the ash-tooltip
+   and ash-popover classes, including the classes tooltip.js and popover.js toggled at run time.
+
+   Those classes are no longer emitted by the templates, the helpers or the scripts, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class
+   strings keeps them compiled, which keeps the legacy rendering executable: the parity tests render the same bubbles and surfaces with these classes and with the ash-
+   classes, in the same browser, and compare. */
+@import "./overlay-oracle-entry.css";
+@source "../resources/parity/floating/floating-legacy.html";

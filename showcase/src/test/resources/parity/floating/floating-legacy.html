@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Tooltip and Popover, read verbatim from the templates, helpers and scripts at commit bc49524 (the commit before the
+     Tooltip and Popover migration): tooltip.jte lines 62-75 with TooltipStyles.position() and arrow(), popover.jte lines 55-73 with PopoverStyles.position(), and the classes
+     tooltip.js and popover.js toggled at run time. It is never served. Tailwind compiles this file (see floating-oracle-entry.css and floating-legacy-scoped-entry.css) so the
+     legacy rendering stays reproducible, and the tests read the class strings back out of it: one source of truth for what "legacy" means.
+     Variants the templates chose from their parameters: the placement (Top, Right, Bottom, Left), which decided the bubble's and the surface's position classes and the arrow's.
+     The state role is what the scripts did: they removed hidden to show the bubble or the surface, and swapped opacity-0 and scale-95 for opacity-100 and scale-100 to open it
+     (the closed classes are part of the template strings above). -->
+<span data-legacy-role="tooltip-root" class="relative inline-block"></span>
+<span data-legacy-role="tooltip-trigger" class="inline-block"></span>
+<span data-legacy-role="tooltip-bubble" class="pointer-events-none absolute z-20 hidden w-max max-w-64 scale-95 whitespace-normal rounded-md bg-slate-900 px-2.5 py-1.5 text-center text-xs font-medium text-white opacity-0 shadow-lg transition duration-150 ease-out motion-reduce:transition-none dark:bg-slate-100 dark:text-slate-900"></span>
+<span data-legacy-role="tooltip-position-top" class="bottom-full left-1/2 mb-2 -translate-x-1/2"></span>
+<span data-legacy-role="tooltip-position-bottom" class="top-full left-1/2 mt-2 -translate-x-1/2"></span>
+<span data-legacy-role="tooltip-position-left" class="right-full top-1/2 mr-2 -translate-y-1/2"></span>
+<span data-legacy-role="tooltip-position-right" class="left-full top-1/2 ml-2 -translate-y-1/2"></span>
+<span data-legacy-role="tooltip-arrow" class="absolute h-2 w-2 rotate-45 bg-slate-900 dark:bg-slate-100"></span>
+<span data-legacy-role="tooltip-arrow-top" class="-bottom-1 left-1/2 -translate-x-1/2"></span>
+<span data-legacy-role="tooltip-arrow-bottom" class="-top-1 left-1/2 -translate-x-1/2"></span>
+<span data-legacy-role="tooltip-arrow-left" class="-right-1 top-1/2 -translate-y-1/2"></span>
+<span data-legacy-role="tooltip-arrow-right" class="-left-1 top-1/2 -translate-y-1/2"></span>
+<span data-legacy-role="popover-root" class="relative inline-block"></span>
+<span data-legacy-role="popover-trigger" class="inline-block"></span>
+<span data-legacy-role="popover-surface" class="absolute z-30 hidden w-72 max-w-[calc(100vw-1rem)] scale-95 rounded-lg bg-white p-4 text-left opacity-0 shadow-lg ring-1 ring-slate-200 transition duration-150 ease-out motion-reduce:transition-none dark:bg-slate-800 dark:ring-slate-700"></span>
+<span data-legacy-role="popover-position-top" class="bottom-full left-1/2 mb-2 -translate-x-1/2"></span>
+<span data-legacy-role="popover-position-bottom" class="top-full left-1/2 mt-2 -translate-x-1/2"></span>
+<span data-legacy-role="popover-position-left" class="right-full top-1/2 mr-2 -translate-y-1/2"></span>
+<span data-legacy-role="popover-position-right" class="left-full top-1/2 ml-2 -translate-y-1/2"></span>
+<span data-legacy-role="popover-title" class="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100"></span>
+<span data-legacy-role="popover-body" class="text-sm text-slate-600 dark:text-slate-300"></span>
+<span data-legacy-role="state-open" class="opacity-100 scale-100"></span>

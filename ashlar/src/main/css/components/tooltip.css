@@ -1,0 +1,164 @@
+/* ash-tooltip: a short text label anchored to a caller-provided trigger, shown on hover and focus (tooltip.js).
+
+   Classes       ash-tooltip                   the root (data-tooltip): the positioning context the bubble is anchored to, inline-block around the trigger
+                 ash-tooltip__trigger          the slot around the caller's trigger (data-tooltip-trigger), inline-block
+                 ash-tooltip__bubble           the bubble (role="tooltip", data-tooltip-bubble): the label, its padding, colors and shadow
+                 ash-tooltip__bubble--top      placement Top (the default): above the trigger, centered on it, 0.5rem away
+                 ash-tooltip__bubble--right    placement Right: beside the trigger, centered on it vertically
+                 ash-tooltip__bubble--bottom   placement Bottom: below the trigger
+                 ash-tooltip__bubble--left     placement Left: on the trigger's other side
+                 ash-tooltip__arrow            the small pointer (data-tooltip-arrow), a rotated square in the bubble's color
+                 ash-tooltip__arrow--top|right|bottom|left
+                                               the pointer on the bubble's edge that faces the trigger
+                 TooltipStyles.position() and TooltipStyles.arrow() return these placement modifiers, so their names are part of the Java contract as well.
+   Properties    --ash-tooltip-bg              the bubble's and the pointer's background
+                 --ash-tooltip-text            the label's color
+                 --ash-tooltip-shadow          the bubble's drop shadow
+                 --ash-tooltip-leading         the label's line height, calc(1 / 0.75) (Tailwind's text-xs). A property rather than a literal, as Badge's: a CSS
+                                               minifier folds a literal quotient into a rounded number (1.33333), which makes the bubble a fraction of a pixel shorter,
+                                               and leaves a custom property's value as written.
+                 Set on the bubble, so they reach only the bubble and its pointer, never the caller's trigger. A customization surface: an inline style, an unlayered rule
+                 or a rule in a layer above ash.components.
+
+   State         hidden on the bubble is the closed, not-rendered tooltip. data-state on the bubble is the visual state it transitions between: "closed" (transparent, at
+                 95%) and "open" (opaque, at full size). tooltip.js sets both; the CSS never infers either. The values are what Tailwind's opacity-0 and scale-95 (and
+                 opacity-100 and scale-100) computed to.
+
+   Position      CSS-anchored, not a positioning engine: the bubble is absolutely positioned against the root and centered on the trigger's cross axis with the individual
+                 translate property, the way Tailwind's -translate-x-1/2 and -translate-y-1/2 wrote it. tooltip.js nudges a bubble that would leave the viewport back along
+                 that axis by writing an INLINE translate on the bubble (and the opposite one on the pointer, so it keeps pointing at the trigger), which overrides the
+                 rule here. That is why the placement, the entry scale and the pointer's rotation are the individual translate, scale and rotate properties, never transform:
+                 a transform would not be overridden by the script's translate, it would be added to it. There is no flipping, and an overflow: hidden ancestor clips the
+                 bubble, as before.
+
+   Stacking      z-index 20, as before. The root is position: relative with no z-index, so it makes no stacking context of its own; the bubble's scale makes one for the
+                 bubble alone, as Tailwind's scale-95 did.
+
+   Motion        Opacity and scale animate for 150ms, ease-out: tooltip.js waits 150ms (plus a 50ms margin) for an exit, so the duration here and there must stay the same.
+                 Tailwind's transition utility listed twenty-three properties; only these two change between the states, and tooltip.js places the bubble with transitions
+                 switched off, so only these two are listed. Under prefers-reduced-motion: reduce the property becomes none (motion-reduce:transition-none).
+
+   Hooks         data-tooltip-bubble is what a skin targets: the showcase skins set its box-shadow there, unlayered, so it replaces --ash-tooltip-shadow.
+
+   Color        The palette variables with the exact Tailwind v4 value as the fallback: slate-900 and white, and slate-100 and slate-900 in dark mode, which follows
+                 data-theme="dark" with the zero-specificity :where() form the Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The sizes are what Tailwind's text-xs (0.75rem, line-height 1 / 0.75), font-medium (500), max-w-64 (16rem),
+   px-2.5 and py-1.5 (0.625rem and 0.375rem), rounded-md (--radius-md, 0.375rem) and h-2 w-2 (0.5rem) were; a skin that sets --radius-md reshapes the bubble as it always
+   did. The component adds no global rule. */
+
+.ash-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.ash-tooltip__trigger {
+  display: inline-block;
+}
+
+.ash-tooltip__bubble {
+  --ash-tooltip-bg: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-tooltip-text: var(--color-white, #fff);
+  --ash-tooltip-shadow: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;
+  --ash-tooltip-leading: calc(1 / 0.75);
+  pointer-events: none;
+  position: absolute;
+  z-index: 20;
+  width: max-content;
+  max-width: 16rem;
+  white-space: normal;
+  border-radius: var(--radius-md, 0.375rem);
+  background-color: var(--ash-tooltip-bg);
+  padding: 0.375rem 0.625rem;
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: var(--ash-tooltip-leading);
+  font-weight: 500;
+  color: var(--ash-tooltip-text);
+  box-shadow: var(--ash-tooltip-shadow);
+  opacity: 0;
+  scale: 95% 95%;
+  transition-property: opacity, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-tooltip__bubble:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-tooltip-bg: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-tooltip-text: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+}
+
+.ash-tooltip__bubble[hidden] {
+  display: none;
+}
+
+.ash-tooltip__bubble[data-state="open"] {
+  opacity: 1;
+  scale: 100% 100%;
+}
+
+.ash-tooltip__bubble--top {
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: 0.5rem;
+  translate: -50% 0;
+}
+
+.ash-tooltip__bubble--bottom {
+  top: 100%;
+  left: 50%;
+  margin-top: 0.5rem;
+  translate: -50% 0;
+}
+
+.ash-tooltip__bubble--left {
+  right: 100%;
+  top: 50%;
+  margin-right: 0.5rem;
+  translate: 0 -50%;
+}
+
+.ash-tooltip__bubble--right {
+  left: 100%;
+  top: 50%;
+  margin-left: 0.5rem;
+  translate: 0 -50%;
+}
+
+.ash-tooltip__arrow {
+  position: absolute;
+  height: 0.5rem;
+  width: 0.5rem;
+  rotate: 45deg;
+  background-color: var(--ash-tooltip-bg);
+}
+
+.ash-tooltip__arrow--top {
+  bottom: -0.25rem;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.ash-tooltip__arrow--bottom {
+  top: -0.25rem;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.ash-tooltip__arrow--left {
+  right: -0.25rem;
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.ash-tooltip__arrow--right {
+  left: -0.25rem;
+  top: 50%;
+  translate: 0 -50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-tooltip__bubble {
+    transition-property: none;
+  }
+}

@@ -17,11 +17,12 @@ final class ParityOracle {
     }
 
     /**
-     * A class selector as the Tailwind CLI writes it: {@code :}, {@code /}, {@code .}, {@code [} and {@code ]} in the name are
-     * backslash-escaped (an arbitrary value such as {@code border-[3px]} is written {@code .border-\[3px\]}).
+     * A class selector as the Tailwind CLI writes it: {@code :}, {@code /}, {@code .}, {@code [}, {@code ]}, {@code (} and {@code )} in
+     * the name are backslash-escaped (an arbitrary value such as {@code border-[3px]} is written {@code .border-\[3px\]}, and
+     * {@code max-w-[calc(100vw-1rem)]} is written {@code .max-w-\[calc\(100vw-1rem\)\]}).
      */
     private static String escapeClass(String token) {
-        return "." + token.replaceAll("([:/.\\[\\]])", "\\\\$1");
+        return "." + token.replaceAll("([:/.\\[\\]()])", "\\\\$1");
     }
 
     /** Whether {@code css} defines a rule for the class {@code token}. */

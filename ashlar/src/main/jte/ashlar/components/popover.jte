@@ -45,28 +45,37 @@
      does the decision not to draw an arrow. The same two limits apply, and
      are inherent to staying CSS-anchored rather than becoming a positioning
      engine: a placement with no room on the side it was asked for clips on
-     that side (there is no flipping), and an `overflow-hidden` ancestor
-     clips the surface. --%>
+     that side (there is no flipping), and an `overflow: hidden` ancestor
+     clips the surface.
+
+     The surface is rendered closed: `hidden` (not rendered) and
+     `data-state="closed"` (its closed visual state), both on the surface
+     itself, so a Popover nested in another one's content is never styled by
+     its parent's state. popover.js removes `hidden` and sets
+     `data-state="open"` to open it, and the reverse to close it; popover.css
+     says what each state looks like. --%>
 !{String popoverId = PopoverIds.next();}
 !{PopoverPlacement resolvedPlacement = PopoverPlacement.from(placement);}
 !{String positionClasses = PopoverStyles.position(resolvedPlacement);}
 !{boolean hasTitle = !title.isEmpty();}
 
-<span class="relative inline-block" data-popover data-popover-placement="${resolvedPlacement.name().toLowerCase()}">
-    <span data-popover-trigger class="inline-block">
+<span class="ash-popover" data-popover data-popover-placement="${resolvedPlacement.name().toLowerCase()}">
+    <span data-popover-trigger class="ash-popover__trigger">
         ${trigger}
     </span>
 
     <div
             id="${popoverId}"
             data-popover-surface
-            class="absolute z-30 hidden w-72 max-w-[calc(100vw-1rem)] scale-95 rounded-lg bg-white p-4 text-left opacity-0 shadow-lg ring-1 ring-slate-200 transition duration-150 ease-out motion-reduce:transition-none dark:bg-slate-800 dark:ring-slate-700 ${positionClasses}"
+            data-state="closed"
+            class="ash-popover__surface ${positionClasses}"
+            hidden
     >
         @if (hasTitle)
-            <h3 class="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">${title}</h3>
+            <h3 class="ash-popover__title">${title}</h3>
         @endif
 
-        <div class="text-sm text-slate-600 dark:text-slate-300">
+        <div class="ash-popover__body">
             ${content}
         </div>
     </div>

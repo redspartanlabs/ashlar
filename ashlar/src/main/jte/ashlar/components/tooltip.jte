@@ -35,8 +35,8 @@
      `role="tooltip"` + `aria-describedby` (toggled by JS, not always
      present) is the WAI-ARIA APG's own tooltip pattern: the description is
      only "active" while the bubble is actually visible, so the attribute
-     tracks that rather than sitting there unconditionally. `pointer-events-
-     none` on the bubble keeps it from ever being a hover target of its own,
+     tracks that rather than sitting there unconditionally. `pointer-events:
+     none` on the bubble (tooltip.css) keeps it from ever being a hover target of its own,
      which is what stops a hide-on-mouseleave from racing against a mouse
      crossing over the bubble on its way to somewhere else - there is
      nothing to hover in the first place.
@@ -51,26 +51,33 @@
      overriding that would make placement unpredictable. Two real limits
      follow from that, both inherent to staying CSS-positioned rather than
      becoming a positioning engine: a tooltip whose chosen side has no room
-     will clip on that side, and one inside an `overflow-hidden` ancestor is
+     will clip on that side, and one inside an `overflow: hidden` ancestor is
      clipped by that ancestor. Pick the side with room; TOP plus the nudge
-     covers the ordinary cases. --%>
+     covers the ordinary cases.
+
+     The bubble is rendered closed: `hidden` (not rendered) and
+     `data-state="closed"` (its closed visual state). tooltip.js removes
+     `hidden` and sets `data-state="open"` to show it, and the reverse to
+     hide it; tooltip.css says what each state looks like. --%>
 !{String tooltipId = TooltipIds.next();}
 !{TooltipPlacement resolvedPlacement = TooltipPlacement.from(placement);}
 !{String positionClasses = TooltipStyles.position(resolvedPlacement);}
 !{String arrowClasses = TooltipStyles.arrow(resolvedPlacement);}
 
-<span class="relative inline-block" data-tooltip data-tooltip-placement="${resolvedPlacement.name().toLowerCase()}">
-    <span data-tooltip-trigger class="inline-block">
+<span class="ash-tooltip" data-tooltip data-tooltip-placement="${resolvedPlacement.name().toLowerCase()}">
+    <span data-tooltip-trigger class="ash-tooltip__trigger">
         ${trigger}
     </span>
     <span
             id="${tooltipId}"
             role="tooltip"
             data-tooltip-bubble
-            class="pointer-events-none absolute z-20 hidden w-max max-w-64 scale-95 whitespace-normal rounded-md bg-slate-900 px-2.5 py-1.5 text-center text-xs font-medium text-white opacity-0 shadow-lg transition duration-150 ease-out motion-reduce:transition-none dark:bg-slate-100 dark:text-slate-900 ${positionClasses}"
+            data-state="closed"
+            class="ash-tooltip__bubble ${positionClasses}"
+            hidden
     >
         ${content}
-        <span aria-hidden="true" data-tooltip-arrow class="absolute h-2 w-2 rotate-45 bg-slate-900 dark:bg-slate-100 ${arrowClasses}"></span>
+        <span aria-hidden="true" data-tooltip-arrow class="ash-tooltip__arrow ${arrowClasses}"></span>
     </span>
 </span>
 

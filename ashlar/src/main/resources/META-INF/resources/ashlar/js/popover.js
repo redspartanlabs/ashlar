@@ -1,4 +1,4 @@
-// Matches popover.jte's `duration-150` transition class on the surface.
+// Matches the 150ms transition of the surface in popover.css.
 const TRANSITION_DURATION_MS = 150;
 
 // How close the surface may get to the viewport edge before it's nudged back.
@@ -20,30 +20,45 @@ function prefersReducedMotion() {
 // Runs `callback` once the surface's CSS transition has visibly finished,
 // with a timer fallback so an interrupted or reduced-motion (genuinely
 // zero-length) transition can't leave it stuck mid-close. Same technique as
-// select.js/modal.js/dropdown-menu.js/tooltip.js's own copy of this helper.
-function afterTransition(element, callback) {
+// the copies of this helper in select.js, dropdown-menu.js and tooltip.js.
+//
+// The wait belongs to one close, and isCurrent() says whether that close
+// is still the latest change. A later open, or a later open and close, makes
+// it stale, and a stale close must not hide anything. The close can end two
+// ways, and each checks that on its own: its transitionend (the entry of a
+// reopened popover ends with one while the old close is still waiting)
+// and its fallback timer (which, unguarded, hid a popover that had been
+// reopened and closed again, part-way through its second fade). Whichever
+// arrives first stops the other, so a stale wait leaves nothing behind.
+function afterTransition(element, isCurrent, callback) {
     if (prefersReducedMotion()) {
         callback();
         return;
     }
 
-    let finished = false;
-    function finish() {
-        if (finished) {
-            return;
-        }
-        finished = true;
+    let timer = 0;
+    function stop() {
         element.removeEventListener("transitionend", onTransitionEnd);
-        callback();
+        window.clearTimeout(timer);
     }
     function onTransitionEnd(event) {
-        if (event.target === element) {
-            finish();
+        if (event.target !== element) {
+            return;
+        }
+        stop();
+        if (isCurrent()) {
+            callback();
+        }
+    }
+    function onTimeout() {
+        stop();
+        if (isCurrent()) {
+            callback();
         }
     }
 
     element.addEventListener("transitionend", onTransitionEnd);
-    window.setTimeout(finish, TRANSITION_DURATION_MS + 50);
+    timer = window.setTimeout(onTimeout, TRANSITION_DURATION_MS + 50);
 }
 
 function initPopover(root) {
@@ -75,13 +90,16 @@ function initPopover(root) {
     anchor.setAttribute("aria-expanded", "false");
 
     // The open/closed state is tracked here rather than read back off the
-    // `hidden` class, because that class lags: it isn't applied until the
+    // hidden attribute of the surface, because that lags: it is not set until the
     // fade-out transition finishes. Deriving state from it meant that for
     // ~150ms after a close the popover still looked open to the code, so a
     // click in that window closed it a second time instead of reopening -
     // the user's click just vanished. This flag flips synchronously with
-    // intent, and `hidden` stays purely a visual end-state.
+    // intent, and hidden stays purely a visual end-state. The lifecycle
+    // counts every open and close, so a close can tell whether a later
+    // change overtook it.
     let opened = false;
+    let lifecycle = 0;
 
     // Keeps the surface inside the viewport on the axis it's centered on -
     // horizontal for top/bottom, vertical for left/right. Deliberately not
@@ -89,8 +107,8 @@ function initPopover(root) {
     // re-measuring on scroll. It reads two rectangles and nudges along one
     // axis. Sizes come from offsetWidth/offsetHeight rather than
     // getBoundingClientRect because this runs while the surface is still at
-    // `scale-95`, and a scaled rect would make every correction come out
-    // short.
+    // its 95% entry scale, and a scaled rect would make every correction come
+    // out short.
     function reposition() {
         surface.style.removeProperty("translate");
 
@@ -126,20 +144,20 @@ function initPopover(root) {
             return;
         }
         opened = true;
-        surface.classList.remove("hidden");
+        lifecycle += 1;
+        surface.hidden = false;
 
         // Place it with transitions switched off, then force the browser to
         // register that "closed but already positioned" state, and only
         // then flip to open. `translate` is one of the properties the
-        // surface's `transition` class covers, so without this a clamped
-        // popover would visibly slide sideways as it faded in.
+        // transition of the surface covers (popover.css), so without this a
+        // clamped popover would visibly slide sideways as it faded in.
         surface.style.transition = "none";
         reposition();
         void surface.offsetWidth;
         surface.style.removeProperty("transition");
 
-        surface.classList.remove("opacity-0", "scale-95");
-        surface.classList.add("opacity-100", "scale-100");
+        surface.dataset.state = "open";
         anchor.setAttribute("aria-expanded", "true");
     }
 
@@ -152,22 +170,23 @@ function initPopover(root) {
             return;
         }
         opened = false;
-        surface.classList.remove("opacity-100", "scale-100");
-        surface.classList.add("opacity-0", "scale-95");
+        lifecycle += 1;
+        const exit = lifecycle;
+        surface.dataset.state = "closed";
         anchor.setAttribute("aria-expanded", "false");
 
         if (returnFocus) {
             anchor.focus();
         }
 
-        afterTransition(surface, () => {
-            // The user may have reopened it while this fade-out was still
-            // running; hiding it then would strand an "expanded" trigger
-            // next to an invisible surface.
-            if (!opened) {
-                surface.classList.add("hidden");
-                surface.style.removeProperty("translate");
-            }
+        // Only while this close is still the latest change: the user may have
+        // reopened it while this fade-out was still running (hiding it then
+        // would strand an "expanded" trigger next to an invisible surface), or
+        // reopened and closed it again (hiding it then would cut the second
+        // fade-out short).
+        afterTransition(surface, () => exit === lifecycle, () => {
+            surface.hidden = true;
+            surface.style.removeProperty("translate");
         });
     }
 

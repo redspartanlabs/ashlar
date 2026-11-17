@@ -48,8 +48,8 @@ sourceSets {
  * Ships Ashlar's complete Tailwind class vocabulary inside the jar.
  *
  * Ashlar's utility classes do not all live in templates. Variant maps sit in
- * Java (`ToastStyles`, `TooltipStyles`, ...) and runtime state classes sit in the
- * JavaScript modules (`popover.js` toggles `opacity-100` and `scale-100`,
+ * Java (`ToastStyles`, `ButtonStyles`, ...) and runtime state classes sit in the
+ * JavaScript modules (`select.js` toggles `opacity-100` and `scale-100`,
  * ...). A consumer's Tailwind build scans the staged
  * `ashlar/` template root - and nothing else - so classes held anywhere other
  * than a template never reach its stylesheet. Compiled classes and jars are
@@ -75,6 +75,34 @@ sourceSets {
  */
 val tailwindVocabularyDir = layout.buildDirectory.dir("generated/tailwind-vocabulary")
 
+/**
+ * The extraction itself: every string literal of the given Java and JavaScript
+ * files, split on whitespace, sorted and de-duplicated, one token per line.
+ * One function, so the test-only fixture vocabulary below is produced by
+ * exactly the code that produces the published one.
+ */
+fun extractTailwindVocabulary(scanned: Iterable<File>, output: File) {
+    // \x22 is ", \x27 is ' and \x60 is `. Java: text blocks first, then ordinary
+    // strings. JavaScript: all three string forms; backtick strings may span lines.
+    val javaStrings = Regex("""\x22{3}[\s\S]*?\x22{3}|\x22(?:[^\x22\\\n]|\\.)*\x22""")
+    val jsStrings = Regex("""\x22(?:[^\x22\\\n]|\\.)*\x22|\x27(?:[^\x27\\\n]|\\.)*\x27|\x60(?:[^\x60\\]|\\.)*\x60""")
+    val tokens = sortedSetOf<String>()
+    scanned.forEach { file ->
+        val isJava = file.name.endsWith(".java")
+        val pattern = if (isJava) javaStrings else jsStrings
+        pattern.findAll(file.readText(Charsets.UTF_8)).forEach { match ->
+            val literal = match.value
+            val edge = if (literal.startsWith("\"\"\"")) 3 else 1
+            literal.substring(edge, literal.length - edge)
+                .split(Regex("\\s+"))
+                .filter { it.isNotEmpty() }
+                .forEach { tokens.add(it) }
+        }
+    }
+    output.parentFile.mkdirs()
+    output.writeText(tokens.joinToString("\n", postfix = "\n"), Charsets.UTF_8)
+}
+
 val generateTailwindVocabulary = tasks.register("generateTailwindVocabulary") {
     description = "Writes every string literal from Ashlar's Java and JavaScript sources to ashlar/tailwind/classes.txt."
     group = "build"
@@ -84,31 +112,40 @@ val generateTailwindVocabulary = tasks.register("generateTailwindVocabulary") {
     outputs.dir(tailwindVocabularyDir)
 
     doLast {
-        // \x22 is ", \x27 is ' and \x60 is `. Java: text blocks first, then ordinary
-        // strings. JavaScript: all three string forms; backtick strings may span lines.
-        val javaStrings = Regex("""\x22{3}[\s\S]*?\x22{3}|\x22(?:[^\x22\\\n]|\\.)*\x22""")
-        val jsStrings = Regex("""\x22(?:[^\x22\\\n]|\\.)*\x22|\x27(?:[^\x27\\\n]|\\.)*\x27|\x60(?:[^\x60\\]|\\.)*\x60""")
-        val tokens = sortedSetOf<String>()
-        scanned.forEach { file ->
-            val isJava = file.name.endsWith(".java")
-            val pattern = if (isJava) javaStrings else jsStrings
-            pattern.findAll(file.readText(Charsets.UTF_8)).forEach { match ->
-                val literal = match.value
-                val edge = if (literal.startsWith("\"\"\"")) 3 else 1
-                literal.substring(edge, literal.length - edge)
-                    .split(Regex("\\s+"))
-                    .filter { it.isNotEmpty() }
-                    .forEach { tokens.add(it) }
-            }
-        }
-        val output = tailwindVocabularyDir.get().file("ashlar/tailwind/classes.txt").asFile
-        output.parentFile.mkdirs()
-        output.writeText(tokens.joinToString("\n", postfix = "\n"), Charsets.UTF_8)
+        extractTailwindVocabulary(scanned, tailwindVocabularyDir.get().file("ashlar/tailwind/classes.txt").asFile)
     }
 }
 
 tasks.processResources {
     from(generateTailwindVocabulary)
+}
+
+/**
+ * TEST-ONLY: the same extraction over the fixtures in src/test/tailwind-vocabulary
+ * (a Java and a JavaScript file holding negative utilities, plain and under a
+ * variant, in every string form). TailwindVocabularyTest requires each of them to
+ * come out whole, so a "looks like a class" filter can never creep back in, even
+ * when no library source happens to hold a negative utility. The output is a
+ * TEST resource only: it is not in the jar, the sources jar or the published
+ * vocabulary, and the fixtures are not compiled.
+ */
+val tailwindVocabularyFixtureDir = layout.buildDirectory.dir("generated/tailwind-vocabulary-fixture")
+
+val generateTailwindVocabularyFixture = tasks.register("generateTailwindVocabularyFixture") {
+    description = "Runs the vocabulary extraction over the test-only fixtures in src/test/tailwind-vocabulary."
+    group = "verification"
+
+    val scanned = fileTree("src/test/tailwind-vocabulary") { include("**/*.java", "**/*.js") }
+    inputs.files(scanned).withPropertyName("fixtureSources").withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir(tailwindVocabularyFixtureDir)
+
+    doLast {
+        extractTailwindVocabulary(scanned, tailwindVocabularyFixtureDir.get().file("tailwind-vocabulary-fixture/classes.txt").asFile)
+    }
+}
+
+tasks.processTestResources {
+    from(generateTailwindVocabularyFixture)
 }
 
 // Assembles Ashlar's modular CSS (src/main/css) into the single published

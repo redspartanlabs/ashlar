@@ -294,7 +294,7 @@ content = @`
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-500 dark:text-slate-400">
                             <li>Choosing a placement with no room to open in - it nudges along its centering axis but never flips to the opposite side, so it can still clip.</li>
                             <li>Placing a trigger inside an <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">overflow-hidden</code> ancestor, including a real <a href="${contextPath}/components/table" class="text-blue-700 hover:underline dark:text-blue-400">Table</a>'s own horizontal scroller - there is no portal here either. See Pitfalls.</li>
-                            <li>Nesting a Popover inside an open <a href="${contextPath}/components/modal" class="text-blue-700 hover:underline dark:text-blue-400">Modal</a> or <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a> without accounting for Escape closing both at once - see Pitfalls.</li>
+                            <li>Nesting a Popover inside an open <a href="${contextPath}/components/modal" class="text-blue-700 hover:underline dark:text-blue-400">Modal</a> or <a href="${contextPath}/components/drawer" class="text-blue-700 hover:underline dark:text-blue-400">Drawer</a> and expecting one Escape to close both: the first Escape closes only the Popover, and a second one the Modal or Drawer - see Pitfalls.</li>
                         </ul>
                     </div>
                 </div>

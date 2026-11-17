@@ -1,10 +1,11 @@
 package dev.redspartanlabs.ashlar.popover;
 
 /**
- * Maps a {@link PopoverPlacement} to the Tailwind classes that position the
- * surface and its pointer arrow relative to the trigger - the single place
- * that knows the geometry, the same division of labor as
- * {@code TooltipStyles}/{@code StepperStyles}.
+ * Maps a {@link PopoverPlacement} to the Ashlar class that positions the
+ * surface relative to the trigger - the single place that knows which
+ * placement modifier goes with which side, the same division of labor as
+ * {@code TooltipStyles}/{@code StepperStyles}; the geometry itself is in
+ * popover.css.
  *
  * <p>Deliberately a separate class from {@code TooltipStyles} rather than a
  * shared "floating element" helper: the two components only look similar
@@ -19,7 +20,8 @@ public final class PopoverStyles {
     }
 
     /** Positions the surface on the given side of the trigger, centered on
-     *  the cross axis. popover.js nudges it along that same cross axis at
+     *  the cross axis ({@code ash-popover__surface--top|right|bottom|left}).
+     *  popover.js nudges it along that same cross axis at
      *  open time if it would otherwise run off the viewport; this only sets
      *  the resting position.
      *
@@ -33,10 +35,10 @@ public final class PopoverStyles {
      *  association is worth. */
     public static String position(PopoverPlacement placement) {
         return switch (placement) {
-            case TOP -> "bottom-full left-1/2 mb-2 -translate-x-1/2";
-            case BOTTOM -> "top-full left-1/2 mt-2 -translate-x-1/2";
-            case LEFT -> "right-full top-1/2 mr-2 -translate-y-1/2";
-            case RIGHT -> "left-full top-1/2 ml-2 -translate-y-1/2";
+            case TOP -> "ash-popover__surface--top";
+            case BOTTOM -> "ash-popover__surface--bottom";
+            case LEFT -> "ash-popover__surface--left";
+            case RIGHT -> "ash-popover__surface--right";
         };
     }
 }

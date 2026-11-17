@@ -59,7 +59,6 @@ class TailwindVocabularyTest {
             "pointer-events-auto",     // ToastStyles: a class held only in Java, which a templates-only scan loses
             "hover:bg-blue-700",        // ButtonStyles: state variant
             "data-[toast-state=hidden]:hidden", // ToastStyles: a state variant held only in Java
-            "-translate-x-1/2",         // TooltipStyles: negative utility; a "looks like a class" filter dropped these
     })
     void capturesJavaHeldClasses(String token) {
         assertTrue(lines.contains(token), token + " is missing from the vocabulary");
@@ -67,11 +66,50 @@ class TailwindVocabularyTest {
 
     @ParameterizedTest(name = "JavaScript-held class {0}")
     @ValueSource(strings = {
-            "opacity-100",   // popover.js and tooltip.js open state
-            "scale-100",     // popover.js and tooltip.js open state
+            "opacity-100",   // select.js, dropdown-menu.js and combobox.js open state
+            "scale-100",     // select.js, dropdown-menu.js and combobox.js open state
     })
     void capturesJavaScriptHeldClasses(String token) {
         assertTrue(lines.contains(token), token + " is missing from the vocabulary");
+    }
+
+    /**
+     * Negative utilities are exactly what a "looks like a class" filter dropped in an earlier attempt. No library source
+     * holds one any more (TooltipStyles held the last), so they are checked on test-only fixtures
+     * ({@code src/test/tailwind-vocabulary}) run through the SAME extraction function the published vocabulary is built
+     * with (ashlar/build.gradle.kts): every string form of both languages, plain and under a variant.
+     */
+    @ParameterizedTest(name = "negative utility {0}")
+    @ValueSource(strings = {
+            "-translate-x-1/2",                    // Java string literal, with a fraction
+            "-mt-2",                               // Java string literal
+            "hover:-translate-y-px",               // Java string literal, under a variant
+            "data-[state=open]:-translate-x-full", // Java text block, under a data variant
+            "-top-[3px]",                          // Java text block, arbitrary value
+            "-translate-y-1/2",                    // JavaScript double-quoted string
+            "-ml-4",                               // JavaScript double-quoted string
+            "focus:-rotate-45",                    // JavaScript single-quoted string, under a variant
+            "-inset-x-2",                          // JavaScript backtick string, first line
+            "sm:-bottom-1",                        // JavaScript backtick string, second line, under a variant
+    })
+    void capturesNegativeUtilitiesInEveryStringForm(String token) throws IOException {
+        assertTrue(fixtureVocabulary().contains(token), token + " is missing from the fixture vocabulary");
+    }
+
+    @Test
+    void theFixtureVocabularyIsATestResourceAndNeverPartOfThePublishedOne() throws IOException {
+        // The fixture tokens that no library source holds must not leak into the published vocabulary.
+        for (String token : List.of("-mt-2", "hover:-translate-y-px", "data-[state=open]:-translate-x-full", "-top-[3px]", "-ml-4", "focus:-rotate-45", "-inset-x-2", "sm:-bottom-1")) {
+            assertFalse(lines.contains(token), token + " is a fixture token and must not be in the published vocabulary");
+        }
+        assertEquals(null, TailwindVocabularyTest.class.getResource("/ashlar/tailwind-vocabulary-fixture/classes.txt"), "the fixture output is not under ashlar/");
+    }
+
+    private static List<String> fixtureVocabulary() throws IOException {
+        try (InputStream in = TailwindVocabularyTest.class.getResourceAsStream("/tailwind-vocabulary-fixture/classes.txt")) {
+            assertNotNull(in, "the fixture vocabulary must be generated into the test resources (generateTailwindVocabularyFixture)");
+            return List.of(new String(in.readAllBytes(), StandardCharsets.UTF_8).split("\n"));
+        }
     }
 
     @Test
