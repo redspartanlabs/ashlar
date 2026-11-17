@@ -1,10 +1,11 @@
 package dev.redspartanlabs.ashlar.tooltip;
 
 /**
- * Maps a {@link TooltipPlacement} to the Tailwind classes that position the
+ * Maps a {@link TooltipPlacement} to the Ashlar classes that position the
  * bubble and its small pointer arrow relative to the trigger. The single
- * place that knows the geometry, the same division of labor as
- * {@code BadgeStyles}/{@code StepperStyles}.
+ * place that knows which placement modifier goes with which side, the same
+ * division of labor as {@code BadgeStyles}/{@code StepperStyles}; the
+ * geometry itself is in tooltip.css.
  */
 public final class TooltipStyles {
 
@@ -12,24 +13,27 @@ public final class TooltipStyles {
     }
 
     /** Positions the bubble on the given side of the trigger, centered on
-     *  the cross axis. Horizontal (TOP/BOTTOM) placements are nudged at
-     *  runtime by tooltip.js if they'd clip the viewport; this only sets
-     *  the resting position. */
+     *  the cross axis ({@code ash-tooltip__bubble--top|right|bottom|left}).
+     *  Horizontal (TOP/BOTTOM) placements are nudged at runtime by
+     *  tooltip.js if they'd clip the viewport; this only sets the resting
+     *  position. */
     public static String position(TooltipPlacement placement) {
         return switch (placement) {
-            case TOP -> "bottom-full left-1/2 mb-2 -translate-x-1/2";
-            case BOTTOM -> "top-full left-1/2 mt-2 -translate-x-1/2";
-            case LEFT -> "right-full top-1/2 mr-2 -translate-y-1/2";
-            case RIGHT -> "left-full top-1/2 ml-2 -translate-y-1/2";
+            case TOP -> "ash-tooltip__bubble--top";
+            case BOTTOM -> "ash-tooltip__bubble--bottom";
+            case LEFT -> "ash-tooltip__bubble--left";
+            case RIGHT -> "ash-tooltip__bubble--right";
         };
     }
 
+    /** Puts the arrow on the bubble's edge that faces the trigger
+     *  ({@code ash-tooltip__arrow--top|right|bottom|left}). */
     public static String arrow(TooltipPlacement placement) {
         return switch (placement) {
-            case TOP -> "-bottom-1 left-1/2 -translate-x-1/2";
-            case BOTTOM -> "-top-1 left-1/2 -translate-x-1/2";
-            case LEFT -> "-right-1 top-1/2 -translate-y-1/2";
-            case RIGHT -> "-left-1 top-1/2 -translate-y-1/2";
+            case TOP -> "ash-tooltip__arrow--top";
+            case BOTTOM -> "ash-tooltip__arrow--bottom";
+            case LEFT -> "ash-tooltip__arrow--left";
+            case RIGHT -> "ash-tooltip__arrow--right";
         };
     }
 }

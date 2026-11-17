@@ -1,0 +1,150 @@
+/* ash-popover: a clicked, non-modal surface anchored to a caller-provided trigger (popover.js). It holds real content: links, buttons, a small form.
+
+   Classes       ash-popover                   the root (data-popover): the positioning context the surface is anchored to, inline-block around the trigger
+                 ash-popover__trigger          the slot around the caller's trigger (data-popover-trigger), inline-block
+                 ash-popover__surface          the surface (data-popover-surface): 18rem wide (never wider than the viewport less 1rem), its padding, background, ring
+                                               and shadow
+                 ash-popover__surface--top     placement Top: above the trigger, centered on it, 0.5rem away
+                 ash-popover__surface--right   placement Right: beside the trigger, centered on it vertically
+                 ash-popover__surface--bottom  placement Bottom (the default): below the trigger
+                 ash-popover__surface--left    placement Left: on the trigger's other side
+                 ash-popover__title            the optional <h3> heading at the top of the surface
+                 ash-popover__body             the caller's content
+                 PopoverStyles.position() returns the placement modifiers, so their names are part of the Java contract as well.
+   Properties    --ash-popover-bg              the surface's background
+                 --ash-popover-ring            the surface's 1px ring
+                 --ash-popover-shadow          the surface's drop shadow, drawn under the ring
+                 --ash-popover-title           the title's color
+                 --ash-popover-text            the body's color
+                 --ash-popover-leading         the title's and the body's line height, calc(1.25 / 0.875) (Tailwind's text-sm). A property rather than a literal, as
+                                               Badge's: a CSS minifier folds a literal quotient into a rounded number, and leaves a custom property's value as written.
+                 Set on the surface, so they reach the surface's own parts and the caller's content inside it, never the trigger. A customization surface: an inline style,
+                 an unlayered rule or a rule in a layer above ash.components.
+
+   State         hidden on the surface is the closed, not-rendered popover. data-state on the surface is the visual state it transitions between: "closed" (transparent,
+                 at 95%) and "open" (opaque, at full size). popover.js sets both; the CSS never infers either. The state is the surface's own attribute, never a
+                 descendant selector from the root, so a Popover nested inside another one's content is never styled by its parent's state. The values are what
+                 Tailwind's opacity-0 and scale-95 (and opacity-100 and scale-100) computed to.
+
+   Position      CSS-anchored, as Tooltip: absolutely positioned against the root and centered on the trigger's cross axis with the individual translate property, the
+                 way Tailwind's -translate-x-1/2 and -translate-y-1/2 wrote it. popover.js nudges a surface that would leave the viewport back along that axis, when it
+                 opens and when the window is resized while it is open, by writing an INLINE translate on the surface, which overrides the rule here. That is why the
+                 placement and the entry scale are the individual translate and scale properties, never transform. There is no flipping, and an overflow: hidden
+                 ancestor (a Table's scroller, a Modal's body) clips the surface, as before.
+
+   Stacking      z-index 30, below the overlay band (40) a Modal or Drawer sits in, as before. The root is position: relative with no z-index and makes no stacking
+                 context of its own.
+
+   Motion        Opacity, scale and translate animate for 150ms, ease-out: popover.js waits 150ms (plus a 50ms margin) for an exit, so the duration here and there must
+                 stay the same. Opacity and scale are what change between the states. Translate is listed too because popover.js re-nudges an open surface when the
+                 window is resized, and Tailwind's transition utility (twenty-three properties, translate among them) animated that move; popover.js places the surface
+                 with transitions switched off when it opens, so only the resize move is ever animated. Under prefers-reduced-motion: reduce the property becomes none
+                 (motion-reduce:transition-none).
+
+   Hooks         data-popover-surface is what a skin targets: the showcase skins set its box-shadow there, unlayered, which replaces the ring and the shadow together,
+                 exactly as it replaced Tailwind's ring-1 and shadow-lg (both were layers of the one box-shadow). The ring is therefore a box-shadow layer, never a border
+                 or an outline.
+
+   Color         The palette variables with the exact Tailwind v4 value as the fallback: white with a slate-200 ring, a slate-900 title and slate-600 text, and in dark mode
+                 slate-800 with a slate-700 ring, a slate-100 title and slate-300 text. Dark mode follows data-theme="dark" with the zero-specificity :where() form the
+                 Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The title states its margin, size, line-height and weight (an <h3> has the browser's own otherwise). The
+   sizes are what Tailwind's w-72 (18rem), max-w-[calc(100vw-1rem)], p-4 (1rem), rounded-lg (--radius-lg, 0.5rem), mb-1 (0.25rem), text-sm (0.875rem, line-height
+   1.25 / 0.875) and font-semibold (600) were; a skin that sets --radius-lg reshapes the surface as it always did. The component adds no global rule. */
+
+.ash-popover {
+  position: relative;
+  display: inline-block;
+}
+
+.ash-popover__trigger {
+  display: inline-block;
+}
+
+.ash-popover__surface {
+  --ash-popover-bg: var(--color-white, #fff);
+  --ash-popover-ring: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-popover-shadow: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;
+  --ash-popover-title: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ash-popover-text: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-popover-leading: calc(1.25 / 0.875);
+  position: absolute;
+  z-index: 30;
+  width: 18rem;
+  max-width: calc(100vw - 1rem);
+  border-radius: var(--radius-lg, 0.5rem);
+  background-color: var(--ash-popover-bg);
+  padding: 1rem;
+  text-align: left;
+  box-shadow: 0 0 0 1px var(--ash-popover-ring), var(--ash-popover-shadow);
+  opacity: 0;
+  scale: 95% 95%;
+  transition-property: opacity, scale, translate;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-popover__surface:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-popover-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-popover-ring: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-popover-title: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-popover-text: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+.ash-popover__surface[hidden] {
+  display: none;
+}
+
+.ash-popover__surface[data-state="open"] {
+  opacity: 1;
+  scale: 100% 100%;
+}
+
+.ash-popover__surface--top {
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: 0.5rem;
+  translate: -50% 0;
+}
+
+.ash-popover__surface--bottom {
+  top: 100%;
+  left: 50%;
+  margin-top: 0.5rem;
+  translate: -50% 0;
+}
+
+.ash-popover__surface--left {
+  right: 100%;
+  top: 50%;
+  margin-right: 0.5rem;
+  translate: 0 -50%;
+}
+
+.ash-popover__surface--right {
+  left: 100%;
+  top: 50%;
+  margin-left: 0.5rem;
+  translate: 0 -50%;
+}
+
+.ash-popover__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  line-height: var(--ash-popover-leading);
+  font-weight: 600;
+  color: var(--ash-popover-title);
+}
+
+.ash-popover__body {
+  font-size: 0.875rem;
+  line-height: var(--ash-popover-leading);
+  color: var(--ash-popover-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-popover__surface {
+    transition-property: none;
+  }
+}

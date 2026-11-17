@@ -83,5 +83,7 @@
 @import "components/overlay.css" layer(ash.components);
 @import "components/modal.css" layer(ash.components);
 @import "components/drawer.css" layer(ash.components);
+@import "components/tooltip.css" layer(ash.components);
+@import "components/popover.css" layer(ash.components);
 @import "utilities/sr-only.css" layer(ash.utilities);
 @import "utilities/truncate.css" layer(ash.utilities);

@@ -38,6 +38,28 @@
   fallback read from the computed CSS instead of a fixed 200ms. A Modal closed
   before its first frame is hidden at once instead of staying mounted,
   invisible, for 250ms.
+- Tooltip and Popover are styled by Ashlar's own CSS (`components/tooltip.css`
+  and `components/popover.css`) instead of Tailwind utility classes. Their
+  template parameters and defaults, markup structure, ARIA, `data-*` hooks,
+  placement fallbacks, 150ms show delay and 150ms transitions, viewport nudge
+  and clipping behavior are unchanged. Each was compared against its previous
+  Tailwind rendering in headless Chrome, in all 22 showcase configurations,
+  with Tailwind present and removed: computed styles, motion, skin hooks, and
+  pixels (exactly). They remain independent of Modal and Drawer's `overlay.js`;
+  an open Tooltip or Popover inside a Modal or Drawer still owns the first
+  Escape.
+- `TooltipStyles.position()`, `TooltipStyles.arrow()` and
+  `PopoverStyles.position()` keep their names and signatures and now return
+  Ashlar classes (`ash-tooltip__bubble--top|right|bottom|left`,
+  `ash-tooltip__arrow--top|right|bottom|left`,
+  `ash-popover__surface--top|right|bottom|left`).
+- The open and closed state is no longer expressed with classes. A closed
+  Tooltip bubble or Popover surface carries the `hidden` attribute (it was the
+  `hidden` class), and `data-state` (`closed` or `open`) on the bubble or the
+  surface itself selects the visual state (the scripts used to toggle
+  `opacity-*` and `scale-*` classes). Code that read those classes to tell
+  whether a Tooltip or Popover is open should read `hidden`, `data-state`, or
+  the trigger's `aria-expanded` (Popover) and `aria-describedby` (Tooltip).
 
 ### Fixed
 
@@ -47,6 +69,12 @@
   can leave the page locked.
 - A Drawer opened from a Modal no longer paints underneath it when it comes
   earlier in the document.
+- A Tooltip whose pointer or keyboard focus comes back while it is still fading
+  out is shown again, at once, from wherever its fade had got to. It used to
+  stay hidden until the pointer left and came back.
+- A Popover reopened and closed again in quick succession is hidden only when
+  its second fade has finished. The first close's fallback timer used to hide
+  it part-way through that fade.
 
 ### Removed
 

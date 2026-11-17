@@ -1,10 +1,10 @@
 // A short delay before showing, so quickly moving the pointer across
 // several triggers in a row doesn't flash a tooltip open on each one.
-// Hiding has no delay - the bubble is `pointer-events-none` (see
+// Hiding has no delay - the bubble has pointer-events: none (see
 // tooltip.jte's own comment), so there's nothing to race against.
 const SHOW_DELAY_MS = 150;
 
-// Matches tooltip.jte's `duration-150` transition class on the bubble.
+// Matches the 150ms transition of the bubble in tooltip.css.
 const TRANSITION_DURATION_MS = 150;
 
 // How close the bubble may get to the viewport edge before it's nudged back.
@@ -31,30 +31,43 @@ function prefersReducedMotion() {
 // Runs `callback` once the bubble's CSS transition has visibly finished,
 // with a timer fallback so an interrupted or reduced-motion (genuinely
 // zero-length) transition can't leave it stuck mid-hide. Same technique as
-// select.js/modal.js/dropdown-menu.js's own copy of this helper.
-function afterTransition(element, callback) {
+// the copies of this helper in select.js and dropdown-menu.js.
+//
+// The wait belongs to one exit, and isCurrent() says whether that exit is
+// still the latest change: a tooltip shown again while it was still fading
+// out makes the exit stale, and a stale exit must not hide anything. The
+// exit can end two ways - its transitionend or its fallback timer - and each
+// checks that on its own. Whichever arrives first stops the other, so a
+// stale wait leaves nothing behind.
+function afterTransition(element, isCurrent, callback) {
     if (prefersReducedMotion()) {
         callback();
         return;
     }
 
-    let finished = false;
-    function finish() {
-        if (finished) {
-            return;
-        }
-        finished = true;
+    let timer = 0;
+    function stop() {
         element.removeEventListener("transitionend", onTransitionEnd);
-        callback();
+        window.clearTimeout(timer);
     }
     function onTransitionEnd(event) {
-        if (event.target === element) {
-            finish();
+        if (event.target !== element) {
+            return;
+        }
+        stop();
+        if (isCurrent()) {
+            callback();
+        }
+    }
+    function onTimeout() {
+        stop();
+        if (isCurrent()) {
+            callback();
         }
     }
 
     element.addEventListener("transitionend", onTransitionEnd);
-    window.setTimeout(finish, TRANSITION_DURATION_MS + 50);
+    timer = window.setTimeout(onTimeout, TRANSITION_DURATION_MS + 50);
 }
 
 function clamp(value, limit) {
@@ -90,9 +103,15 @@ function initTooltip(root) {
     let isFocused = false;
     let showTimer = null;
 
-    function isOpen() {
-        return !bubble.classList.contains("hidden");
-    }
+    // Whether the tooltip is meant to be shown, flipped synchronously with
+    // intent. It is NOT read back off the hidden attribute of the bubble, which
+    // lags: it is only set once the fade-out has finished. Reading it meant
+    // that a pointer or focus coming back during the fade-out found the
+    // tooltip still open, scheduled nothing, and the fade-out then hid it
+    // while the pointer or focus was on the trigger. The lifecycle counts every
+    // show and hide, so an exit can tell whether a later change overtook it.
+    let shown = false;
+    let lifecycle = 0;
 
     // Adds/removes only this tooltip's own id, rather than overwriting the
     // attribute wholesale: a trigger may already be described by something
@@ -131,7 +150,7 @@ function initTooltip(root) {
     // doc comment.
     //
     // Sizes come from offsetWidth/offsetHeight, not getBoundingClientRect:
-    // this runs while the bubble is still at `scale-95`, and a scaled rect
+    // this runs while the bubble is still at its 95% entry scale, and a scaled rect
     // would make every correction come out ~5% short. Layout size ignores
     // the scale entirely.
     function reposition() {
@@ -175,39 +194,47 @@ function initTooltip(root) {
 
     function show() {
         showTimer = null;
-        if (isOpen()) {
+        if (shown) {
             return;
         }
-        bubble.classList.remove("hidden");
+        shown = true;
+        lifecycle += 1;
 
-        // Place it with transitions switched off, then force the browser to
-        // register that whole "closed but already positioned" state, and
-        // only then flip to open. `translate` is one of the properties the
-        // bubble's `transition` class covers, so without this a clamped
-        // tooltip would visibly slide sideways into place while it faded
-        // in - only the fade and scale should ever be animated.
-        bubble.style.transition = "none";
-        reposition();
-        void bubble.offsetWidth;
-        bubble.style.removeProperty("transition");
+        if (bubble.hidden) {
+            bubble.hidden = false;
 
-        bubble.classList.remove("opacity-0", "scale-95");
-        bubble.classList.add("opacity-100", "scale-100");
+            // Place it with transitions switched off, then force the browser
+            // to register that whole closed-but-already-positioned state,
+            // and only then flip to open, so the fade and the scale run from
+            // the closed state and the bubble never slides into place.
+            bubble.style.transition = "none";
+            reposition();
+            void bubble.offsetWidth;
+            bubble.style.removeProperty("transition");
+        }
+        // Otherwise it is still on screen, fading out: it is already placed,
+        // so it only turns back to open, and the running fade reverses from
+        // wherever it got to. Switching transitions off here would snap it to
+        // transparent first.
+
+        bubble.dataset.state = "open";
         describeTrigger();
     }
 
     function hide() {
         window.clearTimeout(showTimer);
         showTimer = null;
-        if (!isOpen()) {
+        if (!shown) {
             return;
         }
-        bubble.classList.remove("opacity-100", "scale-100");
-        bubble.classList.add("opacity-0", "scale-95");
+        shown = false;
+        lifecycle += 1;
+        const exit = lifecycle;
+        bubble.dataset.state = "closed";
         undescribeTrigger();
 
-        afterTransition(bubble, () => {
-            bubble.classList.add("hidden");
+        afterTransition(bubble, () => exit === lifecycle, () => {
+            bubble.hidden = true;
             bubble.style.removeProperty("translate");
             arrow.style.removeProperty("translate");
         });
@@ -215,8 +242,15 @@ function initTooltip(root) {
 
     function sync() {
         if (isHovered || isFocused) {
-            if (!isOpen() && showTimer === null) {
-                showTimer = window.setTimeout(show, SHOW_DELAY_MS);
+            if (!shown && showTimer === null) {
+                if (bubble.hidden) {
+                    showTimer = window.setTimeout(show, SHOW_DELAY_MS);
+                } else {
+                    // Back while it is still fading out: it never left the
+                    // screen, so there is nothing to delay - the show delay
+                    // is for a tooltip that is not there yet.
+                    show();
+                }
             }
         } else {
             hide();
@@ -257,10 +291,10 @@ function initTooltip(root) {
     // Escape dismisses without moving focus or touching anything else on
     // the page. It's on the document, not the trigger, because a tooltip
     // shown by hover alone leaves focus wherever it already was - a
-    // trigger-scoped listener would never see the key. The isOpen() guard
+    // trigger-scoped listener would never see the key. The shown guard
     // keeps it a no-op for every other tooltip on the page.
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && isOpen()) {
+        if (event.key === "Escape" && shown) {
             hide();
         }
     });
