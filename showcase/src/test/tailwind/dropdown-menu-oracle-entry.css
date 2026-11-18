@@ -1,0 +1,9 @@
+/* TEST-ONLY (Dropdown Menu migration oracle). Cumulative: the Tooltip and Popover oracle, imported unchanged (which is the Modal and Drawer oracle, the Facets oracle, ...
+   down to the Tailwind-only stylesheet the showcase had before Ashlar's stylesheet was imported), PLUS the Tailwind classes Dropdown Menu used before it moved to the
+   ash-dropdown-menu classes, including the classes dropdown-menu.js toggled at run time.
+
+   Those classes are no longer emitted by the templates or the script, so Tailwind would purge any of them nothing else uses. Pointing it at the legacy class strings keeps
+   them compiled, which keeps the legacy rendering executable: the parity tests render the same trigger and menu with these classes and with the ash- classes, in the same
+   browser, and compare. */
+@import "./floating-oracle-entry.css";
+@source "../resources/parity/dropdown-menu/dropdown-menu-legacy.html";

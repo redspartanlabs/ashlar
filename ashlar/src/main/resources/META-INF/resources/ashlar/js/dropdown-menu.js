@@ -1,4 +1,4 @@
-// Matches dropdown-menu.jte's `duration-150` transition class on the menu.
+// Matches the 150ms transition of the menu in dropdown-menu.css.
 const TRANSITION_DURATION_MS = 150;
 
 function prefersReducedMotion() {
@@ -9,29 +9,43 @@ function prefersReducedMotion() {
 // a timer fallback so an interrupted or reduced-motion (genuinely
 // zero-length) transition can't leave the menu stuck mid-close. Same
 // technique as select.js/modal.js's own copy of this helper.
-function afterTransition(element, callback) {
+//
+// The wait belongs to one close, and isCurrent() says whether that close is
+// still the latest change. A later open, or a later open and close, makes it
+// stale, and a stale close must not hide anything: the menu reopened during
+// its fade-out would be hidden while it is open. The close can end two ways,
+// its transitionend and its fallback timer, and each checks that on its own.
+// Whichever arrives first stops the other, so a stale wait leaves nothing
+// behind.
+function afterTransition(element, isCurrent, callback) {
     if (prefersReducedMotion()) {
         callback();
         return;
     }
 
-    let finished = false;
-    function finish() {
-        if (finished) {
-            return;
-        }
-        finished = true;
+    let timer = 0;
+    function stop() {
         element.removeEventListener("transitionend", onTransitionEnd);
-        callback();
+        window.clearTimeout(timer);
     }
     function onTransitionEnd(event) {
-        if (event.target === element) {
-            finish();
+        if (event.target !== element) {
+            return;
+        }
+        stop();
+        if (isCurrent()) {
+            callback();
+        }
+    }
+    function onTimeout() {
+        stop();
+        if (isCurrent()) {
+            callback();
         }
     }
 
     element.addEventListener("transitionend", onTransitionEnd);
-    window.setTimeout(finish, TRANSITION_DURATION_MS + 50);
+    timer = window.setTimeout(onTimeout, TRANSITION_DURATION_MS + 50);
 }
 
 function initDropdownMenu(root) {
@@ -42,14 +56,25 @@ function initDropdownMenu(root) {
 
     // Private to this instance - nothing here is shared with any other
     // Dropdown Menu on the page.
-    let isClosing = false;
+    //
+    // Whether the menu is meant to be open, flipped synchronously with
+    // intent. It is NOT read back off the hidden attribute of the menu, which
+    // lags: it is only set once the fade-out has finished. Reading it meant
+    // that for 150ms after a close the menu still looked open to the code, so
+    // a click, Enter, Space or an arrow key on the trigger in that window was
+    // dropped (the menu neither reopened nor closed), and an Escape in that
+    // window was consumed here instead of reaching an enclosing Modal or
+    // Drawer. The lifecycle counts every open and close, so a close can tell
+    // whether a later change overtook it.
+    let opened = false;
+    let lifecycle = 0;
 
     function enabledItems() {
         return items.filter((item) => item.getAttribute("aria-disabled") !== "true");
     }
 
     function isOpen() {
-        return !menu.classList.contains("hidden");
+        return opened;
     }
 
     // `focusTarget` is "first", "last", or omitted. Omitted is the
@@ -60,17 +85,21 @@ function initDropdownMenu(root) {
         if (isOpen()) {
             return;
         }
-        isClosing = false;
-        menu.classList.remove("hidden");
-        // Force the browser to register the "closed" state above before the
-        // next style change flips it to "open" - without this, both
-        // changes would land in the same paint and no transition would be
-        // visible.
-        void menu.offsetWidth;
-        menu.classList.remove("opacity-0", "scale-95");
-        menu.classList.add("opacity-100", "scale-100");
+        opened = true;
+        lifecycle += 1;
+        if (menu.hidden) {
+            menu.hidden = false;
+            // Force the browser to register the closed state above before the
+            // next style change flips it to open - without this, both
+            // changes would land in the same paint and no transition would be
+            // visible.
+            void menu.offsetWidth;
+        }
+        // Otherwise it is still on screen, fading out: it only turns back to
+        // open, and the running fade reverses from wherever it got to.
+        menu.dataset.state = "open";
         trigger.setAttribute("aria-expanded", "true");
-        chevron.classList.add("rotate-180");
+        chevron.dataset.state = "open";
 
         // Accessibility state above is set synchronously, before any
         // transition runs - correctness never waits on the animation.
@@ -89,22 +118,24 @@ function initDropdownMenu(root) {
     }
 
     function closeMenu(returnFocusToTrigger) {
-        if (!isOpen() || isClosing) {
+        if (!isOpen()) {
             return;
         }
-        isClosing = true;
-        menu.classList.remove("opacity-100", "scale-100");
-        menu.classList.add("opacity-0", "scale-95");
+        opened = false;
+        lifecycle += 1;
+        const exit = lifecycle;
+        menu.dataset.state = "closed";
         trigger.setAttribute("aria-expanded", "false");
-        chevron.classList.remove("rotate-180");
+        chevron.dataset.state = "closed";
 
         if (returnFocusToTrigger) {
             trigger.focus();
         }
 
-        afterTransition(menu, () => {
-            menu.classList.add("hidden");
-            isClosing = false;
+        // Only while this close is still the latest change: the menu may have
+        // been reopened during its fade-out, or reopened and closed again.
+        afterTransition(menu, () => exit === lifecycle, () => {
+            menu.hidden = true;
         });
     }
 
@@ -166,6 +197,14 @@ function initDropdownMenu(root) {
                         event.stopPropagation();
                         closeMenu(false);
                     }
+                    return;
+                case "Tab":
+                    // Tab and Shift+Tab from the trigger both leave the
+                    // Dropdown Menu (no item is in the Tab order), so an
+                    // open menu closes, as it does on Tab from an item. No
+                    // preventDefault: the browser moves focus on its own,
+                    // and focus is not pulled back to the trigger.
+                    closeMenu(false);
                     return;
                 default:
                     return;

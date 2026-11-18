@@ -1,0 +1,61 @@
+/* ash-dropdown-menu-item: one entry of a Dropdown Menu (dropdown-menu-item.jte), a link or, without an href, disabled text.
+
+   Classes       ash-dropdown-menu-item            the entry (data-dropdown-menu-item, role="menuitem"): a block with its padding and text
+                 ash-dropdown-menu-item--disabled  the entry without an href (aria-disabled="true"): lighter text, and no hover or focus background
+   Properties    --ash-dropdown-menu-item-fg        the entry's text color
+                 --ash-dropdown-menu-item-bg-hover  the background of a link under a hovering pointer
+                 --ash-dropdown-menu-item-bg-focus  the background of the focused link (the menu's keyboard position)
+                 --ash-dropdown-menu-item-leading   the line height, calc(1.25 / 0.875) (Tailwind's text-sm), a property for the reason Badge's is
+                 Set on the entry. A customization surface: an inline style, an unlayered rule or a rule in a layer above ash.components.
+
+   State         A link has a hover background, under @media (hover: hover) as Tailwind's hover: variant had it, and a focus background, and the focus rule comes after
+                 the hover rule, as the compiled Tailwind order had it: a focused link under the pointer shows its focus background. The focus background uses :focus,
+                 not :focus-visible, as before (dropdown-menu.js moves real focus onto the items, and a click on one moves it there too). The disabled entry has neither
+                 and keeps the browser's focus outline, as before.
+
+   Hooks         data-dropdown-menu-item is what a skin targets (the showcase skins set an entry's weight, or mark one carrying aria-current).
+
+   Color         The palette variables with the exact Tailwind v4 value as the fallback: slate-700 text, a slate-50 hover and slate-100 focus background, and slate-300 for
+                 the disabled entry; in dark mode slate-200 text, slate-700 for both backgrounds and slate-600 for the disabled entry. Dark mode follows data-theme="dark"
+                 with the zero-specificity :where() form the Tailwind dark: variant used.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The entry states its text decoration (a link is underlined by the browser otherwise). The sizes are what
+   Tailwind's px-3 (0.75rem), py-2 (0.5rem) and text-sm (0.875rem, line-height 1.25 / 0.875) were. The component adds no global rule. */
+
+.ash-dropdown-menu-item {
+  --ash-dropdown-menu-item-fg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-dropdown-menu-item-bg-hover: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ash-dropdown-menu-item-bg-focus: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ash-dropdown-menu-item-leading: calc(1.25 / 0.875);
+  display: block;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: var(--ash-dropdown-menu-item-leading);
+  color: var(--ash-dropdown-menu-item-fg);
+  text-decoration: none;
+}
+
+.ash-dropdown-menu-item:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-dropdown-menu-item-fg: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-dropdown-menu-item-bg-hover: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-dropdown-menu-item-bg-focus: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-dropdown-menu-item--disabled {
+  --ash-dropdown-menu-item-fg: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+}
+
+.ash-dropdown-menu-item--disabled:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-dropdown-menu-item-fg: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+}
+
+@media (hover: hover) {
+  .ash-dropdown-menu-item:not(.ash-dropdown-menu-item--disabled):hover {
+    background-color: var(--ash-dropdown-menu-item-bg-hover);
+  }
+}
+
+.ash-dropdown-menu-item:not(.ash-dropdown-menu-item--disabled):focus {
+  background-color: var(--ash-dropdown-menu-item-bg-focus);
+  outline-style: none;
+}

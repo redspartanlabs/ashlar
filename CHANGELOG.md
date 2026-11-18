@@ -60,6 +60,27 @@
   `opacity-*` and `scale-*` classes). Code that read those classes to tell
   whether a Tooltip or Popover is open should read `hidden`, `data-state`, or
   the trigger's `aria-expanded` (Popover) and `aria-describedby` (Tooltip).
+- Dropdown Menu is styled by Ashlar's own CSS (`components/dropdown-menu.css`
+  and `components/dropdown-menu-item.css`) instead of Tailwind utility classes.
+  Its template parameters and defaults, markup structure, generated ids, ARIA,
+  `data-*` hooks, placement (no viewport correction, as before) and 150ms
+  transitions are unchanged; the trigger's label and decorative icon now sit in
+  `ash-*` wrapper classes. It was compared against its previous Tailwind
+  rendering in headless Chrome, in all 22 showcase configurations, with
+  Tailwind present and removed: computed styles, motion, skin hooks, and pixels
+  (exactly). It remains independent of Modal and Drawer's `overlay.js`; an open
+  Dropdown Menu inside a Modal, a Drawer or a Popover still owns the first
+  Escape. The trigger now owns its drop shadow in
+  `--ash-dropdown-menu-trigger-shadow`, so each showcase skin flattens it with
+  one rule on `.ash-dropdown-menu__trigger` (it used to reach Tailwind's
+  `shadow-sm` class), as for Button and Toggle.
+- The Dropdown Menu's open and closed state is no longer expressed with classes.
+  A closed menu carries the `hidden` attribute (it was the `hidden` class),
+  `data-state` (`closed` or `open`) on the menu selects its visual state, and
+  `data-state` on the chevron turns it (the script used to toggle `opacity-*`,
+  `scale-*` and `rotate-180` classes). Code that read those classes to tell
+  whether a menu is open should read `hidden`, `data-state`, or the trigger's
+  `aria-expanded`.
 
 ### Fixed
 
@@ -75,6 +96,17 @@
 - A Popover reopened and closed again in quick succession is hidden only when
   its second fade has finished. The first close's fallback timer used to hide
   it part-way through that fade.
+- A click, Enter, Space or an arrow key on a Dropdown Menu's trigger while the
+  menu is still fading out reopens it, from wherever its fade had got to. It
+  used to be dropped for 150ms after every close, and a stale close no longer
+  hides a menu that was reopened.
+- Tab or Shift+Tab from the trigger of an open Dropdown Menu closes the menu,
+  as Tab from one of its items already did. It used to stay open after focus
+  had left it, where Escape no longer reached it; inside a Modal or Drawer that
+  left Escape closing neither the menu nor the overlay.
+- A second Escape pressed while a Dropdown Menu inside a Modal or Drawer is
+  still fading out after the first one closes the overlay. It used to be
+  consumed by the closing menu.
 
 ### Removed
 

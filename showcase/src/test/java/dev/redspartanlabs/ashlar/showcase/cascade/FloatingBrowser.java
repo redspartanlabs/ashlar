@@ -342,7 +342,13 @@ final class FloatingBrowser {
      * <p>Whether the element is shown is read the way both renderings share, from its computed display (the legacy markup toggles a hidden class and has no data-state).
      */
     static void trace(DevToolsSession cdp, String id) throws Exception {
-        String r = cdp.evaluate("(function(){if(window.__ftrace)return 'already traced';var el=" + floatingOf(id) + ";"
+        traceElement(cdp, floatingOf(id), id);
+    }
+
+    /** {@link #trace} on the element a page expression gives (the Dropdown Menu suites trace a menu), named {@code what} in a failure. */
+    static void traceElement(DevToolsSession cdp, String elementExpression, String what) throws Exception {
+        String id = what;
+        String r = cdp.evaluate("(function(){if(window.__ftrace)return 'already traced';var el=" + elementExpression + ";"
                 + "var tr={el:el,timers:[],runs:0,cancels:0,ends:0,frame:0,quiet:0,late:'-'};function changed(){tr.quiet=tr.frame}"
                 + "var st=window.setTimeout,ct=window.clearTimeout;"
                 + "window.setTimeout=function(fn,ms){if(typeof fn!=='function'||(ms!==150&&ms!==200))return st.apply(window,arguments);"
@@ -391,7 +397,7 @@ final class FloatingBrowser {
     }
 
     /** The number of the traced element's transitions that have started so far. */
-    private static int runs(DevToolsSession cdp) throws Exception {
+    static int runs(DevToolsSession cdp) throws Exception {
         return Integer.parseInt(cdp.evaluate("String(window.__ftrace.runs)"));
     }
 
@@ -399,12 +405,12 @@ final class FloatingBrowser {
      * Waits, after a trusted leave, until the traced element's exit is really under way: a transition of it has started since {@code runsBefore} and its opacity has
      * visibly left 1 (so coming back now reverses a fade that has run, rather than one that never started); still on screen, or the step fails.
      */
-    private static void exiting(DevToolsSession cdp, int runsBefore) throws Exception {
+    static void exiting(DevToolsSession cdp, int runsBefore) throws Exception {
         until(cdp, "the exit did not get under way", "if(getComputedStyle(el).display==='none')return 'fail:the exit ended before the pointer or focus could come back';"
                 + "return tr.runs>" + runsBefore + "&&+getComputedStyle(el).opacity<0.95?'yes':'no';");
     }
 
-    private static final String SYNTHETIC_END = ".dispatchEvent(new TransitionEvent('transitionend',{propertyName:'opacity',bubbles:true}))";
+    static final String SYNTHETIC_END = ".dispatchEvent(new TransitionEvent('transitionend',{propertyName:'opacity',bubbles:true}))";
 
     /**
      * Loads a page and gives it focus the way a person's first interaction would: a trusted click on an empty corner (a headless page that has never been clicked does not

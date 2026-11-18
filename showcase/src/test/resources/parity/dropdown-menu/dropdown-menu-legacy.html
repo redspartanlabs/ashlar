@@ -1,0 +1,18 @@
+<!doctype html>
+<!-- TEST-ONLY. The PRE-MIGRATION Tailwind class strings of Dropdown Menu, read verbatim from the templates and the script at commit 8af8ae5 (the commit before the Dropdown
+     Menu migration): dropdown-menu.jte (blob 1266fad6c1536cbd572e8afee569778eafbd4a83) lines 48, 56, 64 and 74, dropdown-menu-item.jte (blob
+     28b1632ffedcc36b0115f00a0aa0fa91b6306523) lines 27 and 29, and the classes dropdown-menu.js (blob bfec09793cbf59d712ab3cb59c27cb2678abab92) toggled at run time. It is
+     never served. Tailwind compiles this file (see dropdown-menu-oracle-entry.css and dropdown-menu-legacy-scoped-entry.css) so the legacy rendering stays reproducible, and
+     the tests read the class strings back out of it: one source of truth for what "legacy" means.
+     Two parts had no class at all before the migration: the span around the trigger's label and the span around its optional icon. The icons themselves were the Icon
+     component with classes="h-4 w-4", which IconLegacyMarkup writes back exactly as it writes ash-icon ash-icon--sm.
+     The state roles are what the script did: it removed hidden to show the menu and swapped opacity-0 and scale-95 for opacity-100 and scale-100 to open it (the closed
+     classes are part of the template string above), and added rotate-180 to the chevron. -->
+<div data-legacy-role="root" class="relative inline-block"></div>
+<button data-legacy-role="trigger" class="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm hover:border-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500"></button>
+<span data-legacy-role="chevron" class="shrink-0 text-slate-400 transition-transform duration-150 ease-out motion-reduce:transition-none dark:text-slate-500"></span>
+<div data-legacy-role="list" class="absolute left-0 z-10 mt-1.5 hidden min-w-40 max-w-xs origin-top-left scale-95 rounded-md bg-white py-1 opacity-0 shadow-lg ring-1 ring-slate-200 transition duration-150 ease-out motion-reduce:transition-none dark:bg-slate-800 dark:ring-slate-700"></div>
+<a data-legacy-role="item-link" class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 focus:bg-slate-100 focus:outline-none dark:text-slate-200 dark:hover:bg-slate-700 dark:focus:bg-slate-700"></a>
+<span data-legacy-role="item-disabled" class="block px-3 py-2 text-sm text-slate-300 dark:text-slate-600"></span>
+<span data-legacy-role="state-open" class="opacity-100 scale-100"></span>
+<span data-legacy-role="chevron-open" class="rotate-180"></span>
