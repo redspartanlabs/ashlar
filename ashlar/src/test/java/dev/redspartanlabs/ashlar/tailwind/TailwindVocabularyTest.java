@@ -66,8 +66,8 @@ class TailwindVocabularyTest {
 
     @ParameterizedTest(name = "JavaScript-held class {0}")
     @ValueSource(strings = {
-            "opacity-100",   // select.js, dropdown-menu.js and combobox.js open state
-            "scale-100",     // select.js, dropdown-menu.js and combobox.js open state
+            "opacity-100",   // select.js and combobox.js open state
+            "scale-100",     // select.js and combobox.js open state
     })
     void capturesJavaScriptHeldClasses(String token) {
         assertTrue(lines.contains(token), token + " is missing from the vocabulary");

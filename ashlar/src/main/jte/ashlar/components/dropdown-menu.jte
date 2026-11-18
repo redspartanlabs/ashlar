@@ -28,16 +28,14 @@
      the menu/menuitem roles are what mark that widget's semantics for
      assistive tech.
 
-     Menu items start invisible-but-present (`hidden` on the menu itself)
-     rather than `display:none`-per-item, so the whole surface enters/exits
-     together as one animated unit - the same technique select.jte's own
-     listbox already uses for its trigger-triggered menu, whose transition
-     classes (duration-150, scale-95/opacity-0 to scale-100/opacity-100)
-     this reuses so both dropdown-shaped popups in the library share exactly
-     one animation feel. `motion-reduce:transition-none` on both the panel
-     and chevron disables it under reduced motion, without changing what the
-     JS does - the open/closed state itself is never gated on the
-     transition finishing (see dropdown-menu.js's own comment on this).
+     The menu starts `hidden` (not rendered) with data-state="closed" (its
+     closed visual state), rather than hiding each item, so the whole surface
+     enters and exits together as one animated unit; the chevron carries its
+     own data-state. dropdown-menu.js sets all three, and dropdown-menu.css
+     styles them: a 150ms fade and scale on the menu, a turn of the chevron,
+     and neither under reduced motion. The open/closed state itself is never
+     gated on the transition finishing (see dropdown-menu.js's own comment on
+     this).
 
      `icon` is optional and purely decorative (`aria-hidden`, same as
      button.jte's own leading icon) - the trigger's accessible name always
@@ -45,7 +43,7 @@
 !{String menuId = DropdownMenuIds.next();}
 !{String triggerId = menuId + "-trigger";}
 
-<div class="relative inline-block" data-dropdown-menu>
+<div class="ash-dropdown-menu" data-dropdown-menu>
     <button
             type="button"
             id="${triggerId}"
@@ -53,16 +51,16 @@
             aria-haspopup="menu"
             aria-expanded="false"
             aria-controls="${menuId}"
-            class="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm hover:border-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500"
+            class="ash-dropdown-menu__trigger"
     >
         @if (icon != null)
-            <span aria-hidden="true">
-                @template.ashlar.components.icon(icon = icon, classes = "h-4 w-4")
+            <span aria-hidden="true" class="ash-dropdown-menu__icon">
+                @template.ashlar.components.icon(icon = icon, classes = "ash-icon--sm")
             </span>
         @endif
-        <span>${label}</span>
-        <span data-dropdown-menu-chevron aria-hidden="true" class="shrink-0 text-slate-400 transition-transform duration-150 ease-out motion-reduce:transition-none dark:text-slate-500">
-            @template.ashlar.components.icon(icon = Icon.CHEVRON_DOWN, classes = "h-4 w-4")
+        <span class="ash-dropdown-menu__label">${label}</span>
+        <span data-dropdown-menu-chevron data-state="closed" aria-hidden="true" class="ash-dropdown-menu__chevron">
+            @template.ashlar.components.icon(icon = Icon.CHEVRON_DOWN, classes = "ash-icon--sm")
         </span>
     </button>
 
@@ -71,7 +69,9 @@
             role="menu"
             aria-labelledby="${triggerId}"
             data-dropdown-menu-list
-            class="absolute left-0 z-10 mt-1.5 hidden min-w-40 max-w-xs origin-top-left scale-95 rounded-md bg-white py-1 opacity-0 shadow-lg ring-1 ring-slate-200 transition duration-150 ease-out motion-reduce:transition-none dark:bg-slate-800 dark:ring-slate-700"
+            data-state="closed"
+            hidden
+            class="ash-dropdown-menu__list"
     >
         ${items}
     </div>

@@ -1,0 +1,169 @@
+/* ash-dropdown-menu: a trigger button and the menu of actions or destinations it opens (dropdown-menu.js). The items are dropdown-menu-item.css.
+
+   Classes       ash-dropdown-menu             the root (data-dropdown-menu): the positioning context the menu is placed in, inline-block around the trigger
+                 ash-dropdown-menu__trigger    the trigger button (data-dropdown-menu-trigger): 2.25rem high, its border, background, text, drop shadow and focus ring
+                 ash-dropdown-menu__icon       the wrapper of the optional, decorative leading icon
+                 ash-dropdown-menu__label      the wrapper of the trigger's visible text
+                 ash-dropdown-menu__chevron    the chevron after the label (data-dropdown-menu-chevron), which turns over while the menu is open
+                 ash-dropdown-menu__list       the menu itself (data-dropdown-menu-list, role="menu"): 10rem to 20rem wide, its background, ring and shadow
+                 The icon and the label wrappers declare nothing of their own: their class is what gives them the box-sizing the Ashlar base layer gives every ash-*
+                 element (Tailwind's preflight gave it to every element), so the trigger lays out the same with or without Tailwind.
+   Properties    --ash-dropdown-menu-trigger-bg            the trigger's background
+                 --ash-dropdown-menu-trigger-border        its border color, and --ash-dropdown-menu-trigger-border-hover the same under a hovering pointer
+                 --ash-dropdown-menu-trigger-fg            its text color
+                 --ash-dropdown-menu-trigger-ring          its keyboard focus ring
+                 --ash-dropdown-menu-trigger-shadow        its drop shadow, drawn under the focus ring (see Hooks)
+                 --ash-dropdown-menu-leading               the trigger's line height, calc(1.25 / 0.875) (Tailwind's text-sm). A property rather than a literal, as
+                                                           Badge's: a CSS minifier folds a literal quotient into a rounded number, and leaves a custom property as written.
+                 --ash-dropdown-menu-chevron-fg            the chevron's color
+                 --ash-dropdown-menu-list-bg               the menu's background
+                 --ash-dropdown-menu-list-ring             the menu's 1px ring
+                 --ash-dropdown-menu-list-shadow           the menu's drop shadow, drawn under the ring
+                 Set on the part they style. A customization surface: an inline style, an unlayered rule or a rule in a layer above ash.components.
+
+   State         hidden on the menu is the closed, not-rendered menu. data-state on the menu is the visual state it transitions between: "closed" (transparent, at 95%)
+                 and "open" (opaque, at full size). data-state on the chevron says whether it is turned over ("open"). dropdown-menu.js sets all three; the CSS never
+                 infers one from another, and never styles a part from the root's state with a descendant selector. The values are what Tailwind's opacity-0, scale-95
+                 and rotate-180 (and opacity-100 and scale-100) computed to.
+
+   Position      Plain CSS, as before: the menu is absolutely positioned at the root's left edge, at its static position (top stays auto) and 0.375rem below the
+                 trigger, its scale anchored at its top-left corner. There is no viewport correction, no flipping and no portal: an overflow: hidden or scrolling
+                 ancestor (a Table's scroller, a Modal's body) clips the menu, as before.
+
+   Stacking      z-index 10, below Tooltip (20), Popover (30) and the overlay band (40), as before. The root is position: relative with no z-index and makes no stacking
+                 context of its own.
+
+   Motion        The menu's opacity and scale, and the chevron's rotate, animate for 150ms, ease-out: dropdown-menu.js waits 150ms (plus a 50ms margin) for the menu's
+                 exit, so the duration here and there must stay the same. Those are the properties that change between the states (Tailwind's transition utility listed
+                 twenty-three, transition-transform four, and no others ever changed). Under prefers-reduced-motion: reduce both become none
+                 (motion-reduce:transition-none).
+
+   Hooks         data-dropdown-menu-list is what a skin targets for the menu: the showcase skins set its box-shadow there, unlayered, which replaces the ring and the shadow
+                 together, exactly as it replaced Tailwind's ring-1 and shadow-lg (both were layers of the one box-shadow). The ring is therefore a box-shadow layer, never a
+                 border or an outline. The trigger's drop shadow was Tailwind's shadow-sm, which every showcase skin neutralized through that class; the trigger now owns it
+                 in --ash-dropdown-menu-trigger-shadow, so a skin neutralizes it with [data-skin="x"] .ash-dropdown-menu__trigger { --ash-dropdown-menu-trigger-shadow:
+                 0 0 #0000 }, as each showcase skin does (the same pattern as Button's and Toggle's). data-dropdown-menu-trigger stays the hook for a skin's other rules.
+
+   Color         The palette variables with the exact Tailwind v4 value as the fallback. The trigger: white, a slate-300 border (slate-400 under a hovering pointer),
+                 slate-700 text, a blue-500 focus ring; in dark mode slate-800, slate-600 (slate-500), slate-100. The chevron slate-400, slate-500 in dark mode. The menu:
+                 white with a slate-200 ring; slate-800 with a slate-700 ring in dark mode. Dark mode follows data-theme="dark" with the zero-specificity :where() form the
+                 Tailwind dark: variant used. The hover rule sits inside @media (hover: hover), as Tailwind's hover: variant did, so a touch screen has no stuck hover.
+
+   Self-contained: nothing here relies on Tailwind's preflight. The trigger states its margin, border, padding, font, letter spacing, text transform and appearance (a
+   <button> has the browser's own otherwise). The sizes are what Tailwind's h-9 (2.25rem), px-3 (0.75rem), gap-1.5 and mt-1.5 (0.375rem), min-w-40 (10rem), max-w-xs
+   (--container-xs, 20rem), py-1 (0.25rem), rounded-md (--radius-md, 0.375rem) and text-sm (0.875rem, line-height 1.25 / 0.875) were; a skin that sets --radius-md
+   reshapes the trigger and the menu as it always did. The component adds no global rule. */
+
+.ash-dropdown-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.ash-dropdown-menu__trigger {
+  --ash-dropdown-menu-trigger-bg: var(--color-white, #fff);
+  --ash-dropdown-menu-trigger-border: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ash-dropdown-menu-trigger-border-hover: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ash-dropdown-menu-trigger-fg: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ash-dropdown-menu-trigger-ring: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ash-dropdown-menu-trigger-shadow: 0 1px 3px 0 #0000001a, 0 1px 2px -1px #0000001a;
+  --ash-dropdown-menu-leading: calc(1.25 / 0.875);
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  border: 1px solid var(--ash-dropdown-menu-trigger-border);
+  border-radius: var(--ash-radius-md);
+  background-color: var(--ash-dropdown-menu-trigger-bg);
+  padding: 0 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: var(--ash-dropdown-menu-leading);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: inherit;
+  color: var(--ash-dropdown-menu-trigger-fg);
+  text-transform: none;
+  box-shadow: var(--ash-dropdown-menu-trigger-shadow);
+  appearance: button;
+}
+
+.ash-dropdown-menu__trigger:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-dropdown-menu-trigger-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-dropdown-menu-trigger-border: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ash-dropdown-menu-trigger-border-hover: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ash-dropdown-menu-trigger-fg: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+}
+
+@media (hover: hover) {
+  .ash-dropdown-menu__trigger:hover {
+    border-color: var(--ash-dropdown-menu-trigger-border-hover);
+  }
+}
+
+.ash-dropdown-menu__trigger:focus {
+  outline-style: none;
+}
+
+.ash-dropdown-menu__trigger:focus-visible {
+  box-shadow: 0 0 0 2px var(--ash-dropdown-menu-trigger-ring), var(--ash-dropdown-menu-trigger-shadow);
+}
+
+.ash-dropdown-menu__chevron {
+  --ash-dropdown-menu-chevron-fg: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  flex-shrink: 0;
+  color: var(--ash-dropdown-menu-chevron-fg);
+  transition-property: rotate;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-dropdown-menu__chevron:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-dropdown-menu-chevron-fg: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+}
+
+.ash-dropdown-menu__chevron[data-state="open"] {
+  rotate: 180deg;
+}
+
+.ash-dropdown-menu__list {
+  --ash-dropdown-menu-list-bg: var(--color-white, #fff);
+  --ash-dropdown-menu-list-ring: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ash-dropdown-menu-list-shadow: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;
+  position: absolute;
+  left: 0;
+  z-index: 10;
+  margin-top: 0.375rem;
+  min-width: 10rem;
+  max-width: var(--container-xs, 20rem);
+  transform-origin: 0 0;
+  border-radius: var(--ash-radius-md);
+  background-color: var(--ash-dropdown-menu-list-bg);
+  padding-block: 0.25rem;
+  box-shadow: 0 0 0 1px var(--ash-dropdown-menu-list-ring), var(--ash-dropdown-menu-list-shadow);
+  opacity: 0;
+  scale: 95% 95%;
+  transition-property: opacity, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+.ash-dropdown-menu__list:where([data-theme="dark"], [data-theme="dark"] *) {
+  --ash-dropdown-menu-list-bg: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ash-dropdown-menu-list-ring: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+}
+
+.ash-dropdown-menu__list[hidden] {
+  display: none;
+}
+
+.ash-dropdown-menu__list[data-state="open"] {
+  opacity: 1;
+  scale: 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-dropdown-menu__chevron,
+  .ash-dropdown-menu__list {
+    transition-property: none;
+  }
+}
